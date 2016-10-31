@@ -1,0 +1,30 @@
+{
+  "hed": "Tk",
+  "dek": "Tk",
+  "byline": "Tk",
+  "test": "{{> story/test }}",
+  "intro": [
+    {
+      "type": "text",
+      "value": "Intro text here."
+    },
+    {
+      "type": "text",
+      "value": "Use normal paragraph breaks."
+    }
+  ],
+  "story": [
+    {
+      "type": "text",
+      "value": "Story text here."
+    },
+    {
+      "type": "graphic",
+      "value": "rise"
+    },
+    {
+      "type": "text",
+      "value": "Intersperse reference to graphic like above."
+    }
+  ]
+}

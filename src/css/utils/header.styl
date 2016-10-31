@@ -1,0 +1,26 @@
+$logo-height = 36px
+$logo-width = 126px
+
+header 
+	position absolute
+	top 1.5em
+	left 0
+	width 100%
+	padding 0 0.5em
+	text-align center
+	clearfix()
+	.logo
+		display inline-block
+		height $logo-height
+		.logo__part
+			display inline-block
+			float left
+			line-height $logo-height
+			padding 0 2px
+			font-size 10px
+			font-weight 500
+			color darken($gray, 10)
+		.logo__polygraph 
+			width $logo-width
+			height $logo-height
+			fill $off-black
