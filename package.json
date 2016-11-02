@@ -40,7 +40,9 @@
   "dependencies": {
     "d3": "^4.3.0",
     "fontfaceobserver": "^2.0.5",
+    "gl-matrix-vec2": "^2.2.1-npm",
     "lodash.debounce": "^4.0.8",
-    "promis": "^1.1.4"
+    "promis": "^1.1.4",
+    "victor": "^1.1.0"
   }
 }
