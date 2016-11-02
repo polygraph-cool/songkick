@@ -11,11 +11,16 @@ const fps = d3.select('.fps')
 const canvas = document.querySelector('.flock2')
 const ctx = canvas.getContext('2d')
 
-let WIDTH = 500
-let HEIGHT = 500
+let WIDTH = window.innerHeight * 0.8
+let HEIGHT = window.innerHeight * 0.8
 
-canvas.width = WIDTH
-canvas.height = HEIGHT
+canvas.style.width = `${WIDTH}px`
+canvas.style.height = `${HEIGHT}px`
+
+canvas.width = WIDTH * 2
+canvas.height = HEIGHT * 2
+
+ctx.scale(2, 2)
 
 const setupPath = (path, factor) => {
 	/** Set path radius */
@@ -26,8 +31,8 @@ const setupPath = (path, factor) => {
 	  const num = 10
 	  d3.range(num).forEach(d => {
 	  	const angle = d / num * Math.PI * 2
-	  	const x = Math.cos(angle) * WIDTH * factor / 2
-	  	const y = Math.sin(angle) * HEIGHT * factor / 2
+	  	const x = Math.cos(angle) * WIDTH / 2 * factor
+	  	const y = Math.sin(angle) * HEIGHT / 2 * factor
 	  	// console.log(x, y)
 	  	path.addPoint(WIDTH / 2 + x, HEIGHT / 2 + y)
 	  })
@@ -53,22 +58,24 @@ const init = () => {
 	var vehicles = [];
 
 	for (var i = 0; i < 500; i++) {
-	  var mass = 2
-
-		var vehicle = new Vehicle(
-			vec2.fromValues(WIDTH / 2, HEIGHT / 2),
+		var mass = 2
+		const angle = Math.random() * Math.PI * 2
+		const x = Math.cos(angle) * WIDTH * 0.9 / 2 + WIDTH / 2
+	  	const y = Math.sin(angle) * HEIGHT * 0.9 / 2 + HEIGHT / 2
+	  	const location = vec2.fromValues(x, y)
+		var vehicle = new Vehicle({
+			location,
 			mass,
-			WIDTH,
-			HEIGHT,
 			ctx,
-		)
+			width: WIDTH,
+			height: HEIGHT,
+		})
 
 	  vehicles.push(vehicle);
 	}
 
 	/** Specify what to draw */
 	function draw() {
-	  'use strict';
 
 	  /** Clear canvas */
 	  ctx.fillStyle = '#fff'
@@ -85,13 +92,19 @@ const init = () => {
 	   */
 	  for (var i = 0; i < vehicles.length; i++) {
 	  	var p = path
+	  	var col = '#999'
+	  	var mass = 2
 	  	if (i < clickCount) {
 	  		p = path2
+	  		col = '#333'
+	  		mass = 3
 	  	} 
-	  	if (clickCount > 20 && i === 0) {
+	  	if (clickCount === 20 && i === 0) {
 	  		p = path3
+	  		col = '#a00'
+	  		mass = 5
 	  	}
-	    vehicles[i].applyBehaviors(vehicles, p);
+	    vehicles[i].applyBehaviors(vehicles, p, col, mass);
 	    vehicles[i].run();
 	  }
 	  	
@@ -99,8 +112,8 @@ const init = () => {
 		const fpsVal = Math.round(1000 / (time1 - time0))
 		time0 = time1
 		fps.text(fpsVal)
-		
-	  requestAnimationFrame(draw);
+
+		requestAnimationFrame(draw);
 	}
 
 	/** Start simulation */
@@ -121,10 +134,15 @@ const init = () => {
 	// }
 
 	// window.addEventListener('resize', onResize, false);
-
-	window.addEventListener('click', () => {
+	const tick = () => {
 		clickCount++
-	})
+		if (clickCount < 20) setTimeout(tick, 1000)
+	}
+
+	setTimeout(tick, 4000)
+	// window.addEventListener('click', () => {
+	// 	clickCount++
+	// })
 }
 
 
