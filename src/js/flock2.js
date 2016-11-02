@@ -28,62 +28,59 @@ const setupText = () => {
 	svg
 		.attr("width", WIDTH)
 		.attr("height", HEIGHT)
+	
+	const TEXT_SIZE = 12
 
-	const f = 0.9				
+	const data = [{
+		capacity: '500 person capacity',
+		factor: 0.9,
+	},{
+		capacity: '1,000',
+		factor: 0.5,
+	},{
+		capacity: '10,000',
+		factor: 0.1,
+	}]
+	
+	const outerRadius = WIDTH / 2
+	// const tier = data.map(d => ({
+	// 	rad: mid * d.factor,
+	// 	startX: (1 - d.factor) * mid - TEXT_SIZE,
+	// 	// endX: mid + d.factor * mid + TEXT_SIZE,
+	// 	endX: (1 - d.factor),
+	// 	capacity: d.capacity,
+	// }))
+
 	const startY = HEIGHT / 2
-	const rad = HEIGHT / 2 * f
-	const endY = HEIGHT / 2
+	const endY = startY
 
-	const startX = WIDTH * (1 - f) + 13
-	const endX = WIDTH * f - 13
+	const arc = d3.arc()
+		.startAngle(Math.PI)
+		.endAngle(Math.PI * 3)
 
-	const startX2 = WIDTH * (1 - 0.5) + 13
-	const endX2 = WIDTH * 0.5 - 13
+	const ring = svg.selectAll('.ring').data(data)
 
-	const startX3 = WIDTH * (1 - 0.1) + 13
-	const endX3 = WIDTH * 0.1 - 13
+	const ringEnter = ring.enter()
+		.append('g')
+			.attr('class', 'ring')
 
-	// svg.append('path')
-	// 	.attr('id', 'text-1')
-	// 	.attr('d', `M${startX},${startY} A${1},${1} 0 0,1 ${endX},${endY}`)
-	// 	.style('fill', 'none')
-	// 	.style('stroke', '#AAAAAA')
-	// 	.style('stroke-dasharray', '5,5')
+	ringEnter.append('path')
+		.attr('id', (d, i) => `text-${i}`)
+		.attr('transform', `translate(${outerRadius}, ${outerRadius})`)
+		// .attr('d', `M${d.startX},${startY} A${1},${1} 0 0,1 ${d.endX},${endY}`)
+		.attr('d', d => arc({ innerRadius: 0, outerRadius: outerRadius * d.factor + TEXT_SIZE }))
+		// .style('fill', 'none')
+		// .style('stroke', '#ccc')
+		// .style('stroke-dasharray', '5,5')
 
-	// svg.append('text')
-	// 	.style('text-anchor','middle')
-	//   .append('textPath')
-	// 	.attr('xlink:href', '#text-1')
-	// 	.attr('startOffset', '50%')
-	// 	.text('Openers')
-
-	// svg.append('path')
-	// 	.attr('id', 'text-2')
-	// 	.attr('d', `M${startX2},${startY} A${1},${1} 0 0,1 ${endX2},${endY}`)
-	// 	.style('fill', 'none')
-	// 	.style('stroke', '#AAAAAA')
-	// 	.style('stroke-dasharray', '5,5')
-
-	// svg.append('text')
-	// 	.style('text-anchor','middle')
-	//   .append('textPath')
-	// 	.attr('xlink:href', '#text-2')
-	// 	.attr('startOffset', '50%')
-	// 	.text('Mid')
-
-	// svg.append('path')
-	// 	.attr('id', 'text-3')
-	// 	.attr('d', `M${startX3},${startY} A${1},${1} 0 0,1 ${endX3},${endY}`)
-	// 	.style('fill', 'none')
-	// 	.style('stroke', '#AAAAAA')
-	// 	.style('stroke-dasharray', '5,5')
-
-	// svg.append('text')
-	// 	.style('text-anchor','middle')
-	//   .append('textPath')
-	// 	.attr('xlink:href', '#text-3')
-	// 	.attr('startOffset', '50%')
-	// 	.text('Make it')
+	ringEnter.append('text')
+		.style('text-anchor','middle')
+		// .attr('y', TEXT_SIZE)
+		.attr('transform', `translate(0,-${TEXT_SIZE * 0.25})`)
+	  .append('textPath')
+		.attr('xlink:href', (d, i) => `#text-${i}`)
+		.attr('startOffset', '50%')
+		.text(d => `${d.capacity}`)
 
 }
 
