@@ -1,4 +1,6 @@
 import vec2 from 'gl-matrix-vec2'
+const PI = Math.PI
+const TWO_PI = Math.PI * 2
 
 // add limit function to vec library
 vec2.limit = function(out, v, high) {
@@ -42,6 +44,8 @@ const Boid = (opts) => {
 	let radius
 	let velocity
 	let path
+	let pathPoints
+	let pathScale
 
 	const setMass = (m) => {
 		mass = m
@@ -52,6 +56,8 @@ const Boid = (opts) => {
 
 	const setPath = (p) => {
 		path = p
+		pathPoints = path.points.length
+		pathScale = d3.scaleQuantile().domain([-PI, PI]).range(d3.range(-pathPoints / 2, pathPoints / 2, 1))
 	}
 
 	const getLocation = () => {
@@ -64,7 +70,10 @@ const Boid = (opts) => {
 
   	const applyBehaviors = (boids) => {
 		// follow force
-		const f = follow(path)
+		const f = follow2()
+		// const f = follow()
+		// console.log(f)
+		// console.log(f)
 		// const separate force
 		const s = separate(boids)
 
@@ -105,23 +114,30 @@ const Boid = (opts) => {
 		acceleration = accelerationVec;
 	}
 
-   // TODO necessary?
-	// const borders = () => {
-	// 	if (location[0] < -radius) {
-	// 	location[0] = opts.width + radius;
-	// 	}
-	// 	if (location[0] > opts.width + radius) {
-	// 	location[0] = -radius;
-	// 	}
-	// }
+	const follow2 = () => {
+		// TODO tons of stuff...
+		const rad = Math.atan2(location[0] - 300, location[1] - 300)
 
+		const scaled = pathScale(rad)
+		const quarter = pathPoints / 4
+		const half = pathPoints / 2
+		let final = null
+		if (scaled < 0) {
+			final = quarter - scaled
+		} else {
+			if (scaled > quarter) final = (pathPoints - quarter) + (half - scaled)
+			else final = quarter - scaled
+		}
+		const target = vec2.fromValues(path.points[final][0], path.points[final][1])
+		return seek(target)
+	}
 	/*
 	* @param {Object} path Instance of Path object including path points
 	*
 	* @returns {Array} Path following behavior
 	*/
 	const follow = () => {
-
+		// console.log(velocity)
 		/** Predict future location */
 		predict.set(velocity);
 
@@ -146,7 +162,6 @@ const Boid = (opts) => {
 
 		  /** Calculate a normal point */
 		  var normalPoint = getNormalPoint(predictLoc, a, b);
-
 		  /** Calculate direction towards the next point */
 		  dir.set(b);
 
