@@ -331,6 +331,7 @@ const Boid = (opts) => {
 			getRadius,
 			applyBehaviors,
 			run,
+			index: opts.index,
 		}
 	}
 

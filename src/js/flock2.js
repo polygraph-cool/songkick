@@ -2,17 +2,20 @@ import vec2 from 'gl-matrix-vec2'
 import Path from './path'
 import Boid from './boid'
 
+const NUM_BOIDS = 500
+
 let clickCount = 0
 let time0 = Date.now()
 let time1 = null
 const fps = d3.select('.fps')
 
-/** Init scene */
 const canvas = document.querySelector('.flock2 canvas')
 const ctx = canvas.getContext('2d')
 
-let WIDTH = window.innerHeight * 0.8
-let HEIGHT = window.innerHeight * 0.8
+// let WIDTH = window.innerHeight * 0.5
+// let HEIGHT = window.innerHeight * 0.5
+let WIDTH = 600
+let HEIGHT = 600
 
 canvas.style.width = `${WIDTH}px`
 canvas.style.height = `${HEIGHT}px`
@@ -22,7 +25,22 @@ canvas.height = HEIGHT * 2
 
 ctx.scale(2, 2)
 
-const setupText = () => {
+const ringData = [{
+	capacity: '500 person capacity',
+	factor: 0.9,
+},{
+	capacity: '1,000',
+	factor: 0.5,
+},{
+	capacity: '10,000',
+	factor: 0.1,
+}]
+
+let paths = []
+let boids = []
+let quadtree = null
+
+function setupText() {
 	const svg = d3.select('.flock2 svg')
 	//Create the SVG
 	svg
@@ -30,27 +48,8 @@ const setupText = () => {
 		.attr("height", HEIGHT)
 	
 	const TEXT_SIZE = 12
-
-	const data = [{
-		capacity: '500 person capacity',
-		factor: 0.9,
-	},{
-		capacity: '1,000',
-		factor: 0.5,
-	},{
-		capacity: '10,000',
-		factor: 0.1,
-	}]
 	
 	const outerRadius = WIDTH / 2
-	// const tier = data.map(d => ({
-	// 	rad: mid * d.factor,
-	// 	startX: (1 - d.factor) * mid - TEXT_SIZE,
-	// 	// endX: mid + d.factor * mid + TEXT_SIZE,
-	// 	endX: (1 - d.factor),
-	// 	capacity: d.capacity,
-	// }))
-
 	const startY = HEIGHT / 2
 	const endY = startY
 
@@ -58,7 +57,7 @@ const setupText = () => {
 		.startAngle(Math.PI)
 		.endAngle(Math.PI * 3)
 
-	const ring = svg.selectAll('.ring').data(data)
+	const ring = svg.selectAll('.ring').data(ringData)
 
 	const ringEnter = ring.enter()
 		.append('g')
@@ -81,117 +80,156 @@ const setupText = () => {
 		.attr('xlink:href', (d, i) => `#text-${i}`)
 		.attr('startOffset', '50%')
 		.text(d => `${d.capacity}`)
-
 }
 
-const setupPath = (path, factor) => {
-	/** Set path radius */
+function setupPath(path, factor) {
 	path.radius = 20
+	const num = 10
+	d3.range(num).forEach(d => {
+		const angle = d / num * Math.PI * 2
+		const x = Math.cos(angle) * WIDTH / 2 * factor
+		const y = Math.sin(angle) * HEIGHT / 2 * factor
+		// console.log(x, y)
+		path.addPoint(WIDTH / 2 + x, HEIGHT / 2 + y)
+	})
+}
 
-	/** Define path points */
-	const setPoints = () => {
-	  const num = 10
-	  d3.range(num).forEach(d => {
-	  	const angle = d / num * Math.PI * 2
-	  	const x = Math.cos(angle) * WIDTH / 2 * factor
-	  	const y = Math.sin(angle) * HEIGHT / 2 * factor
-	  	// console.log(x, y)
-	  	path.addPoint(WIDTH / 2 + x, HEIGHT / 2 + y)
-	  })
+function setupPaths() {
+	paths = ringData.map(d => {
+		const p = new Path(ctx)
+		setupPath(p, d.factor)
+		return p
+	})
+}
+
+function renderGrid(grid) {
+	let len = grid.length
+
+	for(let i = 0; i < len; i++) {
+		const b = grid[i]
+		const loc = b.getLocation()
+	    b.applyBehaviors(grid)
+	    b.run()
+	    
+	    // render boid
+	    const r = b.getRadius()
+		ctx.fillStyle = '#ccc'
+		ctx.beginPath()
+		ctx.arc(loc[0], loc[1], r, 0, Math.PI * 2, false)
+		ctx.closePath()
+		ctx.fill()
+	}
+}
+
+function render() {
+	ctx.clearRect(0, 0, WIDTH, HEIGHT)
+	
+	// quadtree = d3.quadtree(boids, getBoidX, getBoidY)
+	// quadtree.extent([[0, 0], [WIDTH, HEIGHT]])
+	// quadtree.visit((node, x0, y0, x1, y1) => {
+	// 	ctx.strokeStyle = '#000'
+	// 	ctx.strokeRect(x0, y0, x1 - x0, y1 - y0)
+	// })
+
+	let i = NUM_BOIDS
+	
+
+	// quadtree.visit((node, x0, y0, x1, y1) => {
+	// 	if (node.length) console.log(node, x1-x0, y1-y0)
+	// })
+	const res = 10
+	const grid = d3.range(res).map(d => d3.range(res).map(d => []))
+	while (i--) {
+		const b = boids[i]
+		const loc = b.getLocation()
+		const x = Math.floor(loc[0] / WIDTH * res)
+		const y = Math.floor(loc[1] / WIDTH * res)
+		// console.log(x, y)
+		grid[x][y].push(b)
 	}
 
-	/** Add points to the path */
-	setPoints()
+	let x = res
+	while(x--) {
+		let y = res
+		while(y--) {
+			// ctx.strokeStyle = '#ccc'
+			// ctx.strokeRect(x / res * WIDTH, y / res * HEIGHT, WIDTH / res, HEIGHT / res)
+			renderGrid(grid[x][y])
+		}
+	}
+	// while (i--) {
+	// 	const b = boids[i]
+	// 	const loc = b.getLocation()
+	    
+	//     b.applyBehaviors(boids)
+	//     b.run()
+	    
+	//     // render boid
+	    
+	//     const r = b.getRadius()
+	// 	ctx.fillStyle = 'rgba(0,0,0,0.3)'
+	// 	ctx.beginPath()
+	// 	ctx.arc(loc[0], loc[1], r, 0, Math.PI * 2, false)
+	// 	ctx.closePath()
+	// 	ctx.fill()
+	// }
+	  	
+	time1 = Date.now()
+	const fpsVal = Math.round(1000 / (time1 - time0))
+	time0 = time1
+	fps.text(fpsVal)
+
+	requestAnimationFrame(render)
 }
 
-const init = () => {
-
-	/** Create an instance of Path object */
-	const path = new Path(ctx)
-	setupPath(path, 0.9)
-
-	const path2 = new Path(ctx)
-	setupPath(path2, 0.5)
-
-	const path3 = new Path(ctx)
-	setupPath(path3, 0.1)
-
-
-	const NUM_BOIDS = 400
-
-	const boids = d3.range(NUM_BOIDS).map(i => {
+function setupBoids() {
+	boids = d3.range(NUM_BOIDS).map(i => {
 		const mass = 2
 		const angle = Math.random() * Math.PI * 2
-		const x = Math.cos(angle) * WIDTH * 0.9 / 2 + WIDTH / 2
-	  	const y = Math.sin(angle) * HEIGHT * 0.9 / 2 + HEIGHT / 2
+		const x = Math.cos(angle) * WIDTH * ringData[0].factor / 2 + WIDTH / 2
+	  	const y = Math.sin(angle) * HEIGHT * ringData[0].factor / 2 + HEIGHT / 2
 	  	const location = vec2.fromValues(x, y)
 		return Boid({
+			index: i,
 			location,
 			mass,
-			path,
+			path: paths[0],
 		})
 	})
+}
 
-	/** Specify what to draw */
-	function draw() {
+function getBoidX(d) {
+	return d.getLocation()[0]
+}
 
-	  /** Clear canvas */
-		// ctx.fillStyle = 'rgba(255,255,255,0.3)'
-		// ctx.fillRect(0, 0, WIDTH, HEIGHT)
-		ctx.clearRect(0, 0, WIDTH, HEIGHT)
+function getBoidY(d) {
+	return d.getLocation()[1]
+}
 
-		/** Render the path */
-		// path.display()
-		// path2.display()
-		// path3.display()
-
-		let i = NUM_BOIDS
-		while (i--) {
-		    boids[i].applyBehaviors(boids)
-		    boids[i].run()
-		    
-		    // draw boid
-		    const loc = boids[i].getLocation()
-		    const r = boids[i].getRadius()
-			ctx.fillStyle = 'rgba(0,0,0,0.2)'
-			// ctx.strokeStyle = 'rgba(0,0,0,0.2)'
-			ctx.beginPath()
-			ctx.arc(loc[0], loc[1], r, 0, Math.PI * 2, false)
-			ctx.closePath()
-			ctx.fill()
-			// ctx.stroke()
-		}
-		  	
-		time1 = Date.now()
-		const fpsVal = Math.round(1000 / (time1 - time0))
-		time0 = time1
-		fps.text(fpsVal)
-
-		requestAnimationFrame(draw)
-	}
-
-	/** Start simulation */
-	draw();
-
+function init() {
+	setupPaths()
+	setupText()
+	setupBoids()
 
 	const tick = () => {
 		clickCount++
 		if (clickCount < 10) {
-			boids[clickCount].setPath(path2)
-			boids[clickCount].setMass(4)
+			boids[clickCount].setPath(paths[1])
+			boids[clickCount].setMass(7)
 			setTimeout(tick, 1000)
 		} else {
-			boids[1].setPath(path3)
-			boids[1].setMass(7)
+			boids[1].setPath(paths[2])
+			boids[1].setMass(18)
 		}
 	}
 
-	setTimeout(tick, 4000)
-	// window.addEventListener('click', () => {
-	// 	clickCount++
-	// })
 
-	setupText()
+	render()
+	setTimeout(tick, 4000)
+	
+	window.addEventListener('click', () => {
+		clickCount++
+	})
 }
 
 
