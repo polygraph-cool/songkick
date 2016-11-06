@@ -264,7 +264,7 @@ const Boid = (opts) => {
    * @returns {Array} Steering away/bouncing off behavior
    */
 	const separate = (boids) => {
-		let desiredSeparation = radius * 3
+		let desiredSeparation = radius * 2.25
 		let count = 0
 
 		steerVec.set([0, 0])

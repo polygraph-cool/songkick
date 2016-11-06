@@ -4,9 +4,9 @@ import Boid from './boid'
 import loadImage from './utils/load-image'
 
 const debug = false
-const NUM_BOIDS = 1000
+const NUM_BOIDS = 2600
 const PATH_POINTS = 16
-const GRID_RES = 20
+const GRID_RES = 30
 
 let chartSize = 0
 
@@ -68,6 +68,7 @@ function setupText() {
 	const ringEnter = ring.enter()
 		.append('g')
 			.attr('class', (d, i) => `ring ring-${i}`)
+			.classed('is-hidden', (d, i) => i)
 
 	ringEnter.append('path')
 		.attr('id', (d, i) => `text-${i}`)
@@ -107,6 +108,83 @@ function setupPaths() {
 	})
 }
 
+function setupBoids() {
+	boids = d3.range(NUM_BOIDS).map(i => {
+		const mass = 2
+		const angle = Math.random() * Math.PI * 2
+
+		const x = Math.cos(angle) * chartSize * ringData[0].factor / 2 + chartSize / 2
+	  	const y = Math.sin(angle) * chartSize * ringData[0].factor / 2 + chartSize / 2
+	  	const location = vec2.fromValues(x, y)
+		return Boid({
+			index: i,
+			location,
+			mass,
+			path: paths[0],
+			center: [chartSize / 2, chartSize / 2],
+		})
+	})
+}
+
+function setupAudio() {
+	const el = d3.select('.audio') 
+	const ca = el.select('canvas')
+	const ct = ca.node().getContext('2d')
+	
+	ca
+		.attr('width', 200)
+		.attr('height', 200)
+		.style('width', '200px')
+		.style('height', '200px')
+
+	var context = new (window.AudioContext || window.webkitAudioContext)();
+	var analyser = context.createAnalyser();
+	var audioElement = document.createElement('audio')
+
+	audioElement.src = 'assets/potus.mp3'
+	audioElement.addEventListener("canplay", function() {
+		var source = context.createMediaElementSource(audioElement);
+		// Connect the output of the source to the input of the analyser
+		source.connect(analyser);
+
+		// Connect the output of the analyser to the destination
+		analyser.connect(context.destination);
+
+		// console.log(analyser.fftSize); // 2048 by default
+		// console.log(analyser.frequencyBinCount); // will give us 1024 data points
+
+		analyser.fftSize = 64;
+		var frequencyData = new Uint8Array(analyser.frequencyBinCount);
+		var objectsCount = frequencyData.length
+
+		function update() {
+			// Get the new frequency data
+			analyser.getByteFrequencyData(frequencyData);
+
+			ct.clearRect(0, 0, 200, 200)
+			for (var i = 0; i < objectsCount; i++) {
+				var factor = frequencyData[i] / 256 * 100
+				// factor = 50
+				var change = i / objectsCount * Math.PI * 2
+			  	var x = Math.cos(change) * factor
+			  	x = i * 2
+			  	var y = Math.sin(change) * factor
+			  	y = factor
+			  	ct.fillStyle = 'blue'
+			  	ct.fillRect(100 + x, 100+ y, 2, 2)
+			  	// console.log(i, change)
+			}
+
+			// Schedule the next update
+			requestAnimationFrame(update)
+		}
+
+		update()
+		audioElement.play()
+	});
+
+}
+
 function recolor(img, {r, b, g, t}) {
 	const imgCanvas = document.createElement('canvas')
 	const imgCtx = imgCanvas.getContext('2d')
@@ -136,7 +214,6 @@ function recolor(img, {r, b, g, t}) {
 	output.src = imgCanvas.toDataURL()
 	return output
 }
-
 
 function renderGrid(grid) {
 	let len = grid.length
@@ -197,38 +274,6 @@ function render() {
 	
 	requestAnimationFrame(render)
 	// setTimeout(render, 500)
-
-}
-
-function test(pX, pY) {
-	const cX = chartSize / 2
-	const cY = chartSize / 2
-	const r = chartSize / 2 * 0.9
-	
-	const vX = pX - cX
-	const vY = pY - cY
-
-	const magV = Math.sqrt(vX * vX + vY * vY)
-	const aX = cX + vX / magV * r
-	const aY = cY + vY / magV * r
-	return {x: aX, y: aY}
-}
-function setupBoids() {
-	boids = d3.range(NUM_BOIDS).map(i => {
-		const mass = 2
-		const angle = Math.random() * Math.PI * 2
-
-		const x = Math.cos(angle) * chartSize * ringData[0].factor / 2 + chartSize / 2
-	  	const y = Math.sin(angle) * chartSize * ringData[0].factor / 2 + chartSize / 2
-	  	const location = vec2.fromValues(x, y)
-		return Boid({
-			index: i,
-			location,
-			mass,
-			path: paths[0],
-			center: [chartSize / 2, chartSize / 2],
-		})
-	})
 }
 
 function getBoidX(d) {
@@ -244,6 +289,7 @@ function init() {
 	setupPaths()
 	setupText()
 	setupBoids()
+	setTimeout(setupAudio, 1000)
 
 	const tick = () => {
 		clickCount++

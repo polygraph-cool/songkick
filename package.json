@@ -44,6 +44,7 @@
     "lodash.debounce": "^4.0.8",
     "promis": "^1.1.4",
     "scrollmagic": "^2.0.5",
-    "victor": "^1.1.0"
+    "victor": "^1.1.0",
+    "waud.js": "^0.8.0"
   }
 }

@@ -26,7 +26,10 @@
 		font-weight bold
 		fill #666
 	
-	.ring path 
-		fill none
-		stroke $gray-light
-		stroke-dasharray 4 4
+	.ring
+		path 
+			fill none
+			stroke $gray-light
+			stroke-dasharray 4 4
+		&.is-hidden
+			visibility hidden
