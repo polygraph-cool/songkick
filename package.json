@@ -43,6 +43,7 @@
     "gl-matrix-vec2": "^2.2.1-npm",
     "lodash.debounce": "^4.0.8",
     "promis": "^1.1.4",
+    "scrollmagic": "^2.0.5",
     "victor": "^1.1.0"
   }
 }

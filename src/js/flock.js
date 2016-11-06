@@ -1,135 +1,236 @@
-// http://glmatrix.net/docs/vec2.html
-import Vic from 'victor'
+import vec2 from 'gl-matrix-vec2'
+import Path from './path'
+import Boid from './boid'
+import loadImage from './utils/load-image'
 
-let time0 = Date.now()
-let time1 = null
-const fps = d3.select('.fps')
+const debug = false
+const NUM_BOIDS = 1000
+const PATH_POINTS = 16
+const GRID_RES = 20
 
+let chartSize = 0
+
+const chartEl = d3.select('.made__chart') 
+const canvas = chartEl.select('canvas')
+const ctx = canvas.node().getContext('2d')
+
+const ringData = [{
+	capacity: '500 person capacity',
+	factor: 0.9,
+},{
+	capacity: '1,000',
+	factor: 0.6,
+},{
+	capacity: '10,000',
+	factor: 0.3,
+}]
+
+let paths = []
 let boids = []
-let canvas = null
-let context = null
-const width = 720
-const height = 480
+let circleImg = null
 
-
-
-const targetMouse = new Vic(width / 2, height / 2)
-let timer = null
-
-let count = 0
-
-
-const setupCanvas = () => {
-	const test = d3.select('.test')
-	canvas = test.append('canvas')
-	context = canvas.node().getContext('2d')
+function setupDOM() {
+	chartSize = Math.min(window.innerHeight * 0.8, chartEl.node().offsetWidth)
 	
-	canvas.style('width', `${width}px`)
-	canvas.style('height', `${height}px`)
-	canvas.attr('width', width)
-	canvas.attr('height', height)
-}
-
-const update = () => {
-  
-	count++
-	// console.log(target.toString())
-	context.clearRect(0, 0, width, height)
-
-	boids.forEach(v => {
-		v.update(targetMouse.clone())
-		const {x, y} = v.getLocation()
-		context.fillRect(x, y, 2, 2)
-		
-	})
-	time1 = Date.now()
-	fps.text(Math.round(1000 / (time1 - time0)))
-	time0 = time1
-	// if (count > 10) timer.stop()
-}
-
-const limit = (vector, max) => {
-	const clone = vector.clone()
-	const mag = clone.magnitude()
-	if (mag < max) {
-		return clone
-	} else {
-		const factor = 1 / (mag / max)
-		return clone.multiply(new Vic(factor, factor))
-	}
-}
-
-const createBoid = () => {
-	let location = new Vic(Math.random() * width, Math.random() * height)
-	let velocity = new Vic(0, 0)
-	let acceleration = new Vic(0, 0)
+	chartEl
+		.style('width', `${chartSize}px`)
+		.style('height', `${chartSize}px`)
 	
-	const maxSpeed = 2 + Math.random() * 4
-	let speed = new Vic(maxSpeed, maxSpeed)
-	const maxForce = Math.random() * 0.05 + 0.01
-	const dist = 50
-	const scale = d3.scaleLinear().domain([0, dist]).range([0, maxSpeed])
+	canvas
+		.attr('width', chartSize * 2)
+		.attr('height', chartSize * 2)
+		.style('width',`${chartSize}px`)
+		.style('height',`${chartSize}px`)	
 
+	ctx.scale(2, 2)
+}
+
+function setupText() {
+	const svg = chartEl.select('svg')
+	//Create the SVG
+	svg
+		.attr('width', chartSize)
+		.attr('height', chartSize)
 	
-	const update = (target) => {
-		seek(target)
-		move()
-	}
+	const TEXT_chartSize = 12
+	
+	const outerRadius = chartSize / 2
+	const startY = chartSize / 2
+	const endY = startY
 
-	const applyForce = (force) => {
-		acceleration.add(force)
-	}
+	const arc = d3.arc()
+		.startAngle(Math.PI)
+		.endAngle(Math.PI * 3)
 
-	const seek = (target) => {
-		const desired = target
-			.subtract(location)
-		
-		const mag = desired.magnitude()
-		const norm = desired.normalize()
+	const ring = svg.selectAll('.ring').data(ringData)
 
-		const factor = mag < dist ? scale(mag) : maxSpeed
-		// console.log(factor)
-		const actual = norm.multiply(new Vic(factor, factor)) 
+	const ringEnter = ring.enter()
+		.append('g')
+			.attr('class', (d, i) => `ring ring-${i}`)
 
-		const steer = actual.subtract(velocity)
-		const limited = limit(steer, maxForce)
+	ringEnter.append('path')
+		.attr('id', (d, i) => `text-${i}`)
+		.attr('transform', `translate(${outerRadius}, ${outerRadius})`)
+		// .attr('d', `M${d.startX},${startY} A${1},${1} 0 0,1 ${d.endX},${endY}`)
+		.attr('d', d => arc({ innerRadius: 0, outerRadius: outerRadius * d.factor + TEXT_chartSize }))
+		// .style('fill', 'none')
+		// .style('stroke', '#ccc')
+		// .style('stroke-dasharray', '5,5')
 
-		applyForce(limited)
-	}
-
-	const move = () => {
-		// console.log(acceleration.x)
-		velocity.add(acceleration)
-		velocity = limit(velocity, maxSpeed)
-		location.add(velocity)
-		// why?
-		acceleration.x = 0 
-		acceleration.y = 0
-	}
-
-	const getLocation = () => {
-		return location
-	}
-
-	return { update, getLocation }
+	ringEnter.append('text')
+		.style('text-anchor','middle')
+		// .attr('y', TEXT_chartSize)
+		.attr('transform', `translate(0,-${TEXT_chartSize * 0.25})`)
+	  .append('textPath')
+		.attr('xlink:href', (d, i) => `#text-${i}`)
+		.attr('startOffset', '50%')
+		.text(d => `${d.capacity}`)
 }
 
-
-const init = () => {
-	setupCanvas()
-	boids = d3.range(1000).map(d => {
-		return createBoid(d)
+function setupPath(path, factor) {
+	path.radius = 20
+	d3.range(PATH_POINTS).forEach(d => {
+		const angle = d / PATH_POINTS * Math.PI * 2
+		const x = Math.cos(angle) * chartSize / 2 * factor
+		const y = Math.sin(angle) * chartSize / 2 * factor
+		// console.log(x, y)
+		path.addPoint(chartSize / 2 + x, chartSize / 2 + y)
 	})
-	// console.log(boids)
-
-	canvas.on('mousemove', function() {
-		const pos = d3.mouse(this)
-		targetMouse.x = pos[0]
-		targetMouse.y = pos[1]
-		// console.log(targetMouse.x)
-	})
-
-	timer = d3.timer(update)
 }
+
+function setupPaths() {
+	paths = ringData.map(d => {
+		const p = new Path(ctx)
+		setupPath(p, d.factor)
+		return p
+	})
+}
+
+function renderGrid(grid) {
+	let len = grid.length
+
+	for(let i = 0; i < len; i++) {
+		const b = grid[i]
+		const loc = b.getLocation()
+	    b.applyBehaviors(grid)
+	    b.run()
+	    
+	    // render boid
+	    const r = b.getRadius()
+		ctx.drawImage(circleImg, loc[0] - r, loc[1] - r, r * 2, r * 2)
+	}
+}
+
+function render() {
+	ctx.clearRect(0, 0, chartSize, chartSize)
+
+	let i = NUM_BOIDS
+	
+	const grid = d3.range(GRID_RES).map(d => d3.range(GRID_RES).map(d => []))
+	while (i--) {
+		const b = boids[i]
+		const loc = b.getLocation()
+		const x = Math.floor(loc[0] / chartSize * GRID_RES)
+		const y = Math.floor(loc[1] / chartSize * GRID_RES)
+		grid[x][y].push(b)
+	}
+
+	let x = GRID_RES
+	while(x--) {
+		let y = GRID_RES
+		while(y--) {
+			if (debug) {
+				ctx.strokeStyle = '#ccc'
+				ctx.strokeRect(x / GRID_RES * chartSize, y / GRID_RES * chartSize, chartSize / GRID_RES, chartSize / GRID_RES)	
+			}
+			
+			renderGrid(grid[x][y])
+		}
+	}
+	
+	if (debug) {
+		d3.range(PATH_POINTS).forEach(d => {
+			const angle = d / PATH_POINTS * Math.PI * 2
+			const x = Math.cos(angle) * chartSize / 2 * 0.9
+			const y = Math.sin(angle) * chartSize / 2 * 0.9
+			ctx.fillStyle = 'red'
+			ctx.fillRect(
+				chartSize / 2 + x,
+				chartSize / 2 + y,
+				4,
+				4,
+			)
+		})
+	}
+	
+	requestAnimationFrame(render)
+	// setTimeout(render, 500)
+
+}
+
+function test(pX, pY) {
+	const cX = chartSize / 2
+	const cY = chartSize / 2
+	const r = chartSize / 2 * 0.9
+	
+	const vX = pX - cX
+	const vY = pY - cY
+
+	const magV = Math.sqrt(vX * vX + vY * vY)
+	const aX = cX + vX / magV * r
+	const aY = cY + vY / magV * r
+	return {x: aX, y: aY}
+}
+function setupBoids() {
+	boids = d3.range(NUM_BOIDS).map(i => {
+		const mass = 2
+		const angle = Math.random() * Math.PI * 2
+
+		const x = Math.cos(angle) * chartSize * ringData[0].factor / 2 + chartSize / 2
+	  	const y = Math.sin(angle) * chartSize * ringData[0].factor / 2 + chartSize / 2
+	  	const location = vec2.fromValues(x, y)
+		return Boid({
+			index: i,
+			location,
+			mass,
+			path: paths[0],
+			center: [chartSize / 2, chartSize / 2],
+		})
+	})
+}
+
+function getBoidX(d) {
+	return d.getLocation()[0]
+}
+
+function getBoidY(d) {
+	return d.getLocation()[1]
+}
+
+function init() {
+	setupDOM()
+	setupPaths()
+	setupText()
+	setupBoids()
+
+	const tick = () => {
+		clickCount++
+		if (clickCount < 10) {
+			boids[clickCount].setPath(paths[1])
+			boids[clickCount].setMass(7)
+			setTimeout(tick, 1000)
+		} else {
+			boids[1].setPath(paths[2])
+			boids[1].setMass(18)
+		}
+	}
+
+
+	loadImage('assets/filled_circle.png', (err, img) => {
+		circleImg = img
+		render()
+	})
+}
+
 
 export default { init }

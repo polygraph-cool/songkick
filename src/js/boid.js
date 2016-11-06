@@ -46,12 +46,13 @@ const Boid = (opts) => {
 	let path
 	let pathPoints
 	let pathScale
+	let center
 
 	const setMass = (m) => {
 		mass = m
 		radius = m
-		maxspeed = Math.random() / m + 1
-		maxforce = m / 1 * 0.1
+		maxspeed = Math.random() / m + 0.5
+		maxforce = m / 2 * 0.1
 	}
 
 	const setPath = (p) => {
@@ -96,8 +97,6 @@ const Boid = (opts) => {
 
 	const run = () => {
 		update()
-		// borders()
-		// render()
 	}
 
 	const update = () => {
@@ -116,7 +115,7 @@ const Boid = (opts) => {
 
 	const follow2 = () => {
 		// TODO tons of stuff...
-		const rad = Math.atan2(location[0] - 300, location[1] - 300)
+		const rad = Math.atan2(location[0] - center[0], location[1] - center[1])
 
 		const scaled = pathScale(rad)
 		const quarter = pathPoints / 4
@@ -335,6 +334,7 @@ const Boid = (opts) => {
 	const init = () => {
 		location = opts.location
 		velocity = vec2.fromValues(1, 1)
+		center = opts.center
 
 		setMass(opts.mass)
 		setPath(opts.path)
