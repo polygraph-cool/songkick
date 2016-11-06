@@ -11,24 +11,24 @@ const test = () => {
 
 const init = () => {
 	flock.init()
-	window.addEventListener('scroll', () => {	
-		if (ready) {
-			ready = false
-			requestAnimationFrame(test)
-		}
-	})
-	const controller = new ScrollMagic.Controller()
-	const scene = new ScrollMagic.Scene({
-			triggerElement: '#trigger1',
-			duration: 1000,
-		})
-		.on('enter', event => {
-			m.text(event.type)
-		})
-		.on('leave', event => {
-			m.text(event.type)
-		})
-		.addTo(controller)
+	// window.addEventListener('scroll', () => {	
+	// 	if (ready) {
+	// 		ready = false
+	// 		requestAnimationFrame(test)
+	// 	}
+	// })
+	// const controller = new ScrollMagic.Controller()
+	// const scene = new ScrollMagic.Scene({
+	// 		triggerElement: '#trigger1',
+	// 		duration: 1000,
+	// 	})
+	// 	.on('enter', event => {
+	// 		m.text(event.type)
+	// 	})
+	// 	.on('leave', event => {
+	// 		m.text(event.type)
+	// 	})
+	// 	.addTo(controller)
 }
 
 export default { init }

@@ -28,6 +28,7 @@ const ringData = [{
 let paths = []
 let boids = []
 let circleImg = null
+let redImg = null
 
 function setupDOM() {
 	chartSize = Math.min(window.innerHeight * 0.8, chartEl.node().offsetWidth)
@@ -106,6 +107,37 @@ function setupPaths() {
 	})
 }
 
+function recolor(img, {r, b, g, t}) {
+	const imgCanvas = document.createElement('canvas')
+	const imgCtx = imgCanvas.getContext('2d')
+	imgCanvas.width = img.width
+	imgCanvas.height = img.height
+
+	imgCtx.drawImage(img, 0, 0)
+	const imgData = imgCtx.getImageData(0, 0, imgCanvas.width, imgCanvas.height)
+	const data = imgData.data
+	const len = data.length
+
+	for (let i = 0; i < len;) {
+    	data[i] = data[i++] * (1 - t) + (r * t)
+    	data[i] = data[i++] * (1 - t) + (g * t)
+    	data[i] = data[i++] * (1 - t) + (b * t)
+    	i++
+	}
+	imgCtx.putImageData(imgData, 0, 0)
+
+	// imgCtx.drawImage(img, 0, 0)
+	// imgCtx.globalCompositeOperation = 'source-in'
+	// imgCtx.fillStyle = color
+	// imgCtx.rect(0, 0, canvas.width, canvas.height);
+	// imgCtx.fill()
+	
+	const output = new Image()
+	output.src = imgCanvas.toDataURL()
+	return output
+}
+
+
 function renderGrid(grid) {
 	let len = grid.length
 
@@ -117,7 +149,8 @@ function renderGrid(grid) {
 	    
 	    // render boid
 	    const r = b.getRadius()
-		ctx.drawImage(circleImg, loc[0] - r, loc[1] - r, r * 2, r * 2)
+	    const img = b.index === 0 ? redImg : circleImg
+		ctx.drawImage(img, loc[0] - r, loc[1] - r, r * 2, r * 2)
 	}
 }
 
@@ -147,7 +180,6 @@ function render() {
 			renderGrid(grid[x][y])
 		}
 	}
-	
 	if (debug) {
 		d3.range(PATH_POINTS).forEach(d => {
 			const angle = d / PATH_POINTS * Math.PI * 2
@@ -228,6 +260,7 @@ function init() {
 
 	loadImage('assets/filled_circle.png', (err, img) => {
 		circleImg = img
+		redImg = recolor(img, { r: 250, g: 0, b: 0, t: 1 })
 		render()
 	})
 }
