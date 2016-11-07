@@ -47,12 +47,15 @@ const Boid = (opts) => {
 	let pathPoints
 	let pathScale
 	let center
+	let special
+	let specialCenter
+	let wanderTheta = Math.random() * TWO_PI
 
 	const setMass = (m) => {
 		mass = m
 		radius = m
-		maxspeed = Math.random() / m + 0.5
-		maxforce = m / 2 * 0.1
+		maxspeed = Math.random() + 0.5
+		maxforce = m * 0.1
 	}
 
 	const setPath = (p) => {
@@ -61,8 +64,20 @@ const Boid = (opts) => {
 		pathScale = d3.scaleQuantile().domain([-PI, PI]).range(d3.range(-pathPoints / 2, pathPoints / 2, 1))
 	}
 
+	const setSpecial = (mass, center) => {
+		special = !!mass
+		if (special) {
+			setMass(mass)
+			specialCenter = center
+		}
+	}
+
 	const getLocation = () => {
 		return location
+	}
+
+	const getSpecial = () => {
+		return special
 	}
 
 	const getRadius = () => {
@@ -71,21 +86,33 @@ const Boid = (opts) => {
 
   	const applyBehaviors = (boids) => {
 		// follow force
-		const f = follow2()
+		// console.log(velocity)
+		let f = special ? followSpecial() : follow2()
 		// const separate force
-		const s = separate(boids)
+		// const s = separate(boids)
+		const s = separate2()
 
 		/* Scale up forces to produce stronger impact */
-		vec2.scale(f, f, 1)
-		vec2.scale(s, s, 1.5)
+		vec2.scale(f, f, 2)
+		vec2.scale(s, s, 1)
 
 		/* Calculate the average force */
 		const forces = vec2.add(vec2.create(), f, s)
 
 		vec2.scale(forces, forces, 1 / mass)
 
-		// /* Apply force */
-		applyForce(forces)
+		if (special) {
+			const diff = location[0] - specialCenter + location[1] - specialCenter
+			if ( diff > 3) {
+				applyForce(f)
+			} else {
+				location[0] = specialCenter
+				location[1] = specialCenter
+			}
+		} else {
+			// /* Apply force */
+			applyForce(forces)	
+		}
 	}
 	
 	const applyForce = (force) => {
@@ -108,6 +135,11 @@ const Boid = (opts) => {
 		accelerationVec.set([0, 0]);
 
 		acceleration = accelerationVec;
+	}
+
+	const followSpecial = () => {
+		const target = vec2.fromValues(specialCenter, specialCenter)
+		return seek(target)
 	}
 
 	const follow2 = () => {
@@ -304,6 +336,21 @@ const Boid = (opts) => {
 		return steerVec
 	}
 
+	const separate2 = () => {
+		const dir = Math.random() < 0.5 ? 1 : -1
+		wanderTheta += Math.random() * 0.1 * dir
+		const x = Math.cos(wanderTheta)
+		const y = Math.sin(wanderTheta)
+		const target = vec2.fromValues(x, y)
+		// russ
+		const norm = vec2.create()
+		vec2.normalize(norm, velocity)
+		vec2.add(target, target, norm)
+
+		const scaleVec = vec2.fromValues(radius, radius)
+		vec2.multiply(target, target, scaleVec)
+		return steer(target)
+	}
   /**
    * Implement Craig Reynolds' steering algorithm
    *
@@ -339,8 +386,10 @@ const Boid = (opts) => {
 		return {
 			setMass,
 			setPath,
+			setSpecial,
 			getLocation,
 			getRadius,
+			getSpecial,
 			applyBehaviors,
 			run,
 			index: opts.index,

@@ -5,8 +5,10 @@ import Boid from './boid'
 import loadImage from './utils/load-image'
 import * as $ from './utils/dom'
 
+let russell = null
+
 const debug = false
-const NUM_BOIDS = 1000
+const NUM_BOIDS = 3200
 const PATH_POINTS = 64
 const GRID_RES = 30
 
@@ -212,6 +214,10 @@ function setupScroll() {
 			madeVisEl.classed('is-fixed', false)
 			madeVisEl.classed('is-bottom', event.scrollDirection === 'FORWARD')
 		})
+		.on('progress', event => {
+			console.log(event)
+			// render()
+		})
 		.addTo(controller)
 
 	const triggerScenes = $.selectAll('.made__prose .trigger').map((el, i) => {
@@ -235,20 +241,22 @@ function updateFlock(index) {
 		d3.select(this).classed('is-hidden', i > index)
 	})
 			
-	if (index === 0) {
-		for (var i = 0; i < 10; i++) {
-			boids[i].setPath(paths[0])
-			boids[i].setMass(2)
-		}
-	} else if (index === 1) {
-		for (var i = 0; i < 10; i++) {
-			boids[i].setPath(paths[1])
-			boids[i].setMass(5)
-		}
-	} else if (index === 2) {
-		boids[0].setPath(paths[2])
-		boids[0].setMass(12)
-	}
+	// if (index === 0) {
+	// 	for (var i = 0; i < 10; i++) {
+	// 		boids[i].setPath(paths[0])
+	// 		boids[i].setMass(2)
+	// 	}
+	// } else if (index === 1) {
+	// 	boids[0].setSpecial(false)
+	// 	for (var i = 0; i < 50; i++) {
+	// 		boids[i].setPath(paths[1])
+	// 		boids[i].setMass(5)
+	// 	}
+	// } else if (index === 2) {
+	// 	boids[0].setSpecial(ringData[2].factor * chartSize / 2, chartSize / 2)
+	// 	// boids[0].setPath(paths[2])
+	// 	// boids[0].setMass(12)
+	// }
 }
 
 function recolor(img, {r, b, g, t}) {
@@ -292,8 +300,11 @@ function renderGrid(grid) {
 	    
 	    // render boid
 	    const r = b.getRadius()
-	    const img = b.index === 0 ? redImg : circleImg
+	    const special = b.getSpecial()
+	    let img = b.index === 0 ? redImg : circleImg
+	    img = special ? russell : img
 		ctx.drawImage(img, loc[0] - r, loc[1] - r, r * 2, r * 2)
+		
 	}
 }
 
@@ -351,6 +362,10 @@ function getBoidY(d) {
 }
 
 function init() {
+	// TODO
+	loadImage('assets/russell.png', (err, img) => {
+		russell = img
+	})
 	setupDOM()
 	setupPaths()
 	setupText()
