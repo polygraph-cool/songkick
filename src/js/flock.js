@@ -1,27 +1,32 @@
+import ScrollMagic from 'scrollmagic'
 import vec2 from 'gl-matrix-vec2'
 import Path from './path'
 import Boid from './boid'
 import loadImage from './utils/load-image'
+import * as $ from './utils/dom'
 
 const debug = false
-const NUM_BOIDS = 2600
-const PATH_POINTS = 16
+const NUM_BOIDS = 1000
+const PATH_POINTS = 64
 const GRID_RES = 30
 
 let chartSize = 0
 
+const madeEl = d3.select('#made')
+const madeProseEl = d3.select('.made__prose')
+const madeVisEl = d3.select('.made__vis')
 const chartEl = d3.select('.made__chart') 
 const canvas = chartEl.select('canvas')
 const ctx = canvas.node().getContext('2d')
 
 const ringData = [{
-	capacity: '500 person capacity',
+	capacity: 'Small venue',
 	factor: 0.9,
 },{
-	capacity: '1,000',
+	capacity: 'Medium',
 	factor: 0.6,
 },{
-	capacity: '10,000',
+	capacity: 'Big',
 	factor: 0.3,
 }]
 
@@ -182,7 +187,68 @@ function setupAudio() {
 		update()
 		audioElement.play()
 	});
+}
 
+function setupScroll() {
+	const proseHeight = madeProseEl.node().offsetHeight
+	const visHeight = madeVisEl.node().offsetHeight
+	
+	madeEl.style('height', `${proseHeight}px`)
+
+	const controller = new ScrollMagic.Controller()
+	const scene = new ScrollMagic.Scene({
+		triggerElement: '#made',
+		triggerHook: 0,
+		duration: proseHeight - visHeight,
+	})
+	
+	scene
+		.on('enter', event => {
+			madeVisEl.classed('is-fixed', true)
+			madeVisEl.classed('is-bottom', false)
+
+		})
+		.on('leave', event => {
+			madeVisEl.classed('is-fixed', false)
+			madeVisEl.classed('is-bottom', event.scrollDirection === 'FORWARD')
+		})
+		.addTo(controller)
+
+	const triggerScenes = $.selectAll('.made__prose .trigger').map((el, i) => {
+		const s = new ScrollMagic.Scene({
+			triggerElement: el,
+		})
+		s
+			.on('enter', event => {
+				updateFlock(i)
+			})
+			.on('leave', event => {
+				updateFlock(Math.max(0, i - 1))
+			})
+			.addTo(controller)
+		return s
+	})
+}
+
+function updateFlock(index) {
+	d3.selectAll('.ring').each(function(d, i) {
+		d3.select(this).classed('is-hidden', i > index)
+	})
+			
+	if (index === 0) {
+		for (var i = 0; i < 10; i++) {
+			boids[i].setPath(paths[0])
+			boids[i].setMass(2)
+		}
+	} else if (index === 1) {
+		for (var i = 0; i < 10; i++) {
+			boids[i].setPath(paths[1])
+			boids[i].setMass(5)
+		}
+	} else if (index === 2) {
+		boids[0].setPath(paths[2])
+		boids[0].setMass(12)
+	}
 }
 
 function recolor(img, {r, b, g, t}) {
@@ -289,19 +355,8 @@ function init() {
 	setupPaths()
 	setupText()
 	setupBoids()
-	setTimeout(setupAudio, 1000)
-
-	const tick = () => {
-		clickCount++
-		if (clickCount < 10) {
-			boids[clickCount].setPath(paths[1])
-			boids[clickCount].setMass(7)
-			setTimeout(tick, 1000)
-		} else {
-			boids[1].setPath(paths[2])
-			boids[1].setMass(18)
-		}
-	}
+	setupScroll()
+	// setupAudio()
 
 
 	loadImage('assets/filled_circle.png', (err, img) => {

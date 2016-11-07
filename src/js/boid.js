@@ -72,9 +72,6 @@ const Boid = (opts) => {
   	const applyBehaviors = (boids) => {
 		// follow force
 		const f = follow2()
-		// const f = follow()
-		// console.log(f)
-		// console.log(f)
 		// const separate force
 		const s = separate(boids)
 
@@ -87,7 +84,7 @@ const Boid = (opts) => {
 
 		vec2.scale(forces, forces, 1 / mass)
 
-		/* Apply force */
+		// /* Apply force */
 		applyForce(forces)
 	}
 	

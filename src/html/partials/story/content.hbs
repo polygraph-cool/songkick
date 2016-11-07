@@ -1,11 +1,20 @@
-<div class='audio'>
+{{!-- <div class='audio'>
 	<canvas></canvas>
-</div>
+</div> --}}
 
-<div class='made'>
-	<div class='made__chart' id='made__pin'>
-		<canvas></canvas>
-		<svg></svg>
+<div id='made'>
+	<div class='made__vis'>
+		<div class='made__chart' id='made__pin'>
+			<canvas></canvas>
+			<svg></svg>
+		</div>
+	</div>
+	<div class='made__prose'>
+		{{#each copy.made}}
+			<div class='trigger'>
+				<p>{{value}}</p>
+			</div>
+		{{/each}}
 	</div>
 </div>
-<div id='trigger1'>TRIGGER</div>
+<div style='height: 1000px;'></div>

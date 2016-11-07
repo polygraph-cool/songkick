@@ -1,12 +1,43 @@
-.made
-	margin 0
-	width 70%
+$trigger-width = 20em
 
+#made
+	position relative
+
+.made__prose
+	width 30%
+	position absolute
+	top 0
+	right 0
+	.trigger 
+		height 75vh
+		max-width 20em
+		margin 0 auto
+		p 
+			margin 0
+			// padding-top 10vh
+		
+.made__vis
+	position absolute
+	left 0
+	width 70%
+	height 100vh
+	margin 0
+	transform translate3d(0px,0px,0px)
+	&.is-fixed
+		position fixed
+		top 0
+		left 0
+	&.is-bottom
+		top auto
+		bottom 0
+		
+	
 .made__chart
 	position relative
 	height 100%
 	margin 0 auto
-	transform translate3d(0px,0px,0px)
+	top 50%
+	transform translateY(-50%)
 	canvas
 		position absolute
 		top 0
