@@ -8,7 +8,7 @@ import * as $ from './utils/dom'
 let russell = null
 
 const debug = false
-const NUM_BOIDS = 3200
+const NUM_BOIDS = 1000
 const PATH_POINTS = 64
 const GRID_RES = 30
 
@@ -178,7 +178,7 @@ function setupAudio() {
 			  	var y = Math.sin(change) * factor
 			  	y = factor
 			  	ct.fillStyle = 'blue'
-			  	ct.fillRect(100 + x, 100+ y, 2, 2)
+			  	ct.fillRect(100 + x, 100-y, 2, 2)
 			  	// console.log(i, change)
 			}
 
@@ -241,22 +241,22 @@ function updateFlock(index) {
 		d3.select(this).classed('is-hidden', i > index)
 	})
 			
-	// if (index === 0) {
-	// 	for (var i = 0; i < 10; i++) {
-	// 		boids[i].setPath(paths[0])
-	// 		boids[i].setMass(2)
-	// 	}
-	// } else if (index === 1) {
-	// 	boids[0].setSpecial(false)
-	// 	for (var i = 0; i < 50; i++) {
-	// 		boids[i].setPath(paths[1])
-	// 		boids[i].setMass(5)
-	// 	}
-	// } else if (index === 2) {
-	// 	boids[0].setSpecial(ringData[2].factor * chartSize / 2, chartSize / 2)
-	// 	// boids[0].setPath(paths[2])
-	// 	// boids[0].setMass(12)
-	// }
+	if (index === 0) {
+		for (var i = 0; i < 50; i++) {
+			boids[i].setPath(paths[0])
+			boids[i].setMass(2)
+		}
+	} else if (index === 1) {
+		boids[0].setSpecial(false)
+		for (var i = 0; i < 50; i++) {
+			boids[i].setPath(paths[1])
+			boids[i].setMass(5)
+		}
+	} else if (index === 2) {
+		boids[0].setSpecial(ringData[2].factor * chartSize / 2, chartSize / 2)
+		// boids[0].setPath(paths[2])
+		// boids[0].setMass(12)
+	}
 }
 
 function recolor(img, {r, b, g, t}) {

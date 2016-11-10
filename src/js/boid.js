@@ -89,12 +89,12 @@ const Boid = (opts) => {
 		// console.log(velocity)
 		let f = special ? followSpecial() : follow2()
 		// const separate force
-		// const s = separate(boids)
-		const s = separate2()
+		const s = separate(boids)
+		// const s = separate2()
 
 		/* Scale up forces to produce stronger impact */
-		vec2.scale(f, f, 2)
-		vec2.scale(s, s, 1)
+		vec2.scale(f, f, 1)
+		vec2.scale(s, s, 1.5)
 
 		/* Calculate the average force */
 		const forces = vec2.add(vec2.create(), f, s)
