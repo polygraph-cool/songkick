@@ -1,3 +1,4 @@
+import * as d3 from 'd3'
 import vec2 from 'gl-matrix-vec2'
 const PI = Math.PI
 const TWO_PI = Math.PI * 2
@@ -51,6 +52,13 @@ const Boid = (opts) => {
 	let specialCenter
 	let wanderTheta = Math.random() * TWO_PI
 
+	let xPos
+	let yPos
+	let counter
+	let inc
+	let r
+	let circle
+
 	const setMass = (m) => {
 		mass = m
 		radius = m
@@ -76,6 +84,10 @@ const Boid = (opts) => {
 		return location
 	}
 
+	const getPos = () => {
+		return [xPos, yPos]
+	}
+
 	const getSpecial = () => {
 		return special
 	}
@@ -89,30 +101,30 @@ const Boid = (opts) => {
 		// console.log(velocity)
 		let f = special ? followSpecial() : follow2()
 		// const separate force
-		const s = separate(boids)
+		// const s = separate(boids)
 		// const s = separate2()
-
 		/* Scale up forces to produce stronger impact */
-		vec2.scale(f, f, 1)
-		vec2.scale(s, s, 1.5)
+		vec2.scale(f, f, 1 / mass)
+		// vec2.scale(s, s, 1)
 
 		/* Calculate the average force */
-		const forces = vec2.add(vec2.create(), f, s)
+		// const forces = vec2.add(vec2.create(), f, s)
 
-		vec2.scale(forces, forces, 1 / mass)
+		// vec2.scale(forces, forces, 1 / mass)
 
-		if (special) {
-			const diff = location[0] - specialCenter + location[1] - specialCenter
-			if ( diff > 3) {
-				applyForce(f)
-			} else {
-				location[0] = specialCenter
-				location[1] = specialCenter
-			}
-		} else {
-			// /* Apply force */
-			applyForce(forces)	
-		}
+		// if (special) {
+		// 	const diff = location[0] - specialCenter + location[1] - specialCenter
+		// 	if ( diff > 3) {
+		// 		applyForce(f)
+		// 	} else {
+		// 		location[0] = specialCenter
+		// 		location[1] = specialCenter
+		// 	}
+		// } else {
+		// 	// /* Apply force */
+		// 	applyForce(forces)	
+		// }
+		applyForce(f)
 	}
 	
 	const applyForce = (force) => {
@@ -124,6 +136,22 @@ const Boid = (opts) => {
 	}
 
 	const update = () => {
+		counter += inc
+		const tX = center[0] + Math.cos(counter) * circle
+		const tY = center[1] + Math.sin(counter) * circle
+		
+		const dir = Math.random() < 0.5 ? 1 : -1
+		wanderTheta += Math.random() * 0.05
+		const x = Math.cos(wanderTheta) * 10
+		const y = Math.sin(wanderTheta) * 10
+		// console.log(x)
+		// const x = 0
+		// const y = 0
+
+		xPos = tX + x
+		yPos = tY + y
+		
+
 		/**
 		* New location = current location + (velocity + acceleration) limited by maximum speed
 		* Reset acceleration to avoid permanent increasing
@@ -376,6 +404,12 @@ const Boid = (opts) => {
 	}
 
 	const init = () => {
+		xPos = 0
+		yPos = 0
+		counter = -PI / 2 + Math.random() * TWO_PI
+		inc = opts.inc
+		circle = opts.circle
+
 		location = opts.location
 		velocity = vec2.fromValues(1, 1)
 		center = opts.center
@@ -393,6 +427,7 @@ const Boid = (opts) => {
 			applyBehaviors,
 			run,
 			index: opts.index,
+			getPos,
 		}
 	}
 

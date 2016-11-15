@@ -58,9 +58,11 @@ $trigger-width = 20em
 		fill #666
 	
 	.ring
+		opacity 1
+		transition opacity 500ms ease-in-out
 		path 
 			fill none
 			stroke $gray-light
 			stroke-dasharray 4 4
 		&.is-hidden
-			visibility hidden
+			opacity 0

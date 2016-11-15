@@ -23,7 +23,7 @@ gulp.task('js-dev-critical', () => {
 		.pipe(webpackStream(webpackConfigDev))
 		.pipe(rename('critical.js'))
 		.pipe(gulp.dest('dist/dev'))
-		.pipe(browserSync.reload({ stream: true }))
+		// .pipe(browserSync.reload({ stream: true }))
 })
 
 gulp.task('js-prod', () => {

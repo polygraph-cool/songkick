@@ -5,10 +5,8 @@ const init = () => {
 	fetchData((err, data) => {
 		const venues = data[0]
 		const bands = data[1]
-		console.log('his')
+		flock.init({ venues, bands })
 	})
-	// flock.init()
-	// test
 }
 
 export default { init }
