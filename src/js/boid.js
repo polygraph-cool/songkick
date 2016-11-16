@@ -21,6 +21,7 @@ vec2.limit = function(out, v, high) {
 }
 
 const Boid = (opts) => {
+	let debugPathPoint
 	let normalPoint
 	let predict = vec2.create()
 	let dir = vec2.create()
@@ -58,6 +59,7 @@ const Boid = (opts) => {
 	let inc
 	let r
 	let circle
+	let sprite
 
 	const setMass = (m) => {
 		mass = m
@@ -96,21 +98,30 @@ const Boid = (opts) => {
 		return radius
 	}
 
+	const getSprite = () => {
+		return sprite
+	}
+
+	const getPathPoint = () => {
+		return path.points[debugPathPoint]
+	}
+
   	const applyBehaviors = (boids) => {
 		// follow force
 		// console.log(velocity)
-		let f = special ? followSpecial() : follow2()
+		// let f = special ? followSpecial() : follow2()
+		let f = follow2()
 		// const separate force
 		// const s = separate(boids)
-		// const s = separate2()
+		const s = separate2()
 		/* Scale up forces to produce stronger impact */
-		vec2.scale(f, f, 1 / mass)
-		// vec2.scale(s, s, 1)
+		vec2.scale(f, f, 1.1)
+		vec2.scale(s, s, 1)
 
 		/* Calculate the average force */
-		// const forces = vec2.add(vec2.create(), f, s)
+		const forces = vec2.add(vec2.create(), f, s)
 
-		// vec2.scale(forces, forces, 1 / mass)
+		vec2.scale(forces, forces, 1 / mass)
 
 		// if (special) {
 		// 	const diff = location[0] - specialCenter + location[1] - specialCenter
@@ -122,36 +133,33 @@ const Boid = (opts) => {
 		// 	}
 		// } else {
 		// 	// /* Apply force */
-		// 	applyForce(forces)	
+			applyForce(forces)	
 		// }
-		applyForce(f)
+		// applyForce(f)
 	}
 	
 	const applyForce = (force) => {
 		vec2.add(acceleration, acceleration, force)
   	}
 
-	const run = () => {
-		update()
-	}
+	const update = (override) => {
+		if (override) {
+			counter += inc
+			const tX = center[0] + Math.cos(counter) * circle
+			const tY = center[1] + Math.sin(counter) * circle
+			
+			const dir = Math.random() < 0.5 ? 1 : -1
+			wanderTheta += Math.random() * 0.05
+			const x = Math.cos(wanderTheta) * 10
+			const y = Math.sin(wanderTheta) * 10
+			// console.log(x)
+			// const x = 0
+			// const y = 0
 
-	const update = () => {
-		counter += inc
-		const tX = center[0] + Math.cos(counter) * circle
-		const tY = center[1] + Math.sin(counter) * circle
+			xPos = tX + x
+			yPos = tY + y
+		}
 		
-		const dir = Math.random() < 0.5 ? 1 : -1
-		wanderTheta += Math.random() * 0.05
-		const x = Math.cos(wanderTheta) * 10
-		const y = Math.sin(wanderTheta) * 10
-		// console.log(x)
-		// const x = 0
-		// const y = 0
-
-		xPos = tX + x
-		yPos = tY + y
-		
-
 		/**
 		* New location = current location + (velocity + acceleration) limited by maximum speed
 		* Reset acceleration to avoid permanent increasing
@@ -184,7 +192,10 @@ const Boid = (opts) => {
 			if (scaled > quarter) final = (pathPoints - quarter) + (half - scaled)
 			else final = quarter - scaled
 		}
+
+		debugPathPoint = final
 		const target = vec2.fromValues(path.points[final][0], path.points[final][1])
+		
 		return seek(target)
 	}
 	/*
@@ -366,7 +377,7 @@ const Boid = (opts) => {
 
 	const separate2 = () => {
 		const dir = Math.random() < 0.5 ? 1 : -1
-		wanderTheta += Math.random() * 0.1 * dir
+		wanderTheta += Math.random() * 0.01 * dir
 		const x = Math.cos(wanderTheta)
 		const y = Math.sin(wanderTheta)
 		const target = vec2.fromValues(x, y)
@@ -413,6 +424,7 @@ const Boid = (opts) => {
 		location = opts.location
 		velocity = vec2.fromValues(1, 1)
 		center = opts.center
+		sprite = opts.sprite
 
 		setMass(opts.mass)
 		setPath(opts.path)
@@ -425,9 +437,11 @@ const Boid = (opts) => {
 			getRadius,
 			getSpecial,
 			applyBehaviors,
-			run,
+			update,
 			index: opts.index,
 			getPos,
+			getSprite,
+			getPathPoint,
 		}
 	}
 

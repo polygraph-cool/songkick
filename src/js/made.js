@@ -5,11 +5,14 @@ import Path from './path'
 import Boid from './boid'
 import loadImage from './utils/load-image'
 import * as $ from './utils/dom'
+PIXI.utils.skipHello()
+
+let renderer
+let stage
+let nextPoint
 
 const PI = Math.PI
 const TWO_PI = Math.PI * 2
-
-let russell = null
 
 const debug = false
 const NUM_BOIDS = 1000
@@ -22,8 +25,6 @@ const madeEl = d3.select('#made')
 const madeProseEl = d3.select('.made__prose')
 const madeVisEl = d3.select('.made__vis')
 const chartEl = d3.select('.made__chart') 
-const canvas = chartEl.select('canvas')
-const ctx = canvas.node().getContext('2d')
 
 const ringData = [{
 	capacity: 'Small venue',
@@ -59,47 +60,27 @@ let audioReady = false
 function setupDOM() {
 	chartSize = Math.min(window.innerHeight * 0.8, chartEl.node().offsetWidth)
 	
-	chartEl
-		.style('width', `${chartSize}px`)
-		.style('height', `${chartSize}px`)
-	
-	canvas
-		.attr('width', chartSize * 2)
-		.attr('height', chartSize * 2)
-		.style('width',`${chartSize}px`)
-		.style('height',`${chartSize}px`)	
+	renderer = PIXI.autoDetectRenderer(chartSize, chartSize, { 
+		resolution: 2,
+		transparent: true,
+	})
 
-	ctx.scale(2, 2)
+	//Add the canvas to the HTML document
+	chartEl.node().appendChild(renderer.view)
+
+	//add svg
+	chartEl.append('svg')
+
+	renderer.view.style.width = `${chartSize}px`
+	renderer.view.style.height = `${chartSize}px`
+
+	//Create a container object called the `stage`
+	stage = new PIXI.Container()
+
+	nextPoint = new PIXI.Graphics()
+	stage.addChild(nextPoint)
 }
 
-function setupOffscreen() {
-	const r = 1
-	const tempCanvas = document.createElement('canvas')
-	const tempCtx = tempCanvas.getContext('2d')
-	tempCanvas.width = r * 4
-	tempCanvas.height = r * 4
-
-	tempCtx.scale(2, 2)
-
-	tempCtx.beginPath()
-	tempCtx.arc(r, r, r, 0, 2 * Math.PI, false)
-	tempCtx.fillStyle = 'rgba(255,150,150,1)'
-	// tempCtx.fillStyle = '#fff'
-	// tempCtx.strokeStyle = 'rgba(150,150,150,0.5)'
-	// tempCtx.stroke()
-	tempCtx.fill()
-	
-	const tempData = tempCtx.getImageData(0, 0, r * 2, r * 2)
-	
-	const output = new Image()
-	output.src = tempCanvas.toDataURL()
-
-	offscreen.width = r * 2
-	offscreen.height = r * 2
-	offscreen.data = tempData.data
-	offscreen.image = output
-	offscreen.canvas = tempCanvas
-}
 
 function setupText() {
 	const svg = chartEl.select('svg')
@@ -150,14 +131,13 @@ function setupPath(path, factor) {
 		const angle = d / NUM_PATH_POINTS * Math.PI * 2
 		const x = Math.cos(angle) * chartSize / 2 * factor
 		const y = Math.sin(angle) * chartSize / 2 * factor
-		// console.log(x, y)
 		path.addPoint(chartSize / 2 + x, chartSize / 2 + y)
 	})
 }
 
 function setupPaths() {
 	paths = ringData.map(d => {
-		const p = new Path(ctx)
+		const p = new Path(renderer.view)
 		setupPath(p, d.factor)
 		return p
 	})
@@ -182,6 +162,12 @@ function setupBoids() {
 
 	  	const ran = chartSize * (ringData[0].factor - diff / 3 + ranDiff) / 2
 
+	  	const sprite = PIXI.Sprite.fromImage('assets/circle-32.png')
+		
+		sprite.tint = 0XF2929D
+		sprite.scale.set(1 / 8, 1 / 8)
+		stage.addChild(sprite)
+
 		return Boid({
 			index: i,
 			location,
@@ -192,6 +178,7 @@ function setupBoids() {
 			center: [chartSize / 2, chartSize / 2],
 			inc: incScale(d.shows.length),
 			data: d,
+			sprite,
 		})
 	})
 }
@@ -322,222 +309,71 @@ function updateFlock(index) {
 		d3.select(this).classed('is-hidden', i > index)
 	})
 			
-	// if (index === 0) {
-	// 	for (var i = 0; i < 50; i++) {
-	// 		boids[i].setPath(paths[0])
-	// 		boids[i].setMass(2)
-	// 	}
-	// } else if (index === 1) {
-	// 	boids[0].setSpecial(false)
-	// 	for (var i = 0; i < 50; i++) {
-	// 		boids[i].setPath(paths[1])
-	// 		boids[i].setMass(5)
-	// 	}
-	// } else if (index === 2) {
-	// 	boids[0].setSpecial(ringData[2].factor * chartSize / 2, chartSize / 2)
-	// 	// boids[0].setPath(paths[2])
-	// 	// boids[0].setMass(12)
-	// }
-}
-
-function recolor(img, {r, b, g, t}) {
-	const imgCanvas = document.createElement('canvas')
-	const imgCtx = imgCanvas.getContext('2d')
-	imgCanvas.width = img.width
-	imgCanvas.height = img.height
-
-	imgCtx.drawImage(img, 0, 0)
-	const imgData = imgCtx.getImageData(0, 0, imgCanvas.width, imgCanvas.height)
-	const data = imgData.data
-	const len = data.length
-
-	for (let i = 0; i < len;) {
-    	data[i] = data[i++] * (1 - t) + (r * t)
-    	data[i] = data[i++] * (1 - t) + (g * t)
-    	data[i] = data[i++] * (1 - t) + (b * t)
-    	i++
+	if (index === 0) {
+		for (var i = 0; i < 50; i++) {
+			boids[i].setPath(paths[0])
+			boids[i].setMass(2)
+		}
+	} else if (index === 1) {
+		// boids[0].setSpecial(false)
+		for (var i = 0; i < 50; i++) {
+			boids[i].setPath(paths[1])
+			boids[i].setMass(5)
+		}
+	} else if (index === 2) {
+		// boids[0].setSpecial(ringData[2].factor * chartSize / 2, chartSize / 2)
+		boids[0].setPath(paths[2])
+		boids[0].setMass(12)
 	}
-	imgCtx.putImageData(imgData, 0, 0)
-
-	// imgCtx.drawImage(img, 0, 0)
-	// imgCtx.globalCompositeOperation = 'source-in'
-	// imgCtx.fillStyle = color
-	// imgCtx.rect(0, 0, canvas.width, canvas.height);
-	// imgCtx.fill()
-	
-	const output = new Image()
-	output.src = imgCanvas.toDataURL()
-	return output
 }
-
-// function renderGrid(grid) {
-// 	let len = grid.length
-
-// 	for(let i = 0; i < len; i++) {
-// 		const b = grid[i]
-// 		const loc = b.getLocation()
-// 	    // b.applyBehaviors(grid)
-// 	    // b.run()
-	    
-// 	    // render boid 
-// 	    const r = b.getRadius()
-// 	    const special = b.getSpecial()
-// 	    let img = b.index === 0 ? redImg : circleImg
-// 	    img = special ? russell : img
-// 		ctx.drawImage(img, loc[0] - r, loc[1] - r, r * 2, r * 2)
-		
-// 	}
-// }
 
 function render() {
-	ctx.clearRect(0, 0, chartSize, chartSize)
-	// ctx.fillStyle = 'rgba(38, 44, 50, 0.25)'
-	// ctx.fillRect(0, 0, chartSize, chartSize)
-	// ctx.fill()
-
-	// let i = bands.length
-	let i = boids.length
-	const grid = d3.range(GRID_RESOLUTION).map(d => d3.range(GRID_RESOLUTION).map(d => []))
-	
-
+	let i = 1
+	// let i = boids.length
+	// const grid = d3.range(GRID_RESOLUTION).map(d => d3.range(GRID_RESOLUTION).map(d => []))
 	while (i--) {
 		const b = boids[i]
-		// b.counter += b.inc
-		// // b.inc += Math.random() < 0.5 ? .0001 : -.0001
-		// b.x = chartSize / 2 + Math.cos(b.counter) * b.circle
-		// b.y = chartSize / 2 + Math.sin(b.counter) * b.circle
 		
-		let x
-		let y
-		// if (scene === 'eq') {
-		// 		const index = i % factorsLen
-		// 		const radians = index / factorsLen * TWO_PI
-		// 		const f = factors[index] * chartSize / 2 / 4 / 100
-		// 		const travel = Math.floor(i / factorsLen) * (f * .02 + avg * 0.02)
-		// 		x = chartSize / 2 + Math.cos(radians) * (chartSize / 2 / 6 + travel)
-		// 		y = chartSize / 2 + Math.sin(radians) * (chartSize / 2 / 6 + travel)
-		// } else {
-		b.run()	
-			// const loc = b.getLocation()
-		// b.applyBehaviors()
-		
-
-		// console.log(b.x)
 		// const loc = b.getLocation()
 		// const x = Math.floor(loc[0] / chartSize * GRID_RESOLUTION)
 		// const y = Math.floor(loc[1] / chartSize * GRID_RESOLUTION)
-		// const x = Math.round(Math.random() * chartSize)
-		// const y = Math.round(Math.random() * chartSize)
-			const pos = b.getPos()
-			// console.log(pos[0])
-			x = pos[0]
-			y = pos[1]
-		// }
+		// grid[x][y].push(b)
+
+		b.applyBehaviors()
+		b.update()
 		
-		ctx.drawImage(offscreen.canvas, x, y )
+		const pos = b.getLocation()
+		const x = pos[0]
+		const y = pos[1]
 		
+		const sprite = b.getSprite()
+		sprite.position.set(x, y)
+		const pp = b.getPathPoint()
+		nextPoint.clear()
+		nextPoint.beginFill(0xFF0000)
+		nextPoint.drawCircle(pp[0],pp[1], 3)
+		nextPoint.endFill()	
+		
+
 	}
+	
 	// let x = GRID_RESOLUTION
 	// while(x--) {
 	// 	let y = GRID_RESOLUTION
 	// 	while(y--) {
-	// 		if (debug) {
-	// 			ctx.strokeStyle = '#ccc'
-	// 			ctx.strokeRect(x / GRID_RESOLUTION * chartSize, y / GRID_RESOLUTION * chartSize, chartSize / GRID_RESOLUTION, chartSize / GRID_RESOLUTION)
-	// 		}
-			
+	// 		// if (debug) {
+	// 		// 	ctx.strokeStyle = '#ccc'
+	// 		// 	ctx.strokeRect(x / GRID_RESOLUTION * chartSize, y / GRID_RESOLUTION * chartSize, chartSize / GRID_RESOLUTION, chartSize / GRID_RESOLUTION)
+	// 		// }
 	// 		renderGrid(grid[x][y])
 	// 	}
 	// }
-	// if (debug) {
-	// 	d3.range(NUM_PATH_POINTS).forEach(d => {
-	// 		const angle = d / NUM_PATH_POINTS * Math.PI * 2
-	// 		const x = Math.cos(angle) * chartSize / 2 * 0.9
-	// 		const y = Math.sin(angle) * chartSize / 2 * 0.9
-	// 		ctx.fillStyle = 'red'
-	// 		ctx.fillRect(
-	// 			chartSize / 2 + x,
-	// 			chartSize / 2 + y,
-	// 			4,
-	// 			4,
-	// 		)
-	// 	})
-	// }
+
+	renderer.render(stage)
 	
 	requestAnimationFrame(render)
+	// setTimeout(render, 1000)
 }
-
-// function render() {
-// 	ctx.clearRect(0, 0, chartSize, chartSize)
-
-// 	// create new Image data
-// 	let canvasData = ctx.createImageData(chartSize, chartSize)
-// 	// get the pixel data
-// 	let cData = canvasData.data
-
-// 	let i = bands.length
-	
-// 	// console.log(offscreen)
-// 	const grid = d3.range(GRID_RESOLUTION).map(d => d3.range(GRID_RESOLUTION).map(d => []))
-// 	while (i--) {
-// 		const b = boids[i]
-// 		const loc = b.getLocation()
-// 		const x = Math.floor(loc[0] / chartSize * GRID_RESOLUTION)
-// 		const y = Math.floor(loc[1] / chartSize * GRID_RESOLUTION)
-// 		// grid[x][y].push(b)
-
-
-// 		// now iterate over the image we stored 
-//         for (let w = 0; w < offscreen.width; w++) {
-//             for (let h = 0; h < offscreen.height; h++) {
-                
-//                 // get the position pixel from the image canvas
-//                 const iData = (h * offscreen.width + w) * 4
-                
-//                 // get the position of the data we will write to on our main canvas
-//                 const pData = (~~ (loc[0] + w) + ~~ (loc[1] + h) * chartSize) * 4
-                 
-//                 // copy the r/g/b/ and alpha values to our main canvas from 
-//                 // our image canvas data.
-
-//                 cData[pData] = offscreen.data[iData]
-//                 cData[pData + 1] = offscreen.data[iData + 1]
-//                 cData[pData + 2] = offscreen.data[iData + 2]
-//                 cData[pData + 3] = offscreen.data[iData + 3]
-//             }
-//         }
-// 	}
-// 	ctx.putImageData(canvasData, 0, 0)
-// 	// let x = GRID_RESOLUTION
-// 	// while(x--) {
-// 	// 	let y = GRID_RESOLUTION
-// 	// 	while(y--) {
-// 	// 		if (debug) {
-// 	// 			ctx.strokeStyle = '#ccc'
-// 	// 			ctx.strokeRect(x / GRID_RESOLUTION * chartSize, y / GRID_RESOLUTION * chartSize, chartSize / GRID_RESOLUTION, chartSize / GRID_RESOLUTION)
-// 	// 		}
-			
-// 	// 		renderGrid(grid[x][y])
-// 	// 	}
-// 	// }
-// 	// if (debug) {
-// 	// 	d3.range(NUM_PATH_POINTS).forEach(d => {
-// 	// 		const angle = d / NUM_PATH_POINTS * Math.PI * 2
-// 	// 		const x = Math.cos(angle) * chartSize / 2 * 0.9
-// 	// 		const y = Math.sin(angle) * chartSize / 2 * 0.9
-// 	// 		ctx.fillStyle = 'red'
-// 	// 		ctx.fillRect(
-// 	// 			chartSize / 2 + x,
-// 	// 			chartSize / 2 + y,
-// 	// 			4,
-// 	// 			4,
-// 	// 		)
-// 	// 	})
-// 	// }
-	
-// 	// requestAnimationFrame(render)
-// 	// setTimeout(render, 500)
-// }
 
 function getBoidX(d) {
 	return d.getLocation()[0]
@@ -554,7 +390,6 @@ function init(data) {
 	maxShows = d3.max(bands, d => d.shows.length)
 
 	setupDOM()
-	setupOffscreen()
 	setupPaths()
 	setupText()
 	setupBoids()
