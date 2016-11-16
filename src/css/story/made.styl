@@ -19,15 +19,18 @@ $trigger-width = 20em
 .made__vis
 	position absolute
 	left 0
+	top 0
 	width 70%
 	height 100vh
 	margin 0
 	transform translate3d(0px,0px,0px)
+	z-index -1
 	&.is-fixed
 		position fixed
 		top 0
 		left 0
 	&.is-bottom
+		position absolute
 		top auto
 		bottom 0
 		
@@ -43,7 +46,7 @@ $trigger-width = 20em
 		top 0
 		left 0
 		display block
-		background #fff
+		// background #fff
 		margin 0 auto
 	svg 
 		position absolute

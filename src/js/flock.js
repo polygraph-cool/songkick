@@ -6,6 +6,8 @@ import Boid from './boid'
 import loadImage from './utils/load-image'
 import * as $ from './utils/dom'
 
+let scene = 'eq'
+
 const PI = Math.PI
 const TWO_PI = Math.PI * 2
 
@@ -54,6 +56,7 @@ const offscreen = {
 let maxShows = 0
 let factors = null
 let avg = null
+let audioReady = false
 
 function setupDOM() {
 	chartSize = Math.min(window.innerHeight * 0.8, chartEl.node().offsetWidth)
@@ -82,7 +85,7 @@ function setupOffscreen() {
 
 	tempCtx.beginPath()
 	tempCtx.arc(r, r, r, 0, 2 * Math.PI, false)
-	tempCtx.fillStyle = 'rgba(150,150,150,0.2)'
+	tempCtx.fillStyle = 'rgba(255,150,150,1)'
 	// tempCtx.fillStyle = '#fff'
 	// tempCtx.strokeStyle = 'rgba(150,150,150,0.5)'
 	// tempCtx.stroke()
@@ -122,7 +125,7 @@ function setupText() {
 	const ringEnter = ring.enter()
 		.append('g')
 			.attr('class', (d, i) => `ring ring-${i}`)
-			.classed('is-hidden', (d, i) => i)
+			.classed('is-hidden', (d, i) => true)
 
 	ringEnter.append('path')
 		.attr('id', (d, i) => `text-${i}`)
@@ -211,9 +214,14 @@ function setupAudio() {
 	const analyser = context.createAnalyser()
 	const audioElement = document.createElement('audio')
 
-	audioElement.src = 'assets/potus.mp3'
+	audioElement.src = 'assets/potus-b.mp3'
 	
 	audioElement.addEventListener('canplay', function() {
+		if (!audioReady) listen()
+		audioReady = true
+	})
+
+	const listen = () => {
 		const source = context.createMediaElementSource(audioElement);
 		
 		// Connect the output of the source to the input of the analyser
@@ -231,44 +239,39 @@ function setupAudio() {
 			// Get the new frequency data
 			analyser.getByteFrequencyData(frequencyData);
 
-			ct.clearRect(0, 0, size, size)
+			// ct.clearRect(0, 0, size, size)
+			// ct.fillStyle = 'black'
 			
 			const mostBins = Math.floor(frequencyData.length * 0.7)
 			factors = frequencyData.slice(0, mostBins).map(d => d / 256 * 100)
-			const len = factors.length
 			avg = d3.mean(factors)
 			
-			ct.fillStyle = 'black'
-			
-			const radius = size / 2
-			const base = avg * radius / 4 / 100
-			const tempBands = bands.slice(0,2000)
-			tempBands.forEach((d, i) => {
-				const index = i % len
-				const radians = index / len * TWO_PI
-				const f = factors[index] * radius / 4 / 100
-				const travel = Math.floor(i / len) * (f * .02 + avg * 0.02)
-				const x = radius + Math.cos(radians) * (radius / 6 + travel)
-				const y = radius + Math.sin(radians) * (radius / 6 + travel)
-				ct.fillRect(x, y, 1,1)
-			})
-
-			// factors.forEach((d, i) => {
-			// 	const x = i * w
-			// 	const y = avg + d / 2
-			//   	ct.fillRect(x, y, w, w)
+			// const radius = size / 2
+			// const base = avg * radius / 4 / 100
+			// const tempBands = bands.slice(0,2000)
+			// tempBands.forEach((d, i) => {
+			// 	const index = i % len
+			// 	const radians = index / len * TWO_PI
+			// 	const f = factors[index] * radius / 4 / 100
+			// 	const travel = Math.floor(i / len) * (f * .02 + avg * 0.02)
+			// 	const x = radius + Math.cos(radians) * (radius / 6 + travel)
+			// 	const y = radius + Math.sin(radians) * (radius / 6 + travel)
+			// 	ct.fillRect(x, y, 1,1)
 			// })
-			
+
 			// Schedule the next update
 			requestAnimationFrame(update)
 		}
 
 		update()
+		render()
+		audioElement.volume = 0.1
 		audioElement.play()
+		audioElement.loop = true
 		audioElement.addEventListener('ended', () => {
 			console.log('end')
 		})
-	});
+	}
 }
 
 function setupScroll() {
@@ -369,24 +372,24 @@ function recolor(img, {r, b, g, t}) {
 	return output
 }
 
-function renderGrid(grid) {
-	let len = grid.length
+// function renderGrid(grid) {
+// 	let len = grid.length
 
-	for(let i = 0; i < len; i++) {
-		const b = grid[i]
-		const loc = b.getLocation()
-	    // b.applyBehaviors(grid)
-	    // b.run()
+// 	for(let i = 0; i < len; i++) {
+// 		const b = grid[i]
+// 		const loc = b.getLocation()
+// 	    // b.applyBehaviors(grid)
+// 	    // b.run()
 	    
-	    // render boid 
-	    const r = b.getRadius()
-	    const special = b.getSpecial()
-	    let img = b.index === 0 ? redImg : circleImg
-	    img = special ? russell : img
-		ctx.drawImage(img, loc[0] - r, loc[1] - r, r * 2, r * 2)
+// 	    // render boid 
+// 	    const r = b.getRadius()
+// 	    const special = b.getSpecial()
+// 	    let img = b.index === 0 ? redImg : circleImg
+// 	    img = special ? russell : img
+// 		ctx.drawImage(img, loc[0] - r, loc[1] - r, r * 2, r * 2)
 		
-	}
-}
+// 	}
+// }
 
 function render() {
 	ctx.clearRect(0, 0, chartSize, chartSize)
@@ -397,14 +400,28 @@ function render() {
 	// let i = bands.length
 	let i = boids.length
 	const grid = d3.range(GRID_RESOLUTION).map(d => d3.range(GRID_RESOLUTION).map(d => []))
+	
+
+	const factorsLen = factors.length
 	while (i--) {
 		const b = boids[i]
 		// b.counter += b.inc
 		// // b.inc += Math.random() < 0.5 ? .0001 : -.0001
 		// b.x = chartSize / 2 + Math.cos(b.counter) * b.circle
 		// b.y = chartSize / 2 + Math.sin(b.counter) * b.circle
-		b.run()
-		// const loc = b.getLocation()
+		
+		let x
+		let y
+		if (scene === 'eq') {
+				const index = i % factorsLen
+				const radians = index / factorsLen * TWO_PI
+				const f = factors[index] * chartSize / 2 / 4 / 100
+				const travel = Math.floor(i / factorsLen) * (f * .02 + avg * 0.02)
+				x = chartSize / 2 + Math.cos(radians) * (chartSize / 2 / 6 + travel)
+				y = chartSize / 2 + Math.sin(radians) * (chartSize / 2 / 6 + travel)
+		} else {
+			b.run()	
+			// const loc = b.getLocation()
 		// b.applyBehaviors()
 		
 
@@ -414,10 +431,14 @@ function render() {
 		// const y = Math.floor(loc[1] / chartSize * GRID_RESOLUTION)
 		// const x = Math.round(Math.random() * chartSize)
 		// const y = Math.round(Math.random() * chartSize)
-		const pos = b.getPos()
-		// console.log(pos[0])
+			const pos = b.getPos()
+			// console.log(pos[0])
+			x = pos[0]
+			y = pos[1]
+		}
 		
-		ctx.drawImage(offscreen.canvas, pos[0], pos[1])
+		ctx.drawImage(offscreen.canvas, x, y )
+		
 	}
 	// let x = GRID_RESOLUTION
 	// while(x--) {
@@ -541,14 +562,7 @@ function init(data) {
 	setupText()
 	setupBoids()
 	setupScroll()
-	setupAudio()
-
-
-	loadImage('assets/filled_circle.png', (err, img) => {
-		circleImg = img
-		redImg = recolor(img, { r: 250, g: 0, b: 0, t: 1 })
-		render()
-	})
+	// setupAudio()
 }
 
 
