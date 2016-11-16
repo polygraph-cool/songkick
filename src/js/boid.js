@@ -60,17 +60,29 @@ const Boid = (opts) => {
 	let r
 	let circle
 	let sprite
+	let targs
 
 	const setMass = (m) => {
 		mass = m
 		radius = m
-		maxspeed = Math.random() + 0.5
+		maxspeed = inc * 500
 		maxforce = m * 0.1
 	}
 
-	const setPath = (p) => {
-		path = p
-		pathPoints = path.points.length
+	const setScale = (s) => {
+		sprite.scale.set(s, s)
+	}
+
+	const setPath = (factor, chartSize) => {
+		const NUM_PATH_POINTS = 64
+		path = d3.range(NUM_PATH_POINTS).map(d => {
+			const angle = d / NUM_PATH_POINTS * Math.PI * 2
+			const x = Math.cos(angle) * chartSize / 2 * factor
+			const y = Math.sin(angle) * chartSize / 2 * factor
+			return { x: chartSize / 2 + x, y: chartSize / 2 + y }
+		})
+
+		pathPoints = path.length
 		pathScale = d3.scaleQuantile().domain([-PI, PI]).range(d3.range(-pathPoints / 2, pathPoints / 2, 1))
 	}
 
@@ -103,7 +115,8 @@ const Boid = (opts) => {
 	}
 
 	const getPathPoint = () => {
-		return path.points[debugPathPoint]
+		return targs
+		// return path[debugPathPoint]
 	}
 
   	const applyBehaviors = (boids) => {
@@ -113,15 +126,15 @@ const Boid = (opts) => {
 		let f = follow2()
 		// const separate force
 		// const s = separate(boids)
-		const s = separate2()
+		// const s = separate2()
 		/* Scale up forces to produce stronger impact */
-		vec2.scale(f, f, 1.1)
-		vec2.scale(s, s, 1)
+		vec2.scale(f, f, 1 / mass)
+		// vec2.scale(s, s, 1)
 
 		/* Calculate the average force */
-		const forces = vec2.add(vec2.create(), f, s)
+		// const forces = vec2.add(vec2.create(), f, s)
 
-		vec2.scale(forces, forces, 1 / mass)
+		// vec2.scale(forces, forces, 1 / mass)
 
 		// if (special) {
 		// 	const diff = location[0] - specialCenter + location[1] - specialCenter
@@ -133,9 +146,9 @@ const Boid = (opts) => {
 		// 	}
 		// } else {
 		// 	// /* Apply force */
-			applyForce(forces)	
+			// applyForce(forces)	
 		// }
-		// applyForce(f)
+		applyForce(f)
 	}
 	
 	const applyForce = (force) => {
@@ -179,13 +192,12 @@ const Boid = (opts) => {
 	}
 
 	const follow2 = () => {
-		// TODO tons of stuff...
 		const rad = Math.atan2(location[0] - center[0], location[1] - center[1])
 
 		const scaled = pathScale(rad)
 		const quarter = pathPoints / 4
 		const half = pathPoints / 2
-		let final = null
+		let final = 0
 		if (scaled < 0) {
 			final = quarter - scaled
 		} else {
@@ -193,9 +205,27 @@ const Boid = (opts) => {
 			else final = quarter - scaled
 		}
 
-		debugPathPoint = final
-		const target = vec2.fromValues(path.points[final][0], path.points[final][1])
+		targs = path[final]	
+		final = final < pathPoints - 2 ? final + 1 : 0
 		
+		const tX = path[final + 1].x - sprite.width / 2
+		const tY = path[final + 1].y - sprite.height / 2
+		// const target = vec2.fromValues(path[final][0], path[final][1])
+		
+
+		// counter += inc
+		// const tX = center[0] + Math.cos(rad + 1) * circle
+		// const tY = center[1] + Math.sin(rad + 1) * circle
+		
+		// const dir = Math.random() < 0.5 ? 1 : -1
+		// wanderTheta += Math.random() * 0.05
+		// const x = Math.cos(wanderTheta) * 5
+		// const y = Math.sin(wanderTheta) * 5
+		const x = 0
+		const y = 0
+
+		targs = [tX + x, tY + y] 
+		const target = vec2.fromValues(targs[0], targs[1])
 		return seek(target)
 	}
 	/*
@@ -221,11 +251,11 @@ const Boid = (opts) => {
 		var worldRecord = 1000000; // Will be updated with shortest distance to path. Start with a very high value.
 
 		/** Loop through each point of the path */
-		let i = path.points.length
+		let i = path.length
 		while(i--) {
 		  /** Get current and next point of the path */
-		  a.set(path.points[i]);
-		  b.set(path.points[(i + 1) % path.points.length]);
+		  a.set(path[i]);
+		  b.set(path[(i + 1) % path.length]);
 
 		  /** Calculate a normal point */
 		  var normalPoint = getNormalPoint(predictLoc, a, b);
@@ -243,8 +273,8 @@ const Boid = (opts) => {
 
 			normalPoint.set(b);
 
-			a.set(path.points[(i + 1) % path.points.length]);
-			b.set(path.points[(i + 2) % path.points.length]);
+			a.set(path[(i + 1) % path.length]);
+			b.set(path[(i + 2) % path.length]);
 
 			dir.set(b);
 			vec2.sub(dir, dir, a);
@@ -419,7 +449,7 @@ const Boid = (opts) => {
 		yPos = 0
 		counter = -PI / 2 + Math.random() * TWO_PI
 		inc = opts.inc
-		circle = opts.circle
+		// circle = opts.circle
 
 		location = opts.location
 		velocity = vec2.fromValues(1, 1)
@@ -427,10 +457,10 @@ const Boid = (opts) => {
 		sprite = opts.sprite
 
 		setMass(opts.mass)
-		setPath(opts.path)
 
 		return {
 			setMass,
+			setScale,
 			setPath,
 			setSpecial,
 			getLocation,

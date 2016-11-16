@@ -4,23 +4,34 @@ $trigger-width = 20em
 	position relative
 
 .made__prose
-	width 30%
+	width 100%
 	position absolute
 	top 0
 	right 0
 	.trigger 
-		height 75vh
-		max-width 20em
+		height 95vh
+		max-width 25em
 		margin 0 auto
+		// background rgba(red, 0.5)
 		p 
 			margin 0
-			// padding-top 10vh
+			padding 1em
+			background rgba($c2, 0.9)
+			color $c1
+			border-radius 4px
+			box-shadow 0 0 8px 8px $c1
+		&:first-child p
+			margin-top 90vh
+		&:last-child
+			height 125vh
+	
 		
 .made__vis
 	position absolute
 	left 0
 	top 0
-	width 70%
+	width 100%
+	// width 70%
 	height 100vh
 	margin 0
 	transform translate3d(0px,0px,0px)
@@ -37,7 +48,6 @@ $trigger-width = 20em
 	
 .made__chart
 	position relative
-	height 100%
 	margin 0 auto
 	top 50%
 	transform translateY(-50%)
@@ -58,14 +68,14 @@ $trigger-width = 20em
 		text-transform uppercase
 		font-size 12px
 		font-weight bold
-		fill #666
+		fill darken($c1, 30)
 	
 	.ring
 		opacity 1
 		transition opacity 500ms ease-in-out
 		path 
 			fill none
-			stroke $gray-light
+			stroke darken($c1, 25)
 			stroke-dasharray 4 4
 		&.is-hidden
 			opacity 0

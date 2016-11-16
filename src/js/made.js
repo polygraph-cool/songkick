@@ -65,6 +65,9 @@ function setupDOM() {
 		transparent: true,
 	})
 
+	chartEl
+		.style('width', `${chartSize}px`)
+		.style('height', `${chartSize}px`)
 	//Add the canvas to the HTML document
 	chartEl.node().appendChild(renderer.view)
 
@@ -109,38 +112,15 @@ function setupText() {
 	ringEnter.append('path')
 		.attr('id', (d, i) => `text-${i}`)
 		.attr('transform', `translate(${outerRadius}, ${outerRadius})`)
-		// .attr('d', `M${d.startX},${startY} A${1},${1} 0 0,1 ${d.endX},${endY}`)
 		.attr('d', d => arc({ innerRadius: 0, outerRadius: outerRadius * d.factor + TEXT_chartSize }))
-		// .style('fill', 'none')
-		// .style('stroke', '#ccc')
-		// .style('stroke-dasharray', '5,5')
 
 	ringEnter.append('text')
 		.style('text-anchor','middle')
-		// .attr('y', TEXT_chartSize)
 		.attr('transform', `translate(0,-${TEXT_chartSize * 0.25})`)
 	  .append('textPath')
 		.attr('xlink:href', (d, i) => `#text-${i}`)
 		.attr('startOffset', '50%')
 		.text(d => `${d.capacity}`)
-}
-
-function setupPath(path, factor) {
-	path.radius = 20
-	d3.range(NUM_PATH_POINTS).forEach(d => {
-		const angle = d / NUM_PATH_POINTS * Math.PI * 2
-		const x = Math.cos(angle) * chartSize / 2 * factor
-		const y = Math.sin(angle) * chartSize / 2 * factor
-		path.addPoint(chartSize / 2 + x, chartSize / 2 + y)
-	})
-}
-
-function setupPaths() {
-	paths = ringData.map(d => {
-		const p = new Path(renderer.view)
-		setupPath(p, d.factor)
-		return p
-	})
 }
 
 function setupBoids() {
@@ -157,29 +137,27 @@ function setupBoids() {
 	  	const y = Math.sin(angle) * chartSize * ringData[0].factor / 2 + chartSize / 2
 	  	const location = vec2.fromValues(x, y)
 
-	  	const diff = ringData[0].factor - ringData[1].factor
-		const ranDiff = Math.random() * diff / 3
-
-	  	const ran = chartSize * (ringData[0].factor - diff / 3 + ranDiff) / 2
-
 	  	const sprite = PIXI.Sprite.fromImage('assets/circle-32.png')
 		
 		sprite.tint = 0XF2929D
-		sprite.scale.set(1 / 8, 1 / 8)
+		sprite.tint = 0X47462F
 		stage.addChild(sprite)
 
-		return Boid({
+		const b = Boid({
 			index: i,
 			location,
 			mass,
-			path: paths[0],
-			// circle: chartSize * ringData[0].factor / 2 + ran,
-			circle: ran,
 			center: [chartSize / 2, chartSize / 2],
 			inc: incScale(d.shows.length),
 			data: d,
 			sprite,
 		})
+
+		const diff = (ringData[0].factor - ringData[1].factor) / 2
+		const fact = Math.random() * diff + ringData[1].factor + diff
+		b.setPath(fact, chartSize)
+		b.setScale(1/16)
+		return b
 	})
 }
 
@@ -311,25 +289,29 @@ function updateFlock(index) {
 			
 	if (index === 0) {
 		for (var i = 0; i < 50; i++) {
-			boids[i].setPath(paths[0])
+			boids[i].setPath(ringData[0].factor, chartSize)
 			boids[i].setMass(2)
+			boids[i].setScale(1 / 16)
 		}
 	} else if (index === 1) {
 		// boids[0].setSpecial(false)
 		for (var i = 0; i < 50; i++) {
-			boids[i].setPath(paths[1])
+			boids[i].setPath(ringData[1].factor, chartSize)
 			boids[i].setMass(5)
+			boids[i].setScale(1 / 4)
 		}
 	} else if (index === 2) {
-		// boids[0].setSpecial(ringData[2].factor * chartSize / 2, chartSize / 2)
-		boids[0].setPath(paths[2])
-		boids[0].setMass(12)
+		for (var i = 0; i < 10; i++) {
+			boids[i].setPath(ringData[2].factor, chartSize)
+			boids[i].setMass(12)
+			boids[i].setScale(1 / 2)
+		}
 	}
 }
 
 function render() {
-	let i = 1
-	// let i = boids.length
+	// let i = 1
+	let i = boids.length
 	// const grid = d3.range(GRID_RESOLUTION).map(d => d3.range(GRID_RESOLUTION).map(d => []))
 	while (i--) {
 		const b = boids[i]
@@ -348,13 +330,11 @@ function render() {
 		
 		const sprite = b.getSprite()
 		sprite.position.set(x, y)
-		const pp = b.getPathPoint()
-		nextPoint.clear()
-		nextPoint.beginFill(0xFF0000)
-		nextPoint.drawCircle(pp[0],pp[1], 3)
-		nextPoint.endFill()	
-		
-
+		// const pp = b.getPathPoint()
+		// nextPoint.clear()
+		// nextPoint.beginFill(0xFF0000)
+		// nextPoint.drawCircle(pp[0],pp[1], 3)
+		// nextPoint.endFill()	
 	}
 	
 	// let x = GRID_RESOLUTION
@@ -390,7 +370,7 @@ function init(data) {
 	maxShows = d3.max(bands, d => d.shows.length)
 
 	setupDOM()
-	setupPaths()
+	// setupPaths()
 	setupText()
 	setupBoids()
 	setupScroll()
