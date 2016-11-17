@@ -1,62 +1,22 @@
 import * as d3 from 'd3'
 import ScrollMagic from 'scrollmagic'
-import vec2 from 'gl-matrix-vec2'
-import Path from './path'
 import Boid from './boid'
 import loadImage from './utils/load-image'
 import * as $ from './utils/dom'
 PIXI.utils.skipHello()
 
-const scenes = [{
-	id: 'intro-1',
-	tier: 0,
-	size: 2,
-},{
-	id: 'intro-2',
-	tier: 0,
-	size: 2,
-},{
-	id: 'intro-3',
-	tier: 0,
-	size: 2,
-},{
-	id: 'small',
-	tier: 0,
-	size: 2,
-},{
-	id: 'medium',
-	tier: 1,
-	size: 6,
-},{
-	id: 'big',
-	tier: 2,
-	size: 18,
-}]
-
-const ringData = [{
-	capacity: 'Small venue',
-	factor: 0.9,
-	term: 'small',
-},{
-	capacity: 'Medium',
-	factor: 0.6,
-	term: 'medium',
-},{
-	capacity: 'Big',
-	factor: 0.3,
-	term: 'big',
-}]
+import sceneData from './data-scenes'
+import ringData from './data-rings'
 
 let renderer
 let stage
-let nextPoint
+
+// let nextPoint
 
 const PI = Math.PI
 const TWO_PI = Math.PI * 2
 
 const debug = false
-const NUM_BOIDS = 1000
-const NUM_PATH_POINTS = 64
 const GRID_RESOLUTION = 30
 
 let chartSize = 0
@@ -67,30 +27,14 @@ const madeVisEl = d3.select('.made__vis')
 const chartEl = d3.select('.made__chart') 
 
 
-
-let paths = []
 let boids = []
-let circleImg = null
-let redImg = null
-
 let venues = []
 let bands = []
 
-const offscreen = {
-	width: null,
-	height: null,
-	data: null,
-	image: null,
-}
-
 let maxShows = 0
-let factors = null
-let avg = null
-let audioReady = false
 
 function setupDOM() {
 	chartSize = Math.min(window.innerHeight * 0.8, chartEl.node().offsetWidth)
-	console.log(chartSize * ringData[2].factor)
 	renderer = PIXI.autoDetectRenderer(chartSize, chartSize, { 
 		resolution: 2,
 		transparent: true,
@@ -111,8 +55,9 @@ function setupDOM() {
 	//Create a container object called the `stage`
 	stage = new PIXI.Container()
 
-	nextPoint = new PIXI.Graphics()
-	stage.addChild(nextPoint)
+	// debug
+	// nextPoint = new PIXI.Graphics()
+	// stage.addChild(nextPoint)
 }
 
 
@@ -161,26 +106,12 @@ function setupBoids() {
 	incScale.range([.002, .008])
 
 	boids = bands.map((d, i) => {
-		const mass = 2
-		const angle = Math.random() * Math.PI * 2
-
-		const x = Math.cos(angle) * chartSize * ringData[0].factor / 2 + chartSize / 2
-	  	const y = Math.sin(angle) * chartSize * ringData[0].factor / 2 + chartSize / 2
-	  	const location = vec2.fromValues(x, y)
-
-	  	const sprite = PIXI.Sprite.fromImage('assets/circle-32.png')
+		const sprite = PIXI.Sprite.fromImage('assets/circle-32.png')
 		
-		// sprite.tint = 0XF2929D
-		// sprite.tint = 0X47462F
-		// sprite.alpha = 0.5
-		sprite.width = 2
-		sprite.height = 2
 		stage.addChild(sprite)
 
 		const b = Boid({
 			index: i,
-			location,
-			mass,
 			center: [chartSize / 2, chartSize / 2],
 			inc: incScale(d.shows.length),
 			data: d,
@@ -239,8 +170,36 @@ function setupScroll() {
 	})
 }
 
+function setupPack() {
+	const pack = d3.pack()
+	const diam = Math.floor(chartSize * ringData[2].factor)
+	
+	// console.log(diam)
+	pack
+		.size([diam, diam])
+		.padding(2)
+
+	const filtered = boids.filter(b => {
+		const data = b.getData()
+		return data.tier >= 2
+	})
+
+	let children = filtered.map(d => ({ index: d.index, value: 1 }))
+
+	const root = d3.hierarchy({ children })
+		.sum(d => 1)
+		// .sort((a, b) => b.value - a.value)
+	
+	pack(root)
+
+	root.children.forEach(child => {
+		const { x, y, r } = child
+		boids[child.data.index].setPack(x, y, Math.floor(r), diam)
+	})
+}
+
 function updateScene(index) {
-	const scene = scenes[index]
+	const scene = sceneData[index]
 	const { id, tier, size } = scene
 	d3.selectAll('.ring').each(function(d, i) {
 		d3.select(this).classed('is-hidden', i + 3 > index)
@@ -253,7 +212,6 @@ function updateScene(index) {
 		})
 
 		filtered.forEach(b => {
-			b.setMass(2)
 			b.setSize(size)
 			b.setPath(tier)
 		})
@@ -265,7 +223,6 @@ function updateScene(index) {
 		})
 
 		filtered.forEach(b => {
-			b.setMass(2)
 			b.setSize(size)
 			b.setPath(tier)
 		})
@@ -293,6 +250,7 @@ function render() {
 		
 		const sprite = b.getSprite()
 		sprite.position.set(x, y)
+		// debug
 		// const pp = b.getPathPoint()
 		// nextPoint.clear()
 		// nextPoint.beginFill(0xFF0000)
@@ -318,13 +276,6 @@ function render() {
 	// setTimeout(render, 1000)
 }
 
-function getBoidX(d) {
-	return d.getLocation()[0]
-}
-
-function getBoidY(d) {
-	return d.getLocation()[1]
-}
 
 function init(data) {
 	venues = data.venues
@@ -336,6 +287,7 @@ function init(data) {
 	setupText()
 	setupBoids()
 	setupScroll()
+	setupPack()
 	render()
 }
 
