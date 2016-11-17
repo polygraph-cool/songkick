@@ -7,6 +7,46 @@ import loadImage from './utils/load-image'
 import * as $ from './utils/dom'
 PIXI.utils.skipHello()
 
+const scenes = [{
+	id: 'intro-1',
+	tier: 0,
+	size: 2,
+},{
+	id: 'intro-2',
+	tier: 0,
+	size: 2,
+},{
+	id: 'intro-3',
+	tier: 0,
+	size: 2,
+},{
+	id: 'small',
+	tier: 0,
+	size: 2,
+},{
+	id: 'medium',
+	tier: 1,
+	size: 6,
+},{
+	id: 'big',
+	tier: 2,
+	size: 18,
+}]
+
+const ringData = [{
+	capacity: 'Small venue',
+	factor: 0.9,
+	term: 'small',
+},{
+	capacity: 'Medium',
+	factor: 0.6,
+	term: 'medium',
+},{
+	capacity: 'Big',
+	factor: 0.3,
+	term: 'big',
+}]
+
 let renderer
 let stage
 let nextPoint
@@ -26,16 +66,7 @@ const madeProseEl = d3.select('.made__prose')
 const madeVisEl = d3.select('.made__vis')
 const chartEl = d3.select('.made__chart') 
 
-const ringData = [{
-	capacity: 'Small venue',
-	factor: 0.9,
-},{
-	capacity: 'Medium',
-	factor: 0.6,
-},{
-	capacity: 'Big',
-	factor: 0.3,
-}]
+
 
 let paths = []
 let boids = []
@@ -59,7 +90,7 @@ let audioReady = false
 
 function setupDOM() {
 	chartSize = Math.min(window.innerHeight * 0.8, chartEl.node().offsetWidth)
-	
+	console.log(chartSize * ringData[2].factor)
 	renderer = PIXI.autoDetectRenderer(chartSize, chartSize, { 
 		resolution: 2,
 		transparent: true,
@@ -106,7 +137,7 @@ function setupText() {
 
 	const ringEnter = ring.enter()
 		.append('g')
-			.attr('class', (d, i) => `ring ring-${i}`)
+			.attr('class', (d, i) => `ring ring-${i} ring-${d.term}`)
 			.classed('is-hidden', (d, i) => true)
 
 	ringEnter.append('path')
@@ -129,7 +160,7 @@ function setupBoids() {
 	incScale.domain([1, maxShows])
 	incScale.range([.002, .008])
 
-	boids = bands.slice(0,3000).map((d, i) => {
+	boids = bands.map((d, i) => {
 		const mass = 2
 		const angle = Math.random() * Math.PI * 2
 
@@ -139,8 +170,11 @@ function setupBoids() {
 
 	  	const sprite = PIXI.Sprite.fromImage('assets/circle-32.png')
 		
-		sprite.tint = 0XF2929D
-		sprite.tint = 0X47462F
+		// sprite.tint = 0XF2929D
+		// sprite.tint = 0X47462F
+		// sprite.alpha = 0.5
+		sprite.width = 2
+		sprite.height = 2
 		stage.addChild(sprite)
 
 		const b = Boid({
@@ -151,90 +185,12 @@ function setupBoids() {
 			inc: incScale(d.shows.length),
 			data: d,
 			sprite,
+			ringData,
+			chartSize,
 		})
 
-		const diff = (ringData[0].factor - ringData[1].factor) / 2
-		const fact = Math.random() * diff + ringData[1].factor + diff
-		b.setPath(fact, chartSize)
-		b.setScale(1/16)
 		return b
 	})
-}
-
-function setupAudio() {
-	const el = d3.select('.audio') 
-	const ca = el.select('canvas')
-	const ct = ca.node().getContext('2d')
-	const size = 480
-	
-	ca
-		.attr('width', size)
-		.attr('height', size)
-		.style('width', `${size}px`)
-		.style('height', `${size}px`)
-
-	const context = new (window.AudioContext || window.webkitAudioContext)()
-	const analyser = context.createAnalyser()
-	const audioElement = document.createElement('audio')
-
-	audioElement.src = 'assets/potus-b.mp3'
-	
-	audioElement.addEventListener('canplay', function() {
-		if (!audioReady) listen()
-		audioReady = true
-	})
-
-	const listen = () => {
-		const source = context.createMediaElementSource(audioElement);
-		
-		// Connect the output of the source to the input of the analyser
-		source.connect(analyser);
-
-		analyser.smoothingTimeConstant = 0.5
-
-		// Connect the output of the analyser to the destination
-		analyser.connect(context.destination);
-
-		analyser.fftSize = 128
-		const frequencyData = new Uint8Array(analyser.frequencyBinCount)
-
-		const update = () => {
-			// Get the new frequency data
-			analyser.getByteFrequencyData(frequencyData);
-
-			// ct.clearRect(0, 0, size, size)
-			// ct.fillStyle = 'black'
-			
-			const mostBins = Math.floor(frequencyData.length * 0.7)
-			factors = frequencyData.slice(0, mostBins).map(d => d / 256 * 100)
-			avg = d3.mean(factors)
-			
-			// const radius = size / 2
-			// const base = avg * radius / 4 / 100
-			// const tempBands = bands.slice(0,2000)
-			// tempBands.forEach((d, i) => {
-			// 	const index = i % len
-			// 	const radians = index / len * TWO_PI
-			// 	const f = factors[index] * radius / 4 / 100
-			// 	const travel = Math.floor(i / len) * (f * .02 + avg * 0.02)
-			// 	const x = radius + Math.cos(radians) * (radius / 6 + travel)
-			// 	const y = radius + Math.sin(radians) * (radius / 6 + travel)
-			// 	ct.fillRect(x, y, 1,1)
-			// })
-
-			// Schedule the next update
-			requestAnimationFrame(update)
-		}
-
-		update()
-		render()
-		audioElement.volume = 0.1
-		audioElement.play()
-		audioElement.loop = true
-		audioElement.addEventListener('ended', () => {
-			console.log('end')
-		})
-	}
 }
 
 function setupScroll() {
@@ -244,13 +200,13 @@ function setupScroll() {
 	madeEl.style('height', `${proseHeight}px`)
 
 	const controller = new ScrollMagic.Controller()
-	const scene = new ScrollMagic.Scene({
+	const madeScene = new ScrollMagic.Scene({
 		triggerElement: '#made',
 		triggerHook: 0,
 		duration: proseHeight - visHeight,
 	})
 	
-	scene
+	madeScene
 		.on('enter', event => {
 			madeVisEl.classed('is-fixed', true)
 			madeVisEl.classed('is-bottom', false)
@@ -261,51 +217,58 @@ function setupScroll() {
 			madeVisEl.classed('is-bottom', event.scrollDirection === 'FORWARD')
 		})
 		.on('progress', event => {
-			console.log(event)
+			// console.log(event)
 			// render()
 		})
 		.addTo(controller)
 
 	const triggerScenes = $.selectAll('.made__prose .trigger').map((el, i) => {
-		const s = new ScrollMagic.Scene({
+		const scene = new ScrollMagic.Scene({
 			triggerElement: el,
 		})
-		s
-			.on('enter', event => {
-				updateFlock(i)
-			})
-			.on('leave', event => {
-				updateFlock(Math.max(0, i - 1))
-			})
-			.addTo(controller)
-		return s
+		
+		scene.on('enter', event => {
+			updateScene(i)
+		})
+		.on('leave', event => {
+			updateScene(Math.max(0, i - 1))
+		})
+		.addTo(controller)
+		
+		return scene
 	})
 }
 
-function updateFlock(index) {
+function updateScene(index) {
+	const scene = scenes[index]
+	const { id, tier, size } = scene
 	d3.selectAll('.ring').each(function(d, i) {
-		d3.select(this).classed('is-hidden', i > index)
+		d3.select(this).classed('is-hidden', i + 3 > index)
 	})
-			
-	if (index === 0) {
-		for (var i = 0; i < 50; i++) {
-			boids[i].setPath(ringData[0].factor, chartSize)
-			boids[i].setMass(2)
-			boids[i].setScale(1 / 16)
-		}
-	} else if (index === 1) {
-		// boids[0].setSpecial(false)
-		for (var i = 0; i < 50; i++) {
-			boids[i].setPath(ringData[1].factor, chartSize)
-			boids[i].setMass(5)
-			boids[i].setScale(1 / 4)
-		}
-	} else if (index === 2) {
-		for (var i = 0; i < 10; i++) {
-			boids[i].setPath(ringData[2].factor, chartSize)
-			boids[i].setMass(12)
-			boids[i].setScale(1 / 2)
-		}
+	
+	if (tier > 0) {
+		const filtered = boids.filter(b => {
+			const data = b.getData()
+			return data.tier >= tier
+		})
+
+		filtered.forEach(b => {
+			b.setMass(2)
+			b.setSize(size)
+			b.setPath(tier)
+		})
+	} else {
+		// reset?
+		const filtered = boids.filter(b => {
+			const data = b.getData()
+			return data.tier > 0
+		})
+
+		filtered.forEach(b => {
+			b.setMass(2)
+			b.setSize(size)
+			b.setPath(tier)
+		})
 	}
 }
 
@@ -370,12 +333,10 @@ function init(data) {
 	maxShows = d3.max(bands, d => d.shows.length)
 
 	setupDOM()
-	// setupPaths()
 	setupText()
 	setupBoids()
 	setupScroll()
 	render()
-	// setupAudio()
 }
 
 

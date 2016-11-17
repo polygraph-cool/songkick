@@ -2,6 +2,7 @@ import * as d3 from 'd3'
 import vec2 from 'gl-matrix-vec2'
 const PI = Math.PI
 const TWO_PI = Math.PI * 2
+const NUM_PATH_POINTS = 64
 
 // add limit function to vec library
 vec2.limit = function(out, v, high) {
@@ -43,81 +44,67 @@ const Boid = (opts) => {
 	let mass
 	let maxspeed
 	let maxforce
-	let radius
+	let radius // TODO sync up with sprite size
 	let velocity
-	let path
-	let pathPoints
+	
+	let currentPath = 0
+	let paths
 	let pathScale
+	
 	let center
-	let special
-	let specialCenter
-	let wanderTheta = Math.random() * TWO_PI
-
-	let xPos
-	let yPos
+	let currentTarget
+	
 	let counter
 	let inc
-	let r
-	let circle
 	let sprite
-	let targs
+	let data 
+
+	let wanderTheta = Math.random() * TWO_PI
 
 	const setMass = (m) => {
 		mass = m
 		radius = m
-		maxspeed = inc * 500
+		maxspeed = inc * 250
 		maxforce = m * 0.1
 	}
 
-	const setScale = (s) => {
-		sprite.scale.set(s, s)
+	const setSize = (s) => {
+		sprite.width = s
+		sprite.height = s
 	}
 
-	const setPath = (factor, chartSize) => {
-		const NUM_PATH_POINTS = 64
-		path = d3.range(NUM_PATH_POINTS).map(d => {
-			const angle = d / NUM_PATH_POINTS * Math.PI * 2
-			const x = Math.cos(angle) * chartSize / 2 * factor
-			const y = Math.sin(angle) * chartSize / 2 * factor
-			return { x: chartSize / 2 + x, y: chartSize / 2 + y }
+	const createPaths = (ringData, chartSize) => {
+		pathScale = d3.scaleQuantile().domain([-PI, PI]).range(d3.range(-NUM_PATH_POINTS / 2, NUM_PATH_POINTS / 2, 1))
+
+		paths = ringData.map((datum, i) => {
+			let nextFactor = datum.factor
+			if (i < ringData.length - 1) nextFactor = ringData[i + 1].factor
+
+			const diff = (datum.factor - nextFactor) / 2
+			const factor = Math.random() * diff + nextFactor + diff
+
+			return d3.range(NUM_PATH_POINTS).map(d => {
+				const angle = d / NUM_PATH_POINTS * Math.PI * 2
+				const x = Math.cos(angle) * chartSize / 2 * factor
+				const y = Math.sin(angle) * chartSize / 2 * factor
+				return { x: chartSize / 2 + x, y: chartSize / 2 + y }
+			})
 		})
-
-		pathPoints = path.length
-		pathScale = d3.scaleQuantile().domain([-PI, PI]).range(d3.range(-pathPoints / 2, pathPoints / 2, 1))
+	}
+	
+	const setPath = (index) => {
+		currentPath = index
 	}
 
-	const setSpecial = (mass, center) => {
-		special = !!mass
-		if (special) {
-			setMass(mass)
-			specialCenter = center
-		}
-	}
+	const getLocation = () => location
 
-	const getLocation = () => {
-		return location
-	}
+	const getRadius = () => radius
 
-	const getPos = () => {
-		return [xPos, yPos]
-	}
+	const getSprite = () => sprite
 
-	const getSpecial = () => {
-		return special
-	}
+	const getPathPoint = () => currentTarget
 
-	const getRadius = () => {
-		return radius
-	}
-
-	const getSprite = () => {
-		return sprite
-	}
-
-	const getPathPoint = () => {
-		return targs
-		// return path[debugPathPoint]
-	}
+	const getData = () => data
 
   	const applyBehaviors = (boids) => {
 		// follow force
@@ -195,21 +182,21 @@ const Boid = (opts) => {
 		const rad = Math.atan2(location[0] - center[0], location[1] - center[1])
 
 		const scaled = pathScale(rad)
-		const quarter = pathPoints / 4
-		const half = pathPoints / 2
+		const quarter = NUM_PATH_POINTS / 4
+		const half = NUM_PATH_POINTS / 2
 		let final = 0
 		if (scaled < 0) {
 			final = quarter - scaled
 		} else {
-			if (scaled > quarter) final = (pathPoints - quarter) + (half - scaled)
+			if (scaled > quarter) final = (NUM_PATH_POINTS - quarter) + (half - scaled)
 			else final = quarter - scaled
 		}
 
-		targs = path[final]	
-		final = final < pathPoints - 2 ? final + 1 : 0
+		currentTarget = paths[currentPath][final]	
+		final = final < NUM_PATH_POINTS - 2 ? final + 1 : 0
 		
-		const tX = path[final + 1].x - sprite.width / 2
-		const tY = path[final + 1].y - sprite.height / 2
+		const tX = paths[currentPath][final + 1].x - sprite.width / 2
+		const tY = paths[currentPath][final + 1].y - sprite.height / 2
 		// const target = vec2.fromValues(path[final][0], path[final][1])
 		
 
@@ -224,8 +211,8 @@ const Boid = (opts) => {
 		const x = 0
 		const y = 0
 
-		targs = [tX + x, tY + y] 
-		const target = vec2.fromValues(targs[0], targs[1])
+		currentTarget = [tX + x, tY + y] 
+		const target = vec2.fromValues(currentTarget[0], currentTarget[1])
 		return seek(target)
 	}
 	/*
@@ -445,33 +432,33 @@ const Boid = (opts) => {
 	}
 
 	const init = () => {
-		xPos = 0
-		yPos = 0
 		counter = -PI / 2 + Math.random() * TWO_PI
 		inc = opts.inc
-		// circle = opts.circle
 
 		location = opts.location
 		velocity = vec2.fromValues(1, 1)
 		center = opts.center
 		sprite = opts.sprite
+		data = opts.data
 
 		setMass(opts.mass)
+		createPaths(opts.ringData, opts.chartSize)
 
 		return {
 			setMass,
-			setScale,
+			setSize,
 			setPath,
-			setSpecial,
+
 			getLocation,
 			getRadius,
-			getSpecial,
+			getData,
+			getSprite,
+			getPathPoint,
+
 			applyBehaviors,
 			update,
 			index: opts.index,
-			getPos,
-			getSprite,
-			getPathPoint,
+			
 		}
 	}
 

@@ -17,6 +17,7 @@ function cleanData(row) {
 	const date = row.date.split('|')
 	return {
 		name: row.name,
+		tier: +row.tier,
 		shows: order.map((d, i) => ({
 			order: order[i],
 			venue: venue[i],

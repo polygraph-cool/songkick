@@ -7,6 +7,7 @@ const init = () => {
 	fetchData((err, data) => {
 		const venues = data[0]
 		const bands = data[1]
+		console.log(bands)
 		// flock.init({ venues, bands })
 		made.init({ venues, bands })
 		// test.init({ venues, bands })

@@ -4,34 +4,38 @@ $trigger-width = 20em
 	position relative
 
 .made__prose
-	width 100%
+	// width 100%
+	width 35%
 	position absolute
 	top 0
 	right 0
+	padding 1rem
 	.trigger 
-		height 95vh
+		height 100vh
 		max-width 25em
 		margin 0 auto
 		// background rgba(red, 0.5)
 		p 
 			margin 0
-			padding 1em
-			background rgba($c2, 0.9)
-			color $c1
-			border-radius 4px
-			box-shadow 0 0 8px 8px $c1
-		&:first-child p
-			margin-top 90vh
-		&:last-child
-			height 125vh
+			// background rgba($c2, 0.8)
+			color $c2
+			// border-radius 4px
+			// box-shadow 0 0 8px 8px $c1
+		// &:first-child p
+		// 	margin-top 95vh
+		// &:last-child
+		// 	height 125vh
+		&:nth-child(-n+3)
+			height auto
+			margin-bottom 1em
 	
 		
 .made__vis
 	position absolute
 	left 0
 	top 0
-	width 100%
-	// width 70%
+	// width 100%
+	width 65%
 	height 100vh
 	margin 0
 	transform translate3d(0px,0px,0px)
@@ -68,14 +72,14 @@ $trigger-width = 20em
 		text-transform uppercase
 		font-size 12px
 		font-weight bold
-		fill darken($c1, 30)
+		fill lighten($c1, 30)
 	
 	.ring
 		opacity 1
 		transition opacity 500ms ease-in-out
 		path 
 			fill none
-			stroke darken($c1, 25)
+			stroke lighten($c1, 30)
 			stroke-dasharray 4 4
 		&.is-hidden
 			opacity 0
