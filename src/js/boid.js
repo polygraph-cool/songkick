@@ -60,9 +60,10 @@ const Boid = (opts) => {
 
 	let pack
 	let special
-	let seekScale
 
 	let wanderTheta = Math.random() * TWO_PI
+
+	let chartSize
 
 	const setSize = (s) => {
 		sprite.width = s
@@ -70,13 +71,6 @@ const Boid = (opts) => {
 		radius = s / 2
 		maxspeed = inc * 300 * (Math.log(s) / 2 + 1)
 		maxforce = maxspeed * 0.1
-		
-		// seekScale = d3.scaleLinear()
-		// scale.domain([0, radius * 4]).range([0, maxspeed])
-	}
-
-	const setPack = (x, y, r, d) => {
-		pack = { x, y, r, d }
 	}
 
 	const createPaths = (ringData, chartSize) => {
@@ -102,7 +96,14 @@ const Boid = (opts) => {
 		currentPath = index
 		if (index === 2) {
 			special = true	
-			setSize(pack.r * 2)
+			const sz = Math.floor(pack.r * 2) - 4
+			setSize(sz)
+			// const texture = PIXI.Texture.fromImage('assets/lake-street-dive.png')
+			// sprite.texture = texture
+			// sprite.interactive = true
+			// sprite.on('mousemove', () => {
+			// 	console.log('mousemove')
+			// })
 		} else {
 			special = false
 		}
@@ -147,9 +148,8 @@ const Boid = (opts) => {
 	}
 	
 	const followSpecial = () => {
-		const c = pack.d / 2
-		const x = center[0] + pack.x - c - sprite.width / 2
-		const y = center[1] + pack.y - c - sprite.height / 2
+		const x = center[0] + pack.x - pack.size / 2 - sprite.width / 2
+		const y = center[1] + pack.y - pack.size / 2 - sprite.height / 2
 		vec2.set(currentTarget, x, y)
 	}
 
@@ -259,16 +259,30 @@ const Boid = (opts) => {
 		counter = -PI / 2 + Math.random() * TWO_PI
 		inc = opts.inc
 
+		chartSize = opts.chartSize
+
 		// init location
 		const angle = Math.random() * Math.PI * 2
-		const x = Math.cos(angle) * opts.chartSize * opts.ringData[0].factor / 2 + opts.chartSize / 2
-	  	const y = Math.sin(angle) * opts.chartSize * opts.ringData[0].factor / 2 + opts.chartSize / 2
+		const x = Math.cos(angle) * chartSize * opts.ringData[0].factor / 2 + chartSize / 2
+	  	const y = Math.sin(angle) * chartSize * opts.ringData[0].factor / 2 + chartSize / 2
 	  	
 	  	location = vec2.fromValues(x, y)
 		velocity = vec2.fromValues(0, 0)
 		center = opts.center
 		sprite = opts.sprite
 		data = opts.data
+
+		// pack
+		const size = opts.ringData[2].factor * chartSize
+
+		if (data.bR) {
+			pack = {
+				size: size,
+				x: size * data.bX,
+				y: size * data.bY,
+				r: size * data.bR,
+			}
+		}
 
 		// sprite.tint = 0XF2929D
 		// sprite.tint = 0X47462F
@@ -280,7 +294,6 @@ const Boid = (opts) => {
 		return {
 			setSize,
 			setPath,
-			setPack,
 
 			getLocation,
 			getRadius,
@@ -289,8 +302,7 @@ const Boid = (opts) => {
 			getPathPoint,
 
 			applyBehaviors,
-			update,
-			index: opts.index,
+			update
 			
 		}
 	}

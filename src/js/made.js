@@ -111,7 +111,6 @@ function setupBoids() {
 		stage.addChild(sprite)
 
 		const b = Boid({
-			index: i,
 			center: [chartSize / 2, chartSize / 2],
 			inc: incScale(d.shows.length),
 			data: d,
@@ -167,34 +166,6 @@ function setupScroll() {
 		.addTo(controller)
 		
 		return scene
-	})
-}
-
-function setupPack() {
-	const pack = d3.pack()
-	const diam = Math.floor(chartSize * ringData[2].factor)
-	
-	// console.log(diam)
-	pack
-		.size([diam, diam])
-		.padding(2)
-
-	const filtered = boids.filter(b => {
-		const data = b.getData()
-		return data.tier >= 2
-	})
-
-	let children = filtered.map(d => ({ index: d.index, value: 1 }))
-
-	const root = d3.hierarchy({ children })
-		.sum(d => 1)
-		// .sort((a, b) => b.value - a.value)
-	
-	pack(root)
-
-	root.children.forEach(child => {
-		const { x, y, r } = child
-		boids[child.data.index].setPack(x, y, Math.floor(r), diam)
 	})
 }
 
@@ -287,7 +258,6 @@ function init(data) {
 	setupText()
 	setupBoids()
 	setupScroll()
-	setupPack()
 	render()
 }
 

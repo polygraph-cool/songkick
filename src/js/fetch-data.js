@@ -19,6 +19,12 @@ function cleanData(row) {
 		id: row.id,
 		name: row.name,
 		tier: +row.tier,
+		pX: +row.pX,
+		pY: +row.pY,
+		pR: +row.pR,
+		bX: +row.bX,
+		bY: +row.bY,
+		bR: +row.bR,
 		shows: order.map((d, i) => ({
 			order: order[i],
 			venue: venue[i],
