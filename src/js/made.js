@@ -171,34 +171,51 @@ function setupScroll() {
 
 function updateScene(index) {
 	const scene = sceneData[index]
-	const { id, tier, size } = scene
-	d3.selectAll('.ring').each(function(d, i) {
-		d3.select(this).classed('is-hidden', i + 3 > index)
-	})
-	
-	if (tier > 0) {
-		const filtered = boids.filter(b => {
-			const data = b.getData()
-			return data.tier >= tier
-		})
+	// const { id, tier, size } = scene
 
-		filtered.forEach(b => {
-			b.setSize(size)
-			b.setPath(tier)
-		})
-	} else {
-		// reset?
-		const filtered = boids.filter(b => {
-			const data = b.getData()
-			return data.tier > 0
-		})
+	// toggle text labels
+	const ring = d3.selectAll('.ring')
+	if (scene === 'explore') ring.classed('is-hidden', true)
+	else ring.classed('is-hidden', (d, i) => i + 3 > index)
 
-		filtered.forEach(b => {
-			b.setSize(size)
-			b.setPath(tier)
-		})
+	let i = boids.length
+	while (i--) {
+		const b = boids[i]
+		b.setScene(scene)
 	}
 }
+	
+	// if (tier) {
+	// 	if (tier > 0) {
+	// 		const filtered = boids.filter(b => {
+	// 			const data = b.getData()
+	// 			return data.tier >= tier
+	// 		})
+
+	// 		filtered.forEach(b => {
+	// 			b.setSize(size)
+	// 			b.setPath(tier)
+	// 		})
+	// 	} else {
+	// 		// reset?
+	// 		const filtered = boids.filter(b => {
+	// 			const data = b.getData()
+	// 			return data.tier > 0
+	// 		})
+
+	// 		filtered.forEach(b => {
+	// 			b.setSize(size)
+	// 			b.setPath(tier)
+	// 		})
+	// 	}
+	// }
+
+	// if (id === 'explore') {
+	// 	boids.forEach(b => {
+	// 		// TODO come on man
+	// 		b.setPath(3)
+	// 	})
+	// }
 
 function render() {
 	// let i = 1

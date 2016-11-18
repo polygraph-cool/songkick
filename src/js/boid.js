@@ -1,5 +1,7 @@
 import * as d3 from 'd3'
 import vec2 from 'gl-matrix-vec2'
+// import sceneData from './data-scene'
+
 const PI = Math.PI
 const TWO_PI = Math.PI * 2
 const NUM_PATH_POINTS = 64
@@ -43,7 +45,7 @@ const Boid = (opts) => {
 	let location
 	let maxspeed
 	let maxforce
-	let radius // TODO sync up with sprite size
+	// let radius
 	let velocity
 	
 	let currentPath = 0
@@ -59,18 +61,104 @@ const Boid = (opts) => {
 	let data
 
 	let pack
-	let special
+	let isBig
+	let isMedium
+	let mode
 
 	let wanderTheta = Math.random() * TWO_PI
 
 	let chartSize
+	let currentSize
+	let sizeAnimationRequest
 
-	const setSize = (s) => {
-		sprite.width = s
-		sprite.height = s
-		radius = s / 2
-		maxspeed = inc * 300 * (Math.log(s) / 2 + 1)
+
+	// GETTERS
+	const getLocation = () => location
+
+	// const getRadius = () => radius
+
+	const getSprite = () => sprite
+
+	const getPathPoint = () => currentTarget
+
+	const getData = () => data
+
+
+	// SETTERS
+	const setSize = (s, transition) => {
+		if (transition) {
+			cancelAnimationFrame(sizeAnimationRequest)
+			transitionSize(s, Math.abs((s - currentSize) * 0.05))
+		} else {
+			currentSize = s
+			sprite.width = s
+			sprite.height = s
+		}
+		
+		setMaxspeed(s)
+	}
+
+	const setMaxspeed = (size) => {
+		maxspeed = mode !== 'default' ? 10 : inc * 300 * (Math.log(size) / 2 + 1)
 		maxforce = maxspeed * 0.1
+	}
+		
+	const setScene = ({ id, tier = 0, size = 2 }) => {
+		switch (id) {
+			case 'explore':
+				mode = 'explore'
+				const sz = Math.floor(data.pR * pack.sizeAll * 2) - 4
+				pack.x = pack.sizeAll * data.pX
+				pack.y = pack.sizeAll * data.pY
+				pack.size = pack.sizeAll
+				setSize(sz, true)
+				break
+			case 'medium':
+				mode = 'default'
+				if (isMedium) {
+					currentPath = 1
+					setSize(size, true)
+				} else {
+
+				}
+				break
+			case 'big':
+				mode = 'default'
+				if (isBig) {
+					mode = 'big'
+					const sz = Math.floor(data.bR * pack.sizeBig * 2) - 4
+					pack.x = pack.sizeBig * data.bX
+					pack.y = pack.sizeBig * data.bY
+					pack.size = pack.sizeBig
+					setSize(sz, true)
+				} else {
+					// yuck
+					setMaxspeed(2)
+				}
+				break
+			default:
+				mode = 'default'
+				currentPath = 0
+				// only reset size if different
+				if (currentSize !== size) setSize(size, true)
+		}
+	}
+
+
+	const transitionSize = (goal, rate) => {
+		const diff = goal - currentSize
+		if (Math.abs(diff) <= rate * 2) {
+			// done
+			currentSize = goal
+			sprite.width = currentSize
+			sprite.height = currentSize
+		} else {
+			const dir = diff > 0 ? 1 : -1
+			currentSize += rate * dir
+			sprite.width = currentSize
+			sprite.height = currentSize
+			sizeAnimationRequest = requestAnimationFrame(() => transitionSize(goal, rate))
+		}
 	}
 
 	const createPaths = (ringData, chartSize) => {
@@ -91,37 +179,11 @@ const Boid = (opts) => {
 			})
 		})
 	}
-	
-	const setPath = (index) => {
-		currentPath = index
-		if (index === 2) {
-			special = true	
-			const sz = Math.floor(pack.r * 2) - 4
-			setSize(sz)
-			// const texture = PIXI.Texture.fromImage('assets/lake-street-dive.png')
-			// sprite.texture = texture
-			// sprite.interactive = true
-			// sprite.on('mousemove', () => {
-			// 	console.log('mousemove')
-			// })
-		} else {
-			special = false
-		}
-	}
-
-	const getLocation = () => location
-
-	const getRadius = () => radius
-
-	const getSprite = () => sprite
-
-	const getPathPoint = () => currentTarget
-
-	const getData = () => data
 
   	const applyBehaviors = (boids) => {
 		// update currentTarget
-		if (special) followSpecial()
+		if (mode === 'explore') followExplore()
+		else if (mode === 'big') followBig()
 		else follow()
 
 		const f = seek(currentTarget)
@@ -147,12 +209,6 @@ const Boid = (opts) => {
 		acceleration = accelerationVec
 	}
 	
-	const followSpecial = () => {
-		const x = center[0] + pack.x - pack.size / 2 - sprite.width / 2
-		const y = center[1] + pack.y - pack.size / 2 - sprite.height / 2
-		vec2.set(currentTarget, x, y)
-	}
-
 	const follow = () => {
 		const rad = Math.atan2(location[0] - center[0], location[1] - center[1])
 
@@ -177,6 +233,20 @@ const Boid = (opts) => {
 		vec2.set(currentTarget, tX + x, tY + y)
 		// vec2.set(currentTarget, center[0], center[1])		
 	}
+
+	const followBig = () => {
+		const x = center[0] + pack.x - pack.size / 2 - sprite.width / 2
+		const y = center[1] + pack.y - pack.size / 2 - sprite.height / 2
+		vec2.set(currentTarget, x, y)
+	}
+
+	const followExplore = () => {
+		const x = center[0] + pack.x - pack.size / 2 - sprite.width / 2
+		const y = center[1] + pack.y - pack.size / 2 - sprite.height / 2
+		vec2.set(currentTarget, x, y)
+	}
+
+	
 
 
   /**
@@ -225,7 +295,7 @@ const Boid = (opts) => {
 	let scaleVec = vec2.create()
 
 	let tempForce = maxforce
-	if (dist < radius * 2) {
+	if (dist < 50) {
 		// get new force vector
 		const s = dist / 4
 		vec2.set(scaleVec, s, s)
@@ -273,30 +343,31 @@ const Boid = (opts) => {
 		data = opts.data
 
 		// pack
-		const size = opts.ringData[2].factor * chartSize
 
-		if (data.bR) {
-			pack = {
-				size: size,
-				x: size * data.bX,
-				y: size * data.bY,
-				r: size * data.bR,
-			}
+		pack = {
+			sizeBig: data.bR ? opts.ringData[2].factor * chartSize : null,
+			sizeAll: chartSize,
 		}
 
 		// sprite.tint = 0XF2929D
 		// sprite.tint = 0X47462F
-		// sprite.alpha = 0.5
+		sprite.alpha = 0.5
+		mode = 'default'
 		setSize(2)
 
 		createPaths(opts.ringData, opts.chartSize)
 
+		isBig = data.tier === 2
+		isMedium = data.tier > 0
+		mode = 'default'
+
 		return {
+			setScene,
 			setSize,
-			setPath,
+			// setPath,
 
 			getLocation,
-			getRadius,
+			// getRadius,
 			getData,
 			getSprite,
 			getPathPoint,
