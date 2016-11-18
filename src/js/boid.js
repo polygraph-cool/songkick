@@ -70,6 +70,7 @@ const Boid = (opts) => {
 	let chartSize
 	let currentSize
 	let sizeAnimationRequest
+	let stable
 
 
 	// GETTERS
@@ -107,6 +108,7 @@ const Boid = (opts) => {
 		switch (id) {
 			case 'explore':
 				mode = 'explore'
+				stable = false
 				const sz = Math.floor(data.pR * pack.sizeAll * 2) - 4
 				pack.x = pack.sizeAll * data.pX
 				pack.y = pack.sizeAll * data.pY
@@ -115,6 +117,7 @@ const Boid = (opts) => {
 				break
 			case 'medium':
 				mode = 'default'
+				stable = false
 				if (isMedium) {
 					currentPath = 1
 					setSize(size, true)
@@ -124,6 +127,7 @@ const Boid = (opts) => {
 				break
 			case 'big':
 				mode = 'default'
+				stable = false
 				if (isBig) {
 					mode = 'big'
 					const sz = Math.floor(data.bR * pack.sizeBig * 2) - 4
@@ -180,15 +184,16 @@ const Boid = (opts) => {
 		})
 	}
 
-  	const applyBehaviors = (boids) => {
+  	const applyBehaviors = () => {
 		// update currentTarget
-		if (mode === 'explore') followExplore()
-		else if (mode === 'big') followBig()
-		else follow()
+		if (!stable) {
+			if (mode === 'explore') followExplore()
+			else if (mode === 'big') followBig()
+			else follow()
 
-		const f = seek(currentTarget)
-
-		applyForce(f)
+			const f = seek(currentTarget)
+			applyForce(f)	
+		}
 	}
 	
 	const applyForce = (force) => {
@@ -200,13 +205,15 @@ const Boid = (opts) => {
 		* New location = current location + (velocity + acceleration) limited by maximum speed
 		* Reset acceleration to avoid permanent increasing
 		*/
-		vec2.add(velocity, velocity, acceleration)
-		vec2.limit(velocity, velocity, maxspeed)
-		vec2.add(location, location, velocity)
+		if (!stable) {
+			vec2.add(velocity, velocity, acceleration)
+			vec2.limit(velocity, velocity, maxspeed)
+			vec2.add(location, location, velocity)
 
-		accelerationVec.set([0, 0])
+			accelerationVec.set([0, 0])
 
-		acceleration = accelerationVec
+			acceleration = accelerationVec	
+		}
 	}
 	
 	const follow = () => {
@@ -321,6 +328,10 @@ const Boid = (opts) => {
 	vec2.sub(steer, desired, velocity)
     
     vec2.limit(steer, steer, tempForce)
+
+    if (dist < 0.5) {
+    	stable = true
+    }
     
 	return steer
   }  

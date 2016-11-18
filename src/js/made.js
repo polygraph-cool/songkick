@@ -175,7 +175,7 @@ function updateScene(index) {
 
 	// toggle text labels
 	const ring = d3.selectAll('.ring')
-	if (scene === 'explore') ring.classed('is-hidden', true)
+	if (scene.id === 'explore') ring.classed('is-hidden', true)
 	else ring.classed('is-hidden', (d, i) => i + 3 > index)
 
 	let i = boids.length
