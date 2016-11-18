@@ -6,6 +6,7 @@ const PI = Math.PI
 const TWO_PI = Math.PI * 2
 const NUM_PATH_POINTS = 64
 
+
 // add limit function to vec library
 vec2.limit = function(out, v, high) {
 	let x = v[0]
@@ -24,31 +25,15 @@ vec2.limit = function(out, v, high) {
 }
 
 const Boid = (opts) => {
-	let debugPathPoint
-	let normalPoint
-	let predict = vec2.create()
-	let dir = vec2.create()
-
-	let a = vec2.create()
-	let b = vec2.create()
-	let ap = vec2.create()
-	let ab = vec2.create()
-	let clonea = vec2.create()
-	let predictLoc = vec2.create()
-	let followVec = vec2.create()
-
 	let accelerationVec = vec2.create()
-	let steerVec = vec2.create()
-	let diffVec = vec2.create()
 	let acceleration = vec2.create()
 
 	let location
 	let maxspeed
 	let maxforce
-	// let radius
 	let velocity
 	
-	let currentPath = 0
+	let currentPath
 	let paths
 	let pathScale
 	
@@ -57,7 +42,9 @@ const Boid = (opts) => {
 	
 	let counter
 	let inc
+	
 	let sprite
+	let text
 	let data
 
 	let pack
@@ -65,7 +52,7 @@ const Boid = (opts) => {
 	let isMedium
 	let mode
 
-	let wanderTheta = Math.random() * TWO_PI
+	// let wanderTheta = Math.random() * TWO_PI
 
 	let chartSize
 	let currentSize
@@ -109,7 +96,7 @@ const Boid = (opts) => {
 			case 'explore':
 				mode = 'explore'
 				stable = false
-				const sz = Math.floor(data.pR * pack.sizeAll * 2) - 4
+				const sz = Math.max(2, Math.floor(data.pR * pack.sizeAll * 2) - 2)
 				pack.x = pack.sizeAll * data.pX
 				pack.y = pack.sizeAll * data.pY
 				pack.size = pack.sizeAll
@@ -201,10 +188,6 @@ const Boid = (opts) => {
   	}
 
 	const update = () => {
-		/**
-		* New location = current location + (velocity + acceleration) limited by maximum speed
-		* Reset acceleration to avoid permanent increasing
-		*/
 		if (!stable) {
 			vec2.add(velocity, velocity, acceleration)
 			vec2.limit(velocity, velocity, maxspeed)
@@ -253,88 +236,49 @@ const Boid = (opts) => {
 		vec2.set(currentTarget, x, y)
 	}
 
-	
+	const seek = (t) => {
+	  	const tempTarget = vec2.clone(t)
+	  	const desired = vec2.create()
+		
+		// mag
+		const dist = vec2.dist(location, tempTarget)
+
+		let scaleVec = vec2.create()
+
+		let tempForce = maxforce
+		if (dist < 50) {
+			// get new force vector
+			const s = dist / 4
+			vec2.set(scaleVec, s, s)
+			tempForce = maxforce * 100
+		} else {
+			vec2.set(scaleVec, maxspeed, maxspeed)
+		}
+
+		// console.log(scaleVec[0])
 
 
-  /**
-   * Find normal point of the future location on current path segment
-   *
-   * @function
-   * @memberOf Boid
-   *
-   * @param {Array} p Future location of the vehicle
-   * @param {Array} a Start point of the path segment
-   * @param {Array} b End point of the path segment
-   *
-   * @returns {Array} Normal point vec2
-   */
-	const getNormalPoint = (p, a, b) => {
-		ap.set(p);
-		ab.set(b);
+		// set desired
+		vec2.sub(desired, tempTarget, location)
 
-		/** Perform scalar projection calculations */
-		vec2.sub(ap, ap, a);
-		vec2.sub(ab, ab, a);
-		vec2.normalize(ab, ab);
-		vec2.scale(ab, ab, vec2.dot(ap, ab));
+		// normalize desired
+		vec2.normalize(desired, desired)
 
-		clonea.set(a)
-		return vec2.add(vec2.create(), clonea, ab);
-	}
+		
+		vec2.multiply(desired, desired, scaleVec)
 
-  /**
-   * Produce path following behavior
-   *
-   * @function
-   * @memberOf Boid
-   *
-   * @param {Array} target Point on the path where vehicle is steering to
-   *
-   * @returns {Array} Path following behavior
-   */
-  const seek = (t) => {
-  	const tempTarget = vec2.clone(t)
-  	const desired = vec2.create()
-	
-	// mag
-	const dist = vec2.dist(location, tempTarget)
+		// Steering = Desired minus Velocity
+		const steer = vec2.create()
+		vec2.sub(steer, desired, velocity)
+	    
+	    vec2.limit(steer, steer, tempForce)
 
-	let scaleVec = vec2.create()
-
-	let tempForce = maxforce
-	if (dist < 50) {
-		// get new force vector
-		const s = dist / 4
-		vec2.set(scaleVec, s, s)
-		tempForce = maxforce * 100
-	} else {
-		vec2.set(scaleVec, maxspeed, maxspeed)
-	}
-
-	// console.log(scaleVec[0])
-
-
-	// set desired
-	vec2.sub(desired, tempTarget, location)
-
-	// normalize desired
-	vec2.normalize(desired, desired)
-
-	
-	vec2.multiply(desired, desired, scaleVec)
-
-	// Steering = Desired minus Velocity
-	const steer = vec2.create()
-	vec2.sub(steer, desired, velocity)
+	    if (dist < 0.5) {
+	    	stable = true
+	    }
     
-    vec2.limit(steer, steer, tempForce)
-
-    if (dist < 0.5) {
-    	stable = true
-    }
-    
-	return steer
-  }  
+		return steer
+	}  
 
 	const init = () => {
 		counter = -PI / 2 + Math.random() * TWO_PI
@@ -351,6 +295,7 @@ const Boid = (opts) => {
 		velocity = vec2.fromValues(0, 0)
 		center = opts.center
 		sprite = opts.sprite
+		text = opts.text
 		data = opts.data
 
 		// pack
@@ -360,12 +305,13 @@ const Boid = (opts) => {
 			sizeAll: chartSize,
 		}
 
-		// sprite.tint = 0XF2929D
+		sprite.tint = 0XF2929D
 		// sprite.tint = 0X47462F
 		sprite.alpha = 0.5
 		mode = 'default'
 		setSize(2)
 
+		currentPath = 0
 		createPaths(opts.ringData, opts.chartSize)
 
 		isBig = data.tier === 2

@@ -4,7 +4,9 @@ import fetchData from './fetch-data'
 import made from './made'
 
 const init = () => {
+	console.time('fetch data')
 	fetchData((err, data) => {
+		console.timeEnd('fetch data')
 		const venues = data[0]
 		const bands = data[1].slice(0, 3000)
 		// flock.init({ venues, bands })

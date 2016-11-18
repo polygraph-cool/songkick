@@ -103,23 +103,25 @@ function setupBoids() {
 	const incScale = d3.scalePow().exponent(0.5)
 
 	incScale.domain([1, maxShows])
-	incScale.range([.002, .008])
+	incScale.range([0.002, 0.008])
 
 	boids = bands.map((d, i) => {
 		const sprite = PIXI.Sprite.fromImage('assets/circle-32.png')
 		
+		// const text = new PIXI.Text(d.name)
+		const text = null
 		stage.addChild(sprite)
+		// stage.addChild(text)
 
-		const b = Boid({
+		return Boid({
 			center: [chartSize / 2, chartSize / 2],
 			inc: incScale(d.shows.length),
 			data: d,
 			sprite,
+			text,
 			ringData,
 			chartSize,
 		})
-
-		return b
 	})
 }
 
@@ -270,7 +272,6 @@ function init(data) {
 	bands = data.bands
 		
 	maxShows = d3.max(bands, d => d.shows.length)
-
 	setupDOM()
 	setupText()
 	setupBoids()
