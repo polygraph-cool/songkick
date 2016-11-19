@@ -11,8 +11,6 @@ import ringData from './data-rings'
 let renderer
 let stage
 
-// let nextPoint
-
 const PI = Math.PI
 const TWO_PI = Math.PI * 2
 
@@ -20,6 +18,7 @@ const debug = false
 const GRID_RESOLUTION = 30
 
 let chartSize = 0
+let numBoids = 0
 
 const madeEl = d3.select('#made')
 const madeProseEl = d3.select('.made__prose')
@@ -35,10 +34,10 @@ let maxShows = 0
 
 function setupDOM() {
 	chartSize = Math.min(window.innerHeight * 0.8, chartEl.node().offsetWidth)
-	renderer = PIXI.autoDetectRenderer(chartSize, chartSize, { 
-		resolution: 2,
-		transparent: true,
-	})
+	// renderer = PIXI.autoDetectRenderer(chartSize, chartSize, { 
+	// 	resolution: 2,
+	// 	transparent: true,
+	// })
 
 	chartEl
 		.style('width', `${chartSize}px`)
@@ -49,11 +48,11 @@ function setupDOM() {
 	//add svg
 	chartEl.append('svg')
 
-	renderer.view.style.width = `${chartSize}px`
-	renderer.view.style.height = `${chartSize}px`
+	// renderer.view.style.width = `${chartSize}px`
+	// renderer.view.style.height = `${chartSize}px`
 
 	//Create a container object called the `stage`
-	stage = new PIXI.Container()
+	// stage = new PIXI.Container()
 
 	// debug
 	// nextPoint = new PIXI.Graphics()
@@ -114,7 +113,6 @@ function setupBoids() {
 		// stage.addChild(text)
 
 		return Boid({
-			center: [chartSize / 2, chartSize / 2],
 			inc: incScale(d.shows.length),
 			data: d,
 			sprite,
@@ -123,6 +121,8 @@ function setupBoids() {
 			chartSize,
 		})
 	})
+
+	numBoids = boids.length
 }
 
 function setupScroll() {
@@ -172,74 +172,24 @@ function setupScroll() {
 }
 
 function updateScene(index) {
-	const scene = sceneData[index]
-	// const { id, tier, size } = scene
-
 	// toggle text labels
 	const ring = d3.selectAll('.ring')
-	if (scene.id === 'explore') ring.classed('is-hidden', true)
+	if (sceneData[index].id === 'explore') ring.classed('is-hidden', true)
 	else ring.classed('is-hidden', (d, i) => i + 3 > index)
 
-	let i = boids.length
+	let i = numBoids
 	while (i--) {
-		const b = boids[i]
-		b.setScene(scene)
+		boids[i].setScene(sceneData[index])
 	}
 }
 	
-	// if (tier) {
-	// 	if (tier > 0) {
-	// 		const filtered = boids.filter(b => {
-	// 			const data = b.getData()
-	// 			return data.tier >= tier
-	// 		})
-
-	// 		filtered.forEach(b => {
-	// 			b.setSize(size)
-	// 			b.setPath(tier)
-	// 		})
-	// 	} else {
-	// 		// reset?
-	// 		const filtered = boids.filter(b => {
-	// 			const data = b.getData()
-	// 			return data.tier > 0
-	// 		})
-
-	// 		filtered.forEach(b => {
-	// 			b.setSize(size)
-	// 			b.setPath(tier)
-	// 		})
-	// 	}
-	// }
-
-	// if (id === 'explore') {
-	// 	boids.forEach(b => {
-	// 		// TODO come on man
-	// 		b.setPath(3)
-	// 	})
-	// }
-
 function render() {
-	// let i = 1
-	let i = boids.length
-	// const grid = d3.range(GRID_RESOLUTION).map(d => d3.range(GRID_RESOLUTION).map(d => []))
+	let i = numBoids
+	
 	while (i--) {
-		const b = boids[i]
+		boids[i].applyBehaviors()
+		boids[i].update()
 		
-		// const loc = b.getLocation()
-		// const x = Math.floor(loc[0] / chartSize * GRID_RESOLUTION)
-		// const y = Math.floor(loc[1] / chartSize * GRID_RESOLUTION)
-		// grid[x][y].push(b)
-
-		b.applyBehaviors()
-		b.update()
-		
-		const pos = b.getLocation()
-		const x = pos[0]
-		const y = pos[1]
-		
-		const sprite = b.getSprite()
-		sprite.position.set(x, y)
 		// debug
 		// const pp = b.getPathPoint()
 		// nextPoint.clear()
@@ -248,24 +198,10 @@ function render() {
 		// nextPoint.endFill()	
 	}
 	
-	// let x = GRID_RESOLUTION
-	// while(x--) {
-	// 	let y = GRID_RESOLUTION
-	// 	while(y--) {
-	// 		// if (debug) {
-	// 		// 	ctx.strokeStyle = '#ccc'
-	// 		// 	ctx.strokeRect(x / GRID_RESOLUTION * chartSize, y / GRID_RESOLUTION * chartSize, chartSize / GRID_RESOLUTION, chartSize / GRID_RESOLUTION)
-	// 		// }
-	// 		renderGrid(grid[x][y])
-	// 	}
-	// }
-
 	renderer.render(stage)
 	
 	requestAnimationFrame(render)
-	// setTimeout(render, 1000)
 }
-
 
 function init(data) {
 	venues = data.venues
@@ -273,10 +209,10 @@ function init(data) {
 		
 	maxShows = d3.max(bands, d => d.shows.length)
 	setupDOM()
-	setupText()
-	setupBoids()
-	setupScroll()
-	render()
+	// setupText()
+	// setupBoids()
+	// setupScroll()
+	// render()
 }
 
 

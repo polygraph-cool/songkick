@@ -5,6 +5,8 @@ import vec2 from 'gl-matrix-vec2'
 const PI = Math.PI
 const TWO_PI = Math.PI * 2
 const NUM_PATH_POINTS = 64
+const HALF_PP = NUM_PATH_POINTS / 2
+const QUARTER_PP = NUM_PATH_POINTS / 4
 
 
 // add limit function to vec library
@@ -25,22 +27,22 @@ vec2.limit = function(out, v, high) {
 }
 
 const Boid = (opts) => {
+	let locationVec = vec2.create()
+	let velocityVec = vec2.create()
 	let accelerationVec = vec2.create()
-	let acceleration = vec2.create()
+	let scaleVec = vec2.create()
+	let currentTargetVec = vec2.create()
+	let centerVec = vec2.create()	
+	let desiredVec = vec2.create()	
+	let steerVec = vec2.create()
 
-	let location
 	let maxspeed
 	let maxforce
-	let velocity
 	
 	let currentPath
 	let paths
 	let pathScale
 	
-	let center
-	let currentTarget = vec2.create()
-	
-	let counter
 	let inc
 	
 	let sprite
@@ -59,18 +61,7 @@ const Boid = (opts) => {
 	let sizeAnimationRequest
 	let stable
 
-
-	// GETTERS
-	const getLocation = () => location
-
-	// const getRadius = () => radius
-
-	const getSprite = () => sprite
-
-	const getPathPoint = () => currentTarget
-
-	const getData = () => data
-
+	const getPathPoint = () => currentTargetVec
 
 	// SETTERS
 	const setSize = (s, transition) => {
@@ -96,34 +87,42 @@ const Boid = (opts) => {
 			case 'explore':
 				mode = 'explore'
 				stable = false
-				const sz = Math.max(2, Math.floor(data.pR * pack.sizeAll * 2) - 2)
+				
+				size = Math.max(2, Math.floor(data.pR * pack.sizeAll * 2) - 2)
+				
 				pack.x = pack.sizeAll * data.pX
 				pack.y = pack.sizeAll * data.pY
 				pack.size = pack.sizeAll
-				setSize(sz, true)
+				
+				setSize(size, true)
+				
 				break
 			case 'medium':
 				mode = 'default'
 				stable = false
+				
 				if (isMedium) {
 					currentPath = 1
 					setSize(size, true)
-				} else {
-
 				}
+
 				break
 			case 'big':
 				mode = 'default'
 				stable = false
+				
 				if (isBig) {
 					mode = 'big'
-					const sz = Math.floor(data.bR * pack.sizeBig * 2) - 4
+					
+					size = Math.floor(data.bR * pack.sizeBig * 2) - 4
+					
 					pack.x = pack.sizeBig * data.bX
 					pack.y = pack.sizeBig * data.bY
 					pack.size = pack.sizeBig
-					setSize(sz, true)
+					
+					setSize(size, true)
 				} else {
-					// yuck
+					// TODO?
 					setMaxspeed(2)
 				}
 				break
@@ -131,18 +130,20 @@ const Boid = (opts) => {
 				mode = 'default'
 				currentPath = 0
 				// only reset size if different
-				if (currentSize !== size) setSize(size, true)
+				if (currentSize !== sz) setSize(sz, true)
 		}
 	}
 
 
 	const transitionSize = (goal, rate) => {
 		const diff = goal - currentSize
+
 		if (Math.abs(diff) <= rate * 2) {
-			// done
+			// done			
 			currentSize = goal
 			sprite.width = currentSize
 			sprite.height = currentSize
+			sizeAnimationRequest = null
 		} else {
 			const dir = diff > 0 ? 1 : -1
 			currentSize += rate * dir
@@ -172,45 +173,43 @@ const Boid = (opts) => {
 	}
 
   	const applyBehaviors = () => {
-		// update currentTarget
+		// update currentTargetVec
 		if (!stable) {
 			if (mode === 'explore') followExplore()
 			else if (mode === 'big') followBig()
 			else follow()
 
-			const f = seek(currentTarget)
-			applyForce(f)	
+			const f = seek()
+			applyForce(f)
 		}
 	}
 	
 	const applyForce = (force) => {
-		vec2.add(acceleration, acceleration, force)
+		vec2.add(accelerationVec, accelerationVec, force)
   	}
 
 	const update = () => {
 		if (!stable) {
-			vec2.add(velocity, velocity, acceleration)
-			vec2.limit(velocity, velocity, maxspeed)
-			vec2.add(location, location, velocity)
+			vec2.add(velocityVec, velocityVec, accelerationVec)
+			vec2.limit(velocityVec, velocityVec, maxspeed)
+			vec2.add(locationVec, locationVec, velocityVec)
 
-			accelerationVec.set([0, 0])
+			vec2.set(accelerationVec, 0, 0)
 
-			acceleration = accelerationVec	
+			sprite.position.set(locationVec[0], locationVec[1])
 		}
 	}
 	
 	const follow = () => {
-		const rad = Math.atan2(location[0] - center[0], location[1] - center[1])
+		const rad = Math.atan2(locationVec[0] - centerVec[0], locationVec[1] - centerVec[1])
 
 		const scaled = pathScale(rad)
-		const quarter = NUM_PATH_POINTS / 4
-		const half = NUM_PATH_POINTS / 2
 		let final = 0
 		if (scaled < 0) {
-			final = quarter - scaled
+			final = QUARTER_PP - scaled
 		} else {
-			if (scaled > quarter) final = (NUM_PATH_POINTS - quarter) + (half - scaled)
-			else final = quarter - scaled
+			if (scaled > QUARTER_PP) final = (NUM_PATH_POINTS - QUARTER_PP) + (HALF_PP - scaled)
+			else final = QUARTER_PP - scaled
 		}
 
 		final = final < NUM_PATH_POINTS - 2 ? final + 1 : 0
@@ -218,32 +217,26 @@ const Boid = (opts) => {
 		const tX = paths[currentPath][final + 1].x - sprite.width / 2
 		const tY = paths[currentPath][final + 1].y - sprite.height / 2
 		
-		const x = 0
-		const y = 0
-		vec2.set(currentTarget, tX + x, tY + y)
-		// vec2.set(currentTarget, center[0], center[1])		
+		vec2.set(currentTargetVec, tX, tY)
 	}
 
 	const followBig = () => {
-		const x = center[0] + pack.x - pack.size / 2 - sprite.width / 2
-		const y = center[1] + pack.y - pack.size / 2 - sprite.height / 2
-		vec2.set(currentTarget, x, y)
+		const x = centerVec[0] + pack.x - pack.size / 2 - sprite.width / 2
+		const y = centerVec[1] + pack.y - pack.size / 2 - sprite.height / 2
+		vec2.set(currentTargetVec, x, y)
 	}
 
 	const followExplore = () => {
-		const x = center[0] + pack.x - pack.size / 2 - sprite.width / 2
-		const y = center[1] + pack.y - pack.size / 2 - sprite.height / 2
-		vec2.set(currentTarget, x, y)
+		const x = centerVec[0] + pack.x - pack.size / 2 - sprite.width / 2
+		const y = centerVec[1] + pack.y - pack.size / 2 - sprite.height / 2
+		vec2.set(currentTargetVec, x, y)
 	}
 
 	const seek = (t) => {
-	  	const tempTarget = vec2.clone(t)
-	  	const desired = vec2.create()
+	  	// const tempTarget = vec2.clone(t)
 		
 		// mag
-		const dist = vec2.dist(location, tempTarget)
-
-		let scaleVec = vec2.create()
+		const dist = vec2.dist(locationVec, currentTargetVec)
 
 		let tempForce = maxforce
 		if (dist < 50) {
@@ -259,41 +252,42 @@ const Boid = (opts) => {
 
 
 		// set desired
-		vec2.sub(desired, tempTarget, location)
+		vec2.sub(desiredVec, currentTargetVec, locationVec)
 
-		// normalize desired
-		vec2.normalize(desired, desired)
+		// normalize desiredVec
+		vec2.normalize(desiredVec, desiredVec)
 
 		
-		vec2.multiply(desired, desired, scaleVec)
+		vec2.multiply(desiredVec, desiredVec, scaleVec)
 
 		// Steering = Desired minus Velocity
-		const steer = vec2.create()
-		vec2.sub(steer, desired, velocity)
+		// const steer = vec2.create()
+		vec2.sub(steerVec, desiredVec, velocityVec)
 	    
-	    vec2.limit(steer, steer, tempForce)
+	    vec2.limit(steerVec, steerVec, tempForce)
 
 	    if (dist < 0.5) {
 	    	stable = true
 	    }
     
-		return steer
+		return steerVec
 	}  
 
 	const init = () => {
-		counter = -PI / 2 + Math.random() * TWO_PI
 		inc = opts.inc
 
 		chartSize = opts.chartSize
+		const halfSize = chartSize / 2
 
-		// init location
+		// init locationVec
 		const angle = Math.random() * Math.PI * 2
-		const x = Math.cos(angle) * chartSize * opts.ringData[0].factor / 2 + chartSize / 2
-	  	const y = Math.sin(angle) * chartSize * opts.ringData[0].factor / 2 + chartSize / 2
+		const x = Math.cos(angle) * chartSize * opts.ringData[0].factor / 2 + halfSize
+	  	const y = Math.sin(angle) * chartSize * opts.ringData[0].factor / 2 + halfSize
 	  	
-	  	location = vec2.fromValues(x, y)
-		velocity = vec2.fromValues(0, 0)
-		center = opts.center
+	  	vec2.set(locationVec, x, y)
+		vec2.set(velocityVec, 0, 0)
+		vec2.set(centerVec, halfSize, halfSize)
+		
 		sprite = opts.sprite
 		text = opts.text
 		data = opts.data
@@ -321,12 +315,7 @@ const Boid = (opts) => {
 		return {
 			setScene,
 			setSize,
-			// setPath,
 
-			getLocation,
-			// getRadius,
-			getData,
-			getSprite,
 			getPathPoint,
 
 			applyBehaviors,
