@@ -19,6 +19,7 @@ const GRID_RESOLUTION = 30
 
 let chartSize = 0
 let numBoids = 0
+let currentScene = 0
 
 const madeEl = d3.select('#made')
 const madeProseEl = d3.select('.made__prose')
@@ -34,10 +35,10 @@ let maxShows = 0
 
 function setupDOM() {
 	chartSize = Math.min(window.innerHeight * 0.8, chartEl.node().offsetWidth)
-	// renderer = PIXI.autoDetectRenderer(chartSize, chartSize, { 
-	// 	resolution: 2,
-	// 	transparent: true,
-	// })
+	renderer = PIXI.autoDetectRenderer(chartSize, chartSize, { 
+		resolution: 2,
+		transparent: true,
+	})
 
 	chartEl
 		.style('width', `${chartSize}px`)
@@ -48,11 +49,11 @@ function setupDOM() {
 	//add svg
 	chartEl.append('svg')
 
-	// renderer.view.style.width = `${chartSize}px`
-	// renderer.view.style.height = `${chartSize}px`
+	renderer.view.style.width = `${chartSize}px`
+	renderer.view.style.height = `${chartSize}px`
 
-	//Create a container object called the `stage`
-	// stage = new PIXI.Container()
+	// Create a container object called the `stage`
+	stage = new PIXI.Container()
 
 	// debug
 	// nextPoint = new PIXI.Graphics()
@@ -104,8 +105,11 @@ function setupBoids() {
 	incScale.domain([1, maxShows])
 	incScale.range([0.002, 0.008])
 
+	const texture = PIXI.Texture.fromImage('assets/circle-32.png')
+
+
 	boids = bands.map((d, i) => {
-		const sprite = PIXI.Sprite.fromImage('assets/circle-32.png')
+		const sprite = new PIXI.Sprite(texture)
 		
 		// const text = new PIXI.Text(d.name)
 		const text = null
@@ -122,6 +126,7 @@ function setupBoids() {
 		})
 	})
 
+	texture.baseTexture.dispose()
 	numBoids = boids.length
 }
 
@@ -160,10 +165,12 @@ function setupScroll() {
 		})
 		
 		scene.on('enter', event => {
-			updateScene(i)
+			currentScene = i
+			updateScene()
 		})
 		.on('leave', event => {
-			updateScene(Math.max(0, i - 1))
+			currentScene = Math.max(0, i - 1)
+			updateScene()
 		})
 		.addTo(controller)
 		
@@ -171,15 +178,16 @@ function setupScroll() {
 	})
 }
 
-function updateScene(index) {
+function updateScene() {
 	// toggle text labels
 	const ring = d3.selectAll('.ring')
-	if (sceneData[index].id === 'explore') ring.classed('is-hidden', true)
-	else ring.classed('is-hidden', (d, i) => i + 3 > index)
+	if (sceneData[currentScene].id === 'explore') ring.classed('is-hidden', true)
+	else ring.classed('is-hidden', (d, i) => i + 3 > currentScene)
 
 	let i = numBoids
+	console.log(currentScene)
 	while (i--) {
-		boids[i].setScene(sceneData[index])
+		boids[i].setScene(sceneData[currentScene])
 	}
 }
 	
@@ -199,7 +207,6 @@ function render() {
 	}
 	
 	renderer.render(stage)
-	
 	requestAnimationFrame(render)
 }
 
@@ -209,10 +216,20 @@ function init(data) {
 		
 	maxShows = d3.max(bands, d => d.shows.length)
 	setupDOM()
-	// setupText()
-	// setupBoids()
-	// setupScroll()
-	// render()
+	setupText()
+	setupBoids()
+	setupScroll()
+	render()
+	let x = 0
+	window.addEventListener('keyup', (e) => {
+		e.preventDefault()
+		currentScene++
+		updateScene()
+
+	})
+	// setTimeout(() => {
+	// 	updateScene(6)
+	// }, 2000)
 }
 
 

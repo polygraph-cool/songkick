@@ -78,39 +78,24 @@ const Boid = (opts) => {
 	}
 
 	const setMaxspeed = (size) => {
-		maxspeed = mode !== 'default' ? 10 : inc * 300 * (Math.log(size) / 2 + 1)
+		maxspeed = mode !== 'default' ? 10 : inc * 200 * (Math.log(size) / 2 + 1)
+		// maxspeed = 0.5
 		maxforce = maxspeed * 0.1
 	}
 		
-	const setScene = ({ id, tier = 0, size = 2 }) => {
+	const setScene = ({ id, size = 2 }) => {
+		stable = false
+		mode = 'default'
+		setMaxspeed(2)
+		
 		switch (id) {
-			case 'explore':
-				mode = 'explore'
-				stable = false
-				
-				size = Math.max(2, Math.floor(data.pR * pack.sizeAll * 2) - 2)
-				
-				pack.x = pack.sizeAll * data.pX
-				pack.y = pack.sizeAll * data.pY
-				pack.size = pack.sizeAll
-				
-				setSize(size, true)
-				
-				break
 			case 'medium':
-				mode = 'default'
-				stable = false
-				
 				if (isMedium) {
 					currentPath = 1
-					setSize(size, true)
+					setSize(size, false)
 				}
-
 				break
 			case 'big':
-				mode = 'default'
-				stable = false
-				
 				if (isBig) {
 					mode = 'big'
 					
@@ -120,17 +105,24 @@ const Boid = (opts) => {
 					pack.y = pack.sizeBig * data.bY
 					pack.size = pack.sizeBig
 					
-					setSize(size, true)
-				} else {
-					// TODO?
-					setMaxspeed(2)
+					setSize(size, false)
 				}
 				break
+			case 'explore':
+				mode = 'explore'
+				size = Math.max(2, Math.floor(data.pR * pack.sizeAll * 2) - 2)
+				
+				pack.x = pack.sizeAll * data.pX
+				pack.y = pack.sizeAll * data.pY
+				pack.size = pack.sizeAll
+				
+				setSize(size, false)
+				
+				break
 			default:
-				mode = 'default'
 				currentPath = 0
 				// only reset size if different
-				if (currentSize !== sz) setSize(sz, true)
+				if (currentSize !== size) setSize(size, false)
 		}
 	}
 
@@ -175,9 +167,9 @@ const Boid = (opts) => {
   	const applyBehaviors = () => {
 		// update currentTargetVec
 		if (!stable) {
-			if (mode === 'explore') followExplore()
+			if (mode === 'default') follow()
+			else if (mode === 'explore') followExplore()
 			else if (mode === 'big') followBig()
-			else follow()
 
 			const f = seek()
 			applyForce(f)
@@ -200,10 +192,10 @@ const Boid = (opts) => {
 		}
 	}
 	
-	const follow = () => {
-		const rad = Math.atan2(locationVec[0] - centerVec[0], locationVec[1] - centerVec[1])
-
-		const scaled = pathScale(rad)
+	// follow
+	const getRad = () => Math.atan2(locationVec[0] - centerVec[0], locationVec[1] - centerVec[1])
+	const getScale = (rad) => pathScale(rad)
+	const getFinal = (scaled) => {
 		let final = 0
 		if (scaled < 0) {
 			final = QUARTER_PP - scaled
@@ -213,11 +205,21 @@ const Boid = (opts) => {
 		}
 
 		final = final < NUM_PATH_POINTS - 2 ? final + 1 : 0
-		
+		return final
+	}
+	const getTarget = (final) => {
 		const tX = paths[currentPath][final + 1].x - sprite.width / 2
 		const tY = paths[currentPath][final + 1].y - sprite.height / 2
-		
-		vec2.set(currentTargetVec, tX, tY)
+		return { x: tX, y: tY }
+	}
+	
+	const follow = () => {
+		const rad = getRad()
+		const scaled = getScale(rad)
+		const final = getFinal(scaled)
+		const target = getTarget(final)
+		const { x, y } = target
+		vec2.set(currentTargetVec, x, y)
 	}
 
 	const followBig = () => {
@@ -266,9 +268,8 @@ const Boid = (opts) => {
 	    
 	    vec2.limit(steerVec, steerVec, tempForce)
 
-	    if (dist < 0.5) {
-	    	stable = true
-	    }
+	    if (dist < 0.5) stable = true
+		else stable = false
     
 		return steerVec
 	}  
@@ -302,16 +303,12 @@ const Boid = (opts) => {
 		sprite.tint = 0XF2929D
 		// sprite.tint = 0X47462F
 		sprite.alpha = 0.5
-		mode = 'default'
-		setSize(2)
-
-		currentPath = 0
 		createPaths(opts.ringData, opts.chartSize)
 
 		isBig = data.tier === 2
 		isMedium = data.tier > 0
-		mode = 'default'
 
+		setScene(0)
 		return {
 			setScene,
 			setSize,
