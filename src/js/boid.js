@@ -35,6 +35,7 @@ const Boid = (opts) => {
 	let currentTargetVec = vec2.create()
 	let centerVec = vec2.create()	
 
+	let maxspeedOrig
 	let maxspeed
 	let maxforce
 	
@@ -90,7 +91,7 @@ const Boid = (opts) => {
 
 	const setMaxspeed = (size) => {
 		// maxspeed = mode !== 'default' ? 10 : inc * 100 * (Math.log(size) / 2 + 1)
-		maxspeed = mode !== 'default' ? 5 : Math.random() * 0.5 + 0.5
+		maxspeed = mode !== 'default' ? 5 : maxspeedOrig
 		maxforce = maxspeed * 0.25
 	}
 		
@@ -279,9 +280,7 @@ const Boid = (opts) => {
 		return final 
 	}
 	const getTarget = (i) => {
-		const offset = (currentPath * NUM_PATH_POINTS)
-		const index = offset + i
-
+		const index = currentPath * NUM_PATH_POINTS + i
 		const tX = paths[index][0]
 		const tY = paths[index][1]
 		return [tX, tY]
@@ -337,11 +336,9 @@ const Boid = (opts) => {
 		
 		vec2.multiply(desiredVec, desiredVec, scaleVec)
 
-		// Steering = Desired minus Velocity
-		// const steer = vec2.create()
 		vec2.sub(steerVec, desiredVec, velocityVec)
 	    
-	    vec2.limit(steerVec, steerVec, tempForce)
+	    // vec2.limit(steerVec, steerVec, tempForce)
 
 	    if (dist < 0.5) stable = true
 		else stable = false
@@ -378,6 +375,7 @@ const Boid = (opts) => {
 			fill: '#efefef',
 		}
 
+		maxspeedOrig = Math.random() * 0.5 + 0.75
 
 		// pack
 
