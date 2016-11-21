@@ -81,6 +81,7 @@ const Boid = (opts) => {
 			currentRadius = s / 2
 			sprite.width = s
 			sprite.height = s
+			sprite.position.set(-currentRadius, -currentRadius)
 
 		}
 		
@@ -88,21 +89,23 @@ const Boid = (opts) => {
 	}
 
 	const setMaxspeed = (size) => {
-		maxspeed = mode !== 'default' ? 10 : inc * 100 * (Math.log(size) / 2 + 1)
-		// maxspeed = 0.5
-		maxforce = maxspeed * 0.3
+		// maxspeed = mode !== 'default' ? 10 : inc * 100 * (Math.log(size) / 2 + 1)
+		maxspeed = mode !== 'default' ? 5 : Math.random() * 0.5 + 0.5
+		maxforce = maxspeed * 0.25
 	}
 		
-	const setScene = ({ id, size = 2 }) => {
+	const setScene = ({ id }) => {
+		let size = 2
 		stable = false
 		mode = 'default'
-		setMaxspeed(2)
 		
 		switch (id) {
 			case 'medium':
 				if (isMedium) {
 					currentPath = 1
-					setSize(size, true)
+					setSize(6, true)
+				} else {
+					setSize(size)
 				}
 				break
 			case 'big':
@@ -112,9 +115,12 @@ const Boid = (opts) => {
 					// x, y, size
 					pack = [sizeBig * data.bX, sizeBig * data.bY, sizeBig / 2]
 
-					size = Math.floor(data.bR * sizeBig * 2) - 4
+					size = Math.min(Math.floor(data.bR * sizeBig * 2), 14)
+					size -= 2
 					
 					setSize(size, true)
+				} else {
+					setSize(size)
 				}
 				break
 			case 'explore':
@@ -126,6 +132,7 @@ const Boid = (opts) => {
 				size = Math.max(2, Math.floor(data.pR * sizeAll * 2) - 2)
 
 				setSize(size, true)
+				text.visible = false
 				
 				break
 			default:
@@ -135,6 +142,18 @@ const Boid = (opts) => {
 		}
 	}
 
+	const enterBig = (recent) => {
+		if (mode !== 'big') setScene({id: 'big'})
+		if (recent) {
+			text.y = sizeTransitionGoal ? -sizeTransitionGoal : -currentSize
+		}
+		text.visible = recent
+	}
+
+	const exitBig = () => {
+		if (mode === 'big') setScene({id: 'medium' })
+		text.visible = false
+	}
 
 	const transitionSize = () => {
 		const diff = sizeTransitionGoal - currentSize
@@ -143,20 +162,18 @@ const Boid = (opts) => {
 		if (Math.abs(diff) <= sizeTransitionRate * 2) {
 			// if (data.id === debugId) console.log(sizeTransitionGoal)
 			currentSize = sizeTransitionGoal
-			currentRadius = currentSize / 2
-			sprite.width = currentSize
-			sprite.height = currentSize
-
 			sizeTransitionState = false
 			sizeTransitionGoal = null
 			sizeTransitionRate = null
 		} else {
 			const dir = diff > 0 ? 1 : -1
 			currentSize += sizeTransitionRate * dir
-			currentRadius = currentSize / 2
-			sprite.width = currentSize
-			sprite.height = currentSize
 		}
+		
+		sprite.width = currentSize
+		sprite.height = currentSize
+		currentRadius = currentSize / 2
+		sprite.position.set(-currentRadius, -currentRadius)
 	}
 
 	const radToDeg = (r) => { 
@@ -205,10 +222,12 @@ const Boid = (opts) => {
   	const applyBehaviors = () => {
 		// update currentTargetVec
 		if (!stable) {
-			if (mode === 'default') follow()
-			else if (mode === 'explore') followExplore()
-			else if (mode === 'big') followBig()
+			let tempTarget
+			if (mode === 'default') tempTarget = follow()
+			else if (mode === 'explore') tempTarget = followExplore()
+			else if (mode === 'big') tempTarget = followBig()
 
+			vec2.set(currentTargetVec, tempTarget[0], tempTarget[1])
 			const f = seek()
 			applyForce(f)
 		}
@@ -234,7 +253,11 @@ const Boid = (opts) => {
 	}
 	
 	// follow
-	const getRad = () => Math.atan2(locationVec[1] - centerVec[1], locationVec[0] - centerVec[0])
+	const getRad = () => {
+		// TODO DIAMNND
+		// return diamondAngle(locationVec[1] - centerVec[1], locationVec[0] - centerVec[0])
+		return Math.atan2(locationVec[1] - centerVec[1], locationVec[0] - centerVec[0])
+	}
 	const getScale = (deg) => {
 		// pathScale(rad)
 		let index = Math.ceil(deg / 360 * NUM_PATH_POINTS)
@@ -259,9 +282,8 @@ const Boid = (opts) => {
 		const offset = (currentPath * NUM_PATH_POINTS)
 		const index = offset + i
 
-		const tX = paths[index][0] - currentRadius
-		const tY = paths[index][1] - currentRadius
-		// console.log(i, tX, tY)
+		const tX = paths[index][0]
+		const tY = paths[index][1]
 		return [tX, tY]
 	}
 	
@@ -269,27 +291,24 @@ const Boid = (opts) => {
 		const rad = getRad()
 		const deg = radToDeg(rad)
 		const scaled = getScale(deg)
-		// console.log(deg)
-		// const final = getFinal(scaled)
 		const target = getTarget(scaled)
 
-		vec2.set(currentTargetVec, target[0], target[1])
+		return target
 	}
 
 	const followBig = () => {
-		const x = centerVec[0] + pack[0] - pack[2] - currentRadius
-		const y = centerVec[1] + pack[1] - pack[2] - currentRadius
-		vec2.set(currentTargetVec, x, y)
+		const x = centerVec[0] + pack[0] - pack[2]
+		const y = centerVec[1] + pack[1] - pack[2]
+		return [x, y]
 	}
 
 	const followExplore = () => {
-		const x = centerVec[0] + pack[0] - pack[2] - currentRadius
-		const y = centerVec[1] + pack[1] - pack[2] - currentRadius
-		vec2.set(currentTargetVec, x, y)
+		const x = centerVec[0] + pack[0] - pack[2]
+		const y = centerVec[1] + pack[1] - pack[2]
+		return [x, y]
 	}
 
-	const seek = (t) => {
-	  	// const tempTarget = vec2.clone(t)
+	const seek = () => {
 		let scaleVec = vec2.create()
 		let desiredVec = vec2.create()	
 		let steerVec = vec2.create()
@@ -298,8 +317,10 @@ const Boid = (opts) => {
 		const dist = vec2.dist(locationVec, currentTargetVec)
 
 		let tempForce = maxforce
-		if (dist < 50) {
-			// get new force vector
+
+		
+		if (dist < currentSize * 3) {
+			// slow down
 			const s = dist / 4
 			vec2.set(scaleVec, s, s)
 			tempForce = maxforce * 100
@@ -329,7 +350,7 @@ const Boid = (opts) => {
 	}  
 
 	const init = () => {
-		inc = opts.inc
+		// inc = opts.inc
 		container = opts.container
 		sprite = opts.sprite
 		text = opts.text
@@ -361,19 +382,20 @@ const Boid = (opts) => {
 		// pack
 
 		sizeBig = data.bR ? opts.ringData[2].factor * chartSize : null
-		sizeAll =chartSize
+		sizeAll = chartSize
 
 		sprite.tint = 0XF2929D
 		// sprite.tint = 0X47462F
+
 		sprite.alpha = 0.5
 		createPaths(opts.ringData, opts.chartSize)
 
 		isBig = data.tier === 2
 		isMedium = data.tier > 0
 
-		// TODO WTF WHY
+		// TODO hack?
 		setSize(2)
-		setScene({ id: 'default' })
+		setScene({ id: 'explore' })
 		return {
 			setScene,
 			setSize,
@@ -381,7 +403,9 @@ const Boid = (opts) => {
 			getPathPoint,
 
 			applyBehaviors,
-			update
+			update,
+			enterBig,
+			exitBig,
 			
 		}
 	}

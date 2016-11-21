@@ -19,7 +19,9 @@ let nextPoint
 
 let chartSize = 0
 let numBoids = 0
-let currentScene = 0
+
+let currentSceneIndex = 0
+let currentMode = null
 
 const madeEl = d3.select('#made')
 const madeProseEl = d3.select('.made__prose')
@@ -28,6 +30,7 @@ const chartEl = d3.select('.made__chart')
 
 
 let boids = []
+let bigIds = []
 let venues = []
 let bands = []
 
@@ -38,6 +41,7 @@ function setupDOM() {
 	renderer = PIXI.autoDetectRenderer(chartSize, chartSize, { 
 		resolution: 2,
 		transparent: true,
+		// roundPixels: true,
 	})
 
 	chartEl
@@ -100,15 +104,17 @@ function setupText() {
 }
 
 function setupBoids() {
-	const incScale = d3.scalePow().exponent(0.5)
+	// const incScale = d3.scalePow().exponent(0.5)
 
-	incScale.domain([1, maxShows])
-	incScale.range([0.005, 0.01])
+	// incScale.domain([1, maxShows])
+	// incScale.range([0.005, 0.01])
 
 	const texture = PIXI.Texture.fromImage('assets/circle-32.png')
 
-
-	boids = bands.map((d, i) => {
+	let count = bands.length
+	let i = 0
+	while(i < count) {
+		const d = bands[i]
 		const container = new PIXI.Container()
 		const sprite = new PIXI.Sprite(texture)
 		const text = new PIXI.Text(d.name)
@@ -116,18 +122,21 @@ function setupBoids() {
 		container.addChild(sprite)
 		container.addChild(text)
 		stage.addChild(container)
-		
-		return Boid({
-			inc: incScale(d.shows.length),
+
+		boids.push(Boid({
+			// inc: incScale(d.shows.length),
 			data: d,
 			container,
 			sprite,
 			text,
 			ringData,
 			chartSize,
-		})
-	})
+		}))
 
+		if (d.tier === 2) bigIds.push(i)
+		i++
+	}
+	
 	texture.baseTexture.dispose()
 	numBoids = boids.length
 }
@@ -155,24 +164,36 @@ function setupScroll() {
 			madeVisEl.classed('is-fixed', false)
 			madeVisEl.classed('is-bottom', event.scrollDirection === 'FORWARD')
 		})
-		.on('progress', event => {
-			// console.log(event)
-			// render()
-		})
 		.addTo(controller)
 
 	const triggerScenes = $.selectAll('.made__prose .trigger').map((el, i) => {
 		const scene = new ScrollMagic.Scene({
 			triggerElement: el,
+			duration: el.offsetHeight,
 		})
 		
 		scene.on('enter', event => {
-			currentScene = i
+			currentSceneIndex = i
 			updateScene()
 		})
-		.on('leave', event => {
-			currentScene = Math.max(0, i - 1)
-			updateScene()
+		.on('progress', event => {
+			if (currentMode === 'big') {
+				const { progress, scrollDirection } = event
+				const total = bigIds.length
+				const cur = Math.floor(progress * 1.1 * bigIds.length)
+				let count = Math.min(cur, total)
+				let i = 0
+				while(i < total) {
+					if (i < count) {
+					// console.log(boids[bigIds[i]])
+						const showText = i === count - 1
+						boids[bigIds[i]].enterBig(showText)
+					} else {
+						boids[bigIds[i]].exitBig()
+					}
+					i++
+				}
+			}
 		})
 		.addTo(controller)
 		
@@ -181,15 +202,21 @@ function setupScroll() {
 }
 
 function updateScene() {
-	console.log(currentScene)
+	currentMode = sceneData[currentSceneIndex].id
+	console.log(currentMode)
 	// toggle text labels
 	const ring = d3.selectAll('.ring')
-	if (sceneData[currentScene].id === 'explore') ring.classed('is-hidden', true)
-	else ring.classed('is-hidden', (d, i) => i + 3 > currentScene)
+	if (sceneData[currentSceneIndex].id === 'explore') ring.classed('is-hidden', true)
+	else ring.classed('is-hidden', (d, i) => i + 3 > currentSceneIndex)
 
 	let i = numBoids
 	while (i--) {
-		boids[i].setScene(sceneData[currentScene])
+		if (currentMode === 'big') {
+			// TODO yuck hack
+			boids[i].setScene(sceneData[currentSceneIndex - 1])
+		} else {
+			boids[i].setScene(sceneData[currentSceneIndex])	
+		}
 	}
 }
 	
@@ -206,7 +233,7 @@ function render() {
 			nextPoint.clear()
 			nextPoint.beginFill(0xFF0000)
 			nextPoint.drawCircle(pp[0],pp[1], 3)
-			nextPoint.endFill()		
+			nextPoint.endFill()
 		}
 		
 	}
@@ -228,7 +255,7 @@ function init(data) {
 	let x = 0
 	window.addEventListener('keyup', (e) => {
 		e.preventDefault()
-		currentScene++
+		currentSceneIndex++
 		updateScene()
 
 	})
