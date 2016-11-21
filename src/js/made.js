@@ -15,7 +15,7 @@ const PI = Math.PI
 const TWO_PI = Math.PI * 2
 
 const debug = false
-const GRID_RESOLUTION = 30
+let nextPoint
 
 let chartSize = 0
 let numBoids = 0
@@ -56,8 +56,8 @@ function setupDOM() {
 	stage = new PIXI.Container()
 
 	// debug
-	// nextPoint = new PIXI.Graphics()
-	// stage.addChild(nextPoint)
+	nextPoint = new PIXI.Graphics()
+	stage.addChild(nextPoint)
 }
 
 
@@ -103,22 +103,24 @@ function setupBoids() {
 	const incScale = d3.scalePow().exponent(0.5)
 
 	incScale.domain([1, maxShows])
-	incScale.range([0.002, 0.008])
+	incScale.range([0.005, 0.01])
 
 	const texture = PIXI.Texture.fromImage('assets/circle-32.png')
 
 
 	boids = bands.map((d, i) => {
+		const container = new PIXI.Container()
 		const sprite = new PIXI.Sprite(texture)
+		const text = new PIXI.Text(d.name)
 		
-		// const text = new PIXI.Text(d.name)
-		const text = null
-		stage.addChild(sprite)
-		// stage.addChild(text)
-
+		container.addChild(sprite)
+		container.addChild(text)
+		stage.addChild(container)
+		
 		return Boid({
 			inc: incScale(d.shows.length),
 			data: d,
+			container,
 			sprite,
 			text,
 			ringData,
@@ -179,13 +181,13 @@ function setupScroll() {
 }
 
 function updateScene() {
+	console.log(currentScene)
 	// toggle text labels
 	const ring = d3.selectAll('.ring')
 	if (sceneData[currentScene].id === 'explore') ring.classed('is-hidden', true)
 	else ring.classed('is-hidden', (d, i) => i + 3 > currentScene)
 
 	let i = numBoids
-	console.log(currentScene)
 	while (i--) {
 		boids[i].setScene(sceneData[currentScene])
 	}
@@ -199,11 +201,14 @@ function render() {
 		boids[i].update()
 		
 		// debug
-		// const pp = b.getPathPoint()
-		// nextPoint.clear()
-		// nextPoint.beginFill(0xFF0000)
-		// nextPoint.drawCircle(pp[0],pp[1], 3)
-		// nextPoint.endFill()	
+		if (debug) {
+			const pp = boids[i].getPathPoint()
+			nextPoint.clear()
+			nextPoint.beginFill(0xFF0000)
+			nextPoint.drawCircle(pp[0],pp[1], 3)
+			nextPoint.endFill()		
+		}
+		
 	}
 	
 	renderer.render(stage)
