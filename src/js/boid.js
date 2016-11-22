@@ -133,7 +133,7 @@ const Boid = (opts) => {
 				size = Math.max(2, Math.floor(data.pR * sizeAll * 2) - 2)
 
 				setSize(size, true)
-				text.visible = false
+				if (text) text.visible = false
 				
 				break
 			default:
@@ -220,6 +220,10 @@ const Boid = (opts) => {
 
 	}
 
+	const setCurrent = (tX, tY) => {
+		vec2.set(currentTargetVec, tX, tY)
+	}
+
   	const applyBehaviors = () => {
 		// update currentTargetVec
 		if (!stable) {
@@ -228,7 +232,7 @@ const Boid = (opts) => {
 			else if (mode === 'explore') tempTarget = followExplore()
 			else if (mode === 'big') tempTarget = followBig()
 
-			vec2.set(currentTargetVec, tempTarget[0], tempTarget[1])
+			setCurrent(tempTarget[0], tempTarget[1])
 			const f = seek()
 			applyForce(f)
 		}
@@ -365,14 +369,16 @@ const Boid = (opts) => {
 		vec2.set(centerVec, halfSize, halfSize)
 		
 		// hide text
-		text.anchor.set(0.5, 1)
-		text.visible = false
-		text.style = {
-			align: 'center',
-			fontFamily: 'Helvetica',
-			fontSize: '11px',
-			// fontWeight: 'bold',
-			fill: '#efefef',
+		if (text) {
+			text.anchor.set(0.5, 1)
+			text.visible = false
+			text.style = {
+				align: 'center',
+				fontFamily: 'Helvetica',
+				fontSize: '11px',
+				// fontWeight: 'bold',
+				fill: '#efefef',
+			}	
 		}
 
 		maxspeedOrig = Math.random() * 0.5 + 0.75
@@ -385,7 +391,7 @@ const Boid = (opts) => {
 		sprite.tint = 0XF2929D
 		// sprite.tint = 0X47462F
 
-		sprite.alpha = 0.5
+		sprite.alpha = 1
 		createPaths(opts.ringData, opts.chartSize)
 
 		isBig = data.tier === 2

@@ -109,7 +109,7 @@ function setupBoids() {
 	// incScale.domain([1, maxShows])
 	// incScale.range([0.005, 0.01])
 
-	const texture = PIXI.Texture.fromImage('assets/circle-32.png')
+	const texture = PIXI.Texture.fromImage('assets/circle-24.png')
 
 	let count = bands.length
 	let i = 0
@@ -117,10 +117,15 @@ function setupBoids() {
 		const d = bands[i]
 		const container = new PIXI.Container()
 		const sprite = new PIXI.Sprite(texture)
-		const text = new PIXI.Text(d.name)
+
+		let text
+		if (d.tier === 2) {
+			text = new PIXI.Text(d.name)	
+			container.addChild(text)
+		}	
 		
 		container.addChild(sprite)
-		container.addChild(text)
+		
 		stage.addChild(container)
 
 		boids.push(Boid({
@@ -227,14 +232,14 @@ function render() {
 		boids[i].applyBehaviors()
 		boids[i].update()
 		
-		// debug
-		if (debug) {
-			const pp = boids[i].getPathPoint()
-			nextPoint.clear()
-			nextPoint.beginFill(0xFF0000)
-			nextPoint.drawCircle(pp[0],pp[1], 3)
-			nextPoint.endFill()
-		}
+		// // debug
+		// if (debug) {
+		// 	const pp = boids[i].getPathPoint()
+		// 	nextPoint.clear()
+		// 	nextPoint.beginFill(0xFF0000)
+		// 	nextPoint.drawCircle(pp[0],pp[1], 3)
+		// 	nextPoint.endFill()
+		// }
 		
 	}
 	
