@@ -322,7 +322,7 @@ const Boid = (opts) => {
 		let tempForce = maxforce
 
 		
-		if (dist < currentSize * 3) {
+		if (dist < currentSize * 5) {
 			// slow down
 			const s = dist / 4
 			vec2.set(scaleVec, s, s)
@@ -360,13 +360,11 @@ const Boid = (opts) => {
 		
 		// init locationVec
 		const halfSize = chartSize / 2
-		const angle = Math.random() * Math.PI * 2
-		const x = Math.cos(angle) * chartSize * opts.ringData[0].factor / 2 + halfSize
-	  	const y = Math.sin(angle) * chartSize * opts.ringData[0].factor / 2 + halfSize
+		// const angle = Math.random() * Math.PI * 2
+		// const x = Math.cos(angle) * chartSize * opts.ringData[0].factor / 2 + halfSize
+	 //  	const y = Math.sin(angle) * chartSize * opts.ringData[0].factor / 2 + halfSize
 	  	
-	  	vec2.set(locationVec, x, y)
-		vec2.set(velocityVec, 0, 0)
-		vec2.set(centerVec, halfSize, halfSize)
+	  	
 		
 		// hide text
 		if (text) {
@@ -383,11 +381,21 @@ const Boid = (opts) => {
 
 		maxspeedOrig = Math.random() * 0.5 + 0.75
 
-		// pack
-
 		sizeBig = data.bR ? opts.ringData[2].factor * chartSize : null
 		sizeAll = chartSize
 
+		// pack
+		pack = [sizeAll * data.pX, sizeAll * data.pY, sizeAll / 2]
+
+		vec2.set(centerVec, halfSize, halfSize)
+		vec2.set(velocityVec, 0, 0)
+
+		// const x = centerVec[0] + pack[0] - pack[2]
+		// const y = centerVec[1] + pack[1] - pack[2]
+		const x = centerVec[0]
+		const y = centerVec[1]
+	  	vec2.set(locationVec, x, y)
+		
 		sprite.tint = 0XF2929D
 		// sprite.tint = 0X47462F
 
