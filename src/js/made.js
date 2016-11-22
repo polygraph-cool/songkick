@@ -34,11 +34,11 @@ const chartEl = d3.select('.made__chart')
 
 
 let boids = []
-let bigIds = []
+let bigBandIndexes = []
 let venues = []
 let bands = []
 
-let bigBands = []
+let bigBandIds = []
 let maxShows = 0
 
 function setupDOM() {
@@ -151,7 +151,7 @@ function setupBoids() {
 			chartSize,
 		}))
 
-		if (d.tier === 2) bigIds.push(i)
+		if (d.tier === 2) bigBandIndexes[d.id] = i
 		i++
 	}
 	
@@ -201,17 +201,17 @@ function setupScroll() {
 		// .on('progress', event => {
 		// 	// if (currentMode === 'big') {
 		// 	// 	const { progress, scrollDirection } = event
-		// 	// 	const total = bigIds.length
-		// 	// 	const cur = Math.floor(progress * 1.1 * bigIds.length)
+		// 	// 	const total = bigBandIndexes.length
+		// 	// 	const cur = Math.floor(progress * 1.1 * bigBandIndexes.length)
 		// 	// 	let count = Math.min(cur, total)
 		// 	// 	let i = 0
 		// 	// 	while(i < total) {
 		// 	// 		if (i < count) {
-		// 	// 		// console.log(boids[bigIds[i]])
+		// 	// 		// console.log(boids[bigBandIndexes[i]])
 		// 	// 			const showText = i === count - 1
-		// 	// 			boids[bigIds[i]].enterBig(showText)
+		// 	// 			boids[bigBandIndexes[i]].enterBig(showText)
 		// 	// 		} else {
-		// 	// 			boids[bigIds[i]].exitBig()
+		// 	// 			boids[bigBandIndexes[i]].exitBig()
 		// 	// 		}
 		// 	// 		i++
 		// 	// 	}
@@ -224,29 +224,49 @@ function setupScroll() {
 }
 
 function updateScene() {
-
 	// toggle text labels
 	const ring = d3.selectAll('.ring')
 	if (currentSceneId === 'explore') ring.classed('is-hidden', true)
 	else ring.classed('is-hidden', (d, i) => i + 3 > currentSceneIndex)
 
+	const toMedium = ['big', 'band']
+	const scene = toMedium.indexOf(currentSceneId) > -1 ? 'medium': currentSceneId
+	let i = numBoids
+
+	while (i--) {
+		boids[i].setScene(scene)
+	}
+
+	// special case
 	if (currentSceneId === 'band') {
-		const foundIndex = bigBands.findIndex(d => d === currentSceneBand)
+		const foundIndex = bigBandIds.findIndex(d => d === currentSceneBand)
+		let remove
+		let add
 		if (foundIndex > -1) {
-			// bigBands.splice(foundIndex, 1)
-			bigBands.pop()
+			remove = bigBandIds.pop()
 		} else {
-			bigBands.push(currentSceneBand)
+			add = currentSceneBand
+			bigBandIds.push(currentSceneBand)
+		}
+		// loop through big bands and update
+		bigBandIds.forEach(d => {
+			const index = bigBandIndexes[d]
+			boids[index].enterBig()
+		})
+		console.log({add})
+		console.log({remove})
+		if (add) boids[bigBandIndexes[add]].enterBig(true)
+		if (remove) {
+			boids[bigBandIndexes[remove]].exitBig()
+			if (bigBandIds.length) {
+				const id = bigBandIds[bigBandIds.length - 1]
+				boids[bigBandIndexes[id]].toggleText(true)
+			}
 		}
 	}
-	let i = numBoids
-	while (i--) {
-		if (currentSceneId === 'big') {
-			// TODO yuck hack
-			boids[i].setScene('medium')
-		} else {
-			boids[i].setScene(currentSceneId)	
-		}
+
+	if (currentSceneId === 'big') {
+		bigBandIds = []
 	}
 }
 	
@@ -279,7 +299,7 @@ function init(data) {
 	maxShows = d3.max(bands, d => d.shows.length)
 	setupDOM()
 	setupText()
-	setupImages()
+	// setupImages()
 	setupBoids()
 	setupScroll()
 	render()

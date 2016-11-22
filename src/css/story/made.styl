@@ -14,15 +14,16 @@ $trigger-width = 20em
 		height 80vh
 		max-width 25em
 		margin 0 auto
+		margin-bottom 1em
 		p 
 			margin 0
 		&.lead
 			height auto
-			margin-bottom 1em
-		&.band
-			min-height 10vh
-			margin-bottom 1em
+		&.big
 			height auto
+		&.band
+			height auto
+			margin-bottom 3em
 	
 .band img 
 	width 64px
@@ -70,6 +71,7 @@ $trigger-width = 20em
 		font-size 12px
 		font-weight bold
 		fill lighten($c1, 30)
+		
 	
 	.ring
 		opacity 1
@@ -77,6 +79,7 @@ $trigger-width = 20em
 		path 
 			fill none
 			stroke lighten($c1, 30)
+			
 			stroke-dasharray 4 4
 		&.is-hidden
 			opacity 0

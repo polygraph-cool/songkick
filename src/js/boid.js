@@ -106,6 +106,7 @@ const Boid = (opts) => {
 				if (isMedium) {
 					currentPath = 1
 					setSize(6, true)
+					toggleText(false)
 				} else {
 					setSize(size)
 				}
@@ -144,16 +145,22 @@ const Boid = (opts) => {
 	}
 
 	const enterBig = (recent) => {
-		if (mode !== 'big') setScene({id: 'big'})
+		if (mode !== 'big') setScene('big')
 		if (recent) {
 			text.y = sizeTransitionGoal ? -sizeTransitionGoal : -currentSize
+			text.visible = true
+		} else {
+			text.visible = false
 		}
-		text.visible = recent
 	}
 
 	const exitBig = () => {
-		if (mode === 'big') setScene({id: 'medium' })
+		if (mode === 'big') setScene('medium')
 		text.visible = false
+	}
+
+	const toggleText = (val) => {
+		if (text) text.visible = val
 	}
 
 	const transitionSize = () => {
@@ -398,9 +405,10 @@ const Boid = (opts) => {
 	  	vec2.set(locationVec, x, y)
 		
 		sprite.tint = 0XF2929D
+		// sprite.tint = 0X666666
 		// sprite.tint = 0X47462F
 
-		sprite.alpha = 1
+		sprite.alpha = 0.5
 		createPaths(opts.ringData, opts.chartSize)
 
 		isBig = data.tier === 2
@@ -419,6 +427,7 @@ const Boid = (opts) => {
 			update,
 			enterBig,
 			exitBig,
+			toggleText,
 			
 		}
 	}
