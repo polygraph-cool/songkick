@@ -13,8 +13,8 @@
 	<div class='made__prose'>
 		{{> story/intro }}
 		{{#each copy.made}}
-			<div class='trigger'>
-				<p>{{value}}</p>
+			<div class='trigger {{className}}' data-band='{{band}}' data-id='{{id}}'>
+				<p>{{text}}</p>
 			</div>
 		{{/each}}
 	</div>

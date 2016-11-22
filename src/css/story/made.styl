@@ -11,24 +11,22 @@ $trigger-width = 20em
 	right 0
 	padding 1rem
 	.trigger 
-		height 100vh
+		height 80vh
 		max-width 25em
 		margin 0 auto
-		// background rgba(red, 0.5)
 		p 
 			margin 0
-			// background rgba($c2, 0.8)
-			// border-radius 4px
-			// box-shadow 0 0 8px 8px $c1
-		// &:first-child p
-		// 	margin-top 95vh
-		// &:last-child
-		// 	height 125vh
-		&:nth-child(-n+3)
+		&.lead
 			height auto
 			margin-bottom 1em
+		&.band
+			min-height 10vh
+			margin-bottom 1em
+			height auto
 	
-		
+.band img 
+	width 64px
+	border-radius 32px
 .made__vis
 	position absolute
 	left 0

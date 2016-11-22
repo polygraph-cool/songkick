@@ -85,7 +85,6 @@ const Boid = (opts) => {
 			sprite.position.set(-currentRadius, -currentRadius)
 
 		}
-		
 		setMaxspeed(s)
 	}
 
@@ -95,13 +94,15 @@ const Boid = (opts) => {
 		maxforce = maxspeed * 0.25
 	}
 		
-	const setScene = ({ id }) => {
+	const setScene = (id) => {
 		let size = 2
 		stable = false
 		mode = 'default'
+		setMaxspeed(size)
 		
 		switch (id) {
 			case 'medium':
+				mode = 'default'
 				if (isMedium) {
 					currentPath = 1
 					setSize(6, true)
@@ -131,8 +132,7 @@ const Boid = (opts) => {
 				pack = [sizeAll * data.pX, sizeAll * data.pY, sizeAll / 2]
 				
 				size = Math.max(2, Math.floor(data.pR * sizeAll * 2) - 2)
-
-				setSize(size, true)
+				setSize(2, true)
 				if (text) text.visible = false
 				
 				break
@@ -248,7 +248,7 @@ const Boid = (opts) => {
 		
 		if (!stable) {
 			vec2.add(velocityVec, velocityVec, accelerationVec)
-			vec2.limit(velocityVec, velocityVec, maxspeed)
+			// vec2.limit(velocityVec, velocityVec, maxspeed)
 			vec2.add(locationVec, locationVec, velocityVec)
 
 			vec2.set(accelerationVec, 0, 0)
@@ -266,10 +266,11 @@ const Boid = (opts) => {
 	const getScale = (deg) => {
 		// pathScale(rad)
 		let index = Math.ceil(deg / 360 * NUM_PATH_POINTS)
+		let off = currentPath + 1
 		// console.log(deg, index)
-		return index >= NUM_PATH_POINTS - 1
-		? index - (NUM_PATH_POINTS - 1)
-		: index + 1
+		return index >= NUM_PATH_POINTS - off
+		? index - (NUM_PATH_POINTS - off)
+		: index + off
 	}
 	const getFinal = (scaled) => {
 		let final = 0
@@ -322,9 +323,9 @@ const Boid = (opts) => {
 		let tempForce = maxforce
 
 		
-		if (dist < currentSize * 5) {
+		if (dist < currentSize * 3) {
 			// slow down
-			const s = dist / 4
+			const s = dist / 20
 			vec2.set(scaleVec, s, s)
 			tempForce = maxforce * 100
 		} else {
@@ -407,7 +408,7 @@ const Boid = (opts) => {
 
 		// TODO hack?
 		setSize(2)
-		setScene({ id: 'explore' })
+		setScene('explore')
 		return {
 			setScene,
 			setSize,

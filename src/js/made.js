@@ -3,6 +3,7 @@ import ScrollMagic from 'scrollmagic'
 import Boid from './boid'
 import loadImage from './utils/load-image'
 import * as $ from './utils/dom'
+import './utils/find-index'
 PIXI.utils.skipHello()
 
 import sceneData from './data-scenes'
@@ -14,13 +15,16 @@ let stage
 const PI = Math.PI
 const TWO_PI = Math.PI * 2
 
-const debug = false
+const debug = true
 let nextPoint
 
 let chartSize = 0
 let numBoids = 0
 
 let currentSceneIndex = 0
+
+let currentSceneId = null
+let currentSceneBand = null
 let currentMode = null
 
 const madeEl = d3.select('#made')
@@ -34,6 +38,7 @@ let bigIds = []
 let venues = []
 let bands = []
 
+let bigBands = []
 let maxShows = 0
 
 function setupDOM() {
@@ -101,6 +106,14 @@ function setupText() {
 		.attr('xlink:href', (d, i) => `#text-${i}`)
 		.attr('startOffset', '50%')
 		.text(d => `${d.capacity}`)
+}
+
+function setupImages() {
+	d3.selectAll('.trigger.band').each(function() {
+		const sel = d3.select(this)
+		sel.select('p').append('img')
+			.attr('src', 'http://placehold.it/100x100.jpg')
+	})
 }
 
 function setupBoids() {
@@ -171,7 +184,9 @@ function setupScroll() {
 		})
 		.addTo(controller)
 
-	const triggerScenes = $.selectAll('.made__prose .trigger').map((el, i) => {
+	const triggerScenes = d3.selectAll('.made__prose .trigger').each(function(d, i) {
+		const el = this
+		const sel = d3.select(this)
 		const scene = new ScrollMagic.Scene({
 			triggerElement: el,
 			duration: el.offsetHeight,
@@ -179,27 +194,29 @@ function setupScroll() {
 		
 		scene.on('enter', event => {
 			currentSceneIndex = i
+			currentSceneId = sel.attr('data-id')
+			currentSceneBand = sel.attr('data-band')
 			updateScene()
 		})
-		.on('progress', event => {
-			if (currentMode === 'big') {
-				const { progress, scrollDirection } = event
-				const total = bigIds.length
-				const cur = Math.floor(progress * 1.1 * bigIds.length)
-				let count = Math.min(cur, total)
-				let i = 0
-				while(i < total) {
-					if (i < count) {
-					// console.log(boids[bigIds[i]])
-						const showText = i === count - 1
-						boids[bigIds[i]].enterBig(showText)
-					} else {
-						boids[bigIds[i]].exitBig()
-					}
-					i++
-				}
-			}
-		})
+		// .on('progress', event => {
+		// 	// if (currentMode === 'big') {
+		// 	// 	const { progress, scrollDirection } = event
+		// 	// 	const total = bigIds.length
+		// 	// 	const cur = Math.floor(progress * 1.1 * bigIds.length)
+		// 	// 	let count = Math.min(cur, total)
+		// 	// 	let i = 0
+		// 	// 	while(i < total) {
+		// 	// 		if (i < count) {
+		// 	// 		// console.log(boids[bigIds[i]])
+		// 	// 			const showText = i === count - 1
+		// 	// 			boids[bigIds[i]].enterBig(showText)
+		// 	// 		} else {
+		// 	// 			boids[bigIds[i]].exitBig()
+		// 	// 		}
+		// 	// 		i++
+		// 	// 	}
+		// 	// }
+		// })
 		.addTo(controller)
 		
 		return scene
@@ -207,20 +224,28 @@ function setupScroll() {
 }
 
 function updateScene() {
-	currentMode = sceneData[currentSceneIndex].id
-	console.log(currentMode)
+
 	// toggle text labels
 	const ring = d3.selectAll('.ring')
-	if (sceneData[currentSceneIndex].id === 'explore') ring.classed('is-hidden', true)
+	if (currentSceneId === 'explore') ring.classed('is-hidden', true)
 	else ring.classed('is-hidden', (d, i) => i + 3 > currentSceneIndex)
 
+	if (currentSceneId === 'band') {
+		const foundIndex = bigBands.findIndex(d => d === currentSceneBand)
+		if (foundIndex > -1) {
+			// bigBands.splice(foundIndex, 1)
+			bigBands.pop()
+		} else {
+			bigBands.push(currentSceneBand)
+		}
+	}
 	let i = numBoids
 	while (i--) {
-		if (currentMode === 'big') {
+		if (currentSceneId === 'big') {
 			// TODO yuck hack
-			boids[i].setScene(sceneData[currentSceneIndex - 1])
+			boids[i].setScene('medium')
 		} else {
-			boids[i].setScene(sceneData[currentSceneIndex])	
+			boids[i].setScene(currentSceneId)	
 		}
 	}
 }
@@ -254,6 +279,7 @@ function init(data) {
 	maxShows = d3.max(bands, d => d.shows.length)
 	setupDOM()
 	setupText()
+	setupImages()
 	setupBoids()
 	setupScroll()
 	render()
