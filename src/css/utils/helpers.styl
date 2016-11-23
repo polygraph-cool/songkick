@@ -1,12 +1,10 @@
-// mq(breakpoint)
-//     if breakpoint in $mq_vars
-//         condition = unquote($mq_vars[breakpoint])
-//         condition = 'only screen and %s' % condition
-//         @media condition
-//             {block}
-//     else
-//         error('Not a defined media query')
-        
+fontify(font, hash, weight, fallback)
+	.tk-{hash}-{weight}
+		font-family fallback
+		font-weight weight
+		.loaded-{hash}-{weight} & 
+			font-family font, fallback
+			
 // -------------------
 // BREAKPOINT CACHE
 // -------------------
