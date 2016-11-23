@@ -4,4 +4,4 @@ node_modules
 dist
 .tmp
 sandbox
-assets/frames
+src/assets/frames
