@@ -324,9 +324,9 @@ const Boid = (opts) => {
 		return final 
 	}
 	const getTarget = (i) => {
-		const index = currentPath * NUM_PATH_POINTS + i
-		const tX = paths[index * 2]
-		const tY = paths[index * 2 + 1]
+		const index = (currentPath * NUM_PATH_POINTS + i) * 2
+		const tX = paths[index]
+		const tY = paths[index + 1]
 		return [tX, tY]
 	}
 	

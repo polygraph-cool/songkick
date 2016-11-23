@@ -1,6 +1,18 @@
-.tk-libre-franklin-4, .tk-libre-franklin-3, .tk-libre-franklin-7, .tk-libre-franklin-9
-	font-family $sans
-	
+$libre = 'Libre Franklin'
+$libre-hash = 'libre-franklin'
+
+fontify(font, hash, weight, fallback)
+	.tk-{hash}-{weight}
+		font-family fallback
+		font-weight weight
+		.loaded-{hash}-{weight} & 
+			font-family font, fallback
+
+fontify($libre, $libre-hash, 300, $sans)
+fontify($libre, $libre-hash, 400, $sans)
+fontify($libre, $libre-hash, 700, $sans)
+fontify($libre, $libre-hash, 900, $sans)
+			
 body
 	background $c1
 	color lighten($c1, 65)
