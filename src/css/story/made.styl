@@ -24,10 +24,26 @@ $trigger-width = 20em
 		&.band
 			height auto
 			margin-bottom 3em
+			clearfix()
+
+$band-img-width = 64px
+.band__img 
+	width $band-img-width
+	float left
+
+.band__list
+	padding-left $band-img-width * 1.1
+	font-size 0.8em
+	text-transform uppercase
+	li 
+		line-height 1.65
+		
+.list__name
+	font-weight 700
+
+.list__date, .list__venue
+	font-size 0.9em
 	
-.band img 
-	width 64px
-	border-radius 32px
 .made__vis
 	position absolute
 	left 0

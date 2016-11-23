@@ -14,7 +14,16 @@
 		{{> story/intro }}
 		{{#each copy.made}}
 			<div class='trigger {{className}}' data-band='{{band}}' data-id='{{id}}'>
+				{{#if band}}
+				<div class='band__img'><img src='assets/lake-street-dive.png'></div>
+				<ul class='band__list'>
+					<li class='list__name'>{{name}}</li>
+					<li class='list__date'>date: {{date}}</li>
+					<li class='list__venue'>venue: {{venue}}</li>
+				</ul>
+				{{else}}
 				<p>{{text}}</p>
+				{{/if}}
 			</div>
 		{{/each}}
 	</div>

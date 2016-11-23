@@ -8,7 +8,7 @@ const init = () => {
 	fetchData((err, data) => {
 		console.timeEnd('fetch data')
 		const venues = data[0]
-		const bands = data[1].sort((a, b) => b.tier - a.tier).slice(0, 3000)
+		const bands = data[1].sort((a, b) => b.tier - a.tier)
 		// const bands = data[1].slice(0, 3000)
 		// flock.init({ venues, bands })
 		made.init({ venues, bands })

@@ -28,6 +28,18 @@ vec2.limit = function(out, v, high) {
 	return out
 }
 
+// const diamondLookup = (() => {
+// 	return d3.range(360).map(i => {
+// 		const dia = i / 360 * 4
+// 		const dir = dia <= 2 ? 1 : -1
+// 		const ab = Math.abs(2 - dia)
+
+// 		return 180 - 180 * ab * dir
+// 	})
+// })()
+
+// console.log(diamondLookup)
+
 const Boid = (opts) => {
 	let locationVec = vec2.create()
 	let velocityVec = vec2.create()
@@ -192,6 +204,7 @@ const Boid = (opts) => {
 
 	const toDegrees = (angle) => angle * (180 / Math.PI)
 
+	// http://stackoverflow.com/questions/1427422/cheap-algorithm-to-find-measure-of-angle-between-vectors
 	const diamondAngle = (y, x) => {
 		if (y >= 0) return (x >= 0 ? y/(x+y) : 1-x/(-x+y))
 		else return (x < 0 ? 2-y/(-x-y) : 3+x/(x-y))
@@ -221,7 +234,8 @@ const Boid = (opts) => {
 				const x = Math.cos(rad) * chartSize / 2 * factor
 				const y = Math.sin(rad) * chartSize / 2 * factor
 				// console.log(d, angle)
-				paths.push([chartSize / 2 + x, chartSize / 2 + y ])
+				paths.push(chartSize / 2 + x)
+				paths.push(chartSize / 2 + y)
 			})
 		})
 
@@ -235,10 +249,21 @@ const Boid = (opts) => {
 		// update currentTargetVec
 		if (!stable) {
 			let tempTarget
-			if (mode === 'default') tempTarget = follow()
-			else if (mode === 'explore') tempTarget = followExplore()
-			else if (mode === 'big') tempTarget = followBig()
-
+			
+			switch(mode) {
+				case 'default':
+					tempTarget = follow()
+					break
+				case 'big': 
+					tempTarget = followBig()
+					break
+				case 'explore': 
+					tempTarget = followExplore()
+					break
+				default:
+					tempTarget = follow()
+			}	
+			
 			setCurrent(tempTarget[0], tempTarget[1])
 			const f = seek()
 			applyForce(f)
@@ -265,19 +290,26 @@ const Boid = (opts) => {
 	}
 	
 	// follow
-	const getRad = () => {
-		// TODO DIAMNND
-		// return diamondAngle(locationVec[1] - centerVec[1], locationVec[0] - centerVec[0])
-		return Math.atan2(locationVec[1] - centerVec[1], locationVec[0] - centerVec[0])
+	const getDiamondDegree = () => {
+		const dia = diamondAngle(locationVec[1] - centerVec[1], locationVec[0] - centerVec[0])
+		return dia / 4 * 360	
 	}
+	// const getRad = () => {
+		// TODO DIAMNND
+		// const rad = Math.atan2(locationVec[1] - centerVec[1], locationVec[0] - centerVec[0])
+		// return rad
+	// }
+
 	const getScale = (deg) => {
 		// pathScale(rad)
 		let index = Math.ceil(deg / 360 * NUM_PATH_POINTS)
 		let off = currentPath + 1
 		// console.log(deg, index)
-		return index >= NUM_PATH_POINTS - off
+		const scale = index >= NUM_PATH_POINTS - off
 		? index - (NUM_PATH_POINTS - off)
 		: index + off
+
+		return scale
 	}
 	const getFinal = (scaled) => {
 		let final = 0
@@ -293,14 +325,14 @@ const Boid = (opts) => {
 	}
 	const getTarget = (i) => {
 		const index = currentPath * NUM_PATH_POINTS + i
-		const tX = paths[index][0]
-		const tY = paths[index][1]
+		const tX = paths[index * 2]
+		const tY = paths[index * 2 + 1]
 		return [tX, tY]
 	}
 	
 	const follow = () => {
-		const rad = getRad()
-		const deg = radToDeg(rad)
+		// const deg = radToDeg(rad)
+		const deg = getDiamondDegree()
 		const scaled = getScale(deg)
 		const target = getTarget(scaled)
 
@@ -320,43 +352,54 @@ const Boid = (opts) => {
 	}
 
 	const seek = () => {
+
 		let scaleVec = vec2.create()
 		let desiredVec = vec2.create()	
 		let steerVec = vec2.create()
 		
-		// mag
-		const dist = vec2.dist(locationVec, currentTargetVec)
+		// let dist
+		// const seekDist = () => {
+		// 	dist = vec2.dist(locationVec, currentTargetVec)
+		// 	// slowdown
+		// 	const s = dist < currentSize * 3 ? dist / 20 : maxspeed
+		// 	vec2.set(scaleVec, s, s)
+		// }
 
-		let tempForce = maxforce
+		// const seekDesired = () => vec2.sub(desiredVec, currentTargetVec, locationVec)
 
+		// const seekNormalized = () => vec2.normalize(desiredVec, desiredVec)
+
+		// const seekMultiply = () => vec2.multiply(desiredVec, desiredVec, scaleVec)
+
+		// const seekSub = () => vec2.sub(steerVec, desiredVec, velocityVec)
+
+		//  // vec2.limit(steerVec, steerVec, tempForce)
+
+		//  seekDist()
+		//  seekDesired()
+		//  seekNormalized()
+		//  seekMultiply()
+		//  seekSub()
+
+		let dist = vec2.dist(locationVec, currentTargetVec)
 		
-		if (dist < currentSize * 3) {
-			// slow down
-			const s = dist / 20
-			vec2.set(scaleVec, s, s)
-			tempForce = maxforce * 100
-		} else {
-			vec2.set(scaleVec, maxspeed, maxspeed)
-		}
+		// slowdown
+		const s = dist < currentSize * 3 ? dist / 20 : maxspeed
+		
+		vec2.set(scaleVec, s, s)
 
-		// set desired
 		vec2.sub(desiredVec, currentTargetVec, locationVec)
 
-		// normalize desiredVec
 		vec2.normalize(desiredVec, desiredVec)
 
-		
 		vec2.multiply(desiredVec, desiredVec, scaleVec)
 
 		vec2.sub(steerVec, desiredVec, velocityVec)
-	    
-	    // vec2.limit(steerVec, steerVec, tempForce)
 
-	    if (dist < 0.5) stable = true
-		else stable = false
+	    stable = dist < 0.5
     
 		return steerVec
-	}  
+	} 
 
 	const init = () => {
 		// inc = opts.inc
@@ -409,6 +452,8 @@ const Boid = (opts) => {
 		// sprite.tint = 0X47462F
 
 		sprite.alpha = 0.5
+		// sprite.blendMode = PIXI.BLEND_MODES.ADD
+
 		createPaths(opts.ringData, opts.chartSize)
 
 		isBig = data.tier === 2

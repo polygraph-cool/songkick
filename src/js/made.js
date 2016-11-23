@@ -42,7 +42,7 @@ let bigBandIds = []
 let maxShows = 0
 
 function setupDOM() {
-	chartSize = Math.min(window.innerHeight * 0.8, chartEl.node().offsetWidth)
+	chartSize = Math.floor(Math.min(window.innerHeight * 0.8, chartEl.node().offsetWidth))
 	renderer = PIXI.autoDetectRenderer(chartSize, chartSize, { 
 		resolution: 2,
 		transparent: true,

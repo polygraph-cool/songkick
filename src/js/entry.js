@@ -2,6 +2,7 @@ import debounce from 'lodash.debounce'
 import * as $ from './utils/dom'
 import isMobile from './utils/is-mobile'
 import graphic from './graphic'
+import loadImage from './utils/load-image'
 
 const dev = window.location.hostname.indexOf('localhost') > -1
 const containerEl = $.select('.container')
