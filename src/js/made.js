@@ -39,7 +39,6 @@ let venues = []
 let bands = []
 
 let bigBandIds = []
-let maxShows = 0
 
 function setupDOM() {
 	chartSize = Math.floor(Math.min(window.innerHeight * 0.8, chartEl.node().offsetWidth))
@@ -117,10 +116,6 @@ function setupImages() {
 }
 
 function setupBoids() {
-	// const incScale = d3.scalePow().exponent(0.5)
-
-	// incScale.domain([1, maxShows])
-	// incScale.range([0.005, 0.01])
 
 	const texture = PIXI.Texture.fromImage('assets/circle-24.png')
 
@@ -198,25 +193,6 @@ function setupScroll() {
 			currentSceneBand = sel.attr('data-band')
 			updateScene()
 		})
-		// .on('progress', event => {
-		// 	// if (currentMode === 'big') {
-		// 	// 	const { progress, scrollDirection } = event
-		// 	// 	const total = bigBandIndexes.length
-		// 	// 	const cur = Math.floor(progress * 1.1 * bigBandIndexes.length)
-		// 	// 	let count = Math.min(cur, total)
-		// 	// 	let i = 0
-		// 	// 	while(i < total) {
-		// 	// 		if (i < count) {
-		// 	// 		// console.log(boids[bigBandIndexes[i]])
-		// 	// 			const showText = i === count - 1
-		// 	// 			boids[bigBandIndexes[i]].enterBig(showText)
-		// 	// 		} else {
-		// 	// 			boids[bigBandIndexes[i]].exitBig()
-		// 	// 		}
-		// 	// 		i++
-		// 	// 	}
-		// 	// }
-		// })
 		.addTo(controller)
 		
 		return scene
@@ -273,7 +249,7 @@ function updateScene() {
 function render() {
 	let i = numBoids
 	
-	while (i--) {
+	while (--i) {
 		boids[i].applyBehaviors()
 		boids[i].update()
 		
@@ -287,7 +263,6 @@ function render() {
 		// }
 		
 	}
-	
 	renderer.render(stage)
 	requestAnimationFrame(render)
 }
@@ -295,24 +270,12 @@ function render() {
 function init(data) {
 	venues = data.venues
 	bands = data.bands
-		
-	maxShows = d3.max(bands, d => d.shows.length)
+
 	setupDOM()
 	setupText()
-	// setupImages()
 	setupBoids()
 	setupScroll()
 	render()
-	let x = 0
-	window.addEventListener('keyup', (e) => {
-		e.preventDefault()
-		currentSceneIndex++
-		updateScene()
-
-	})
-	// setTimeout(() => {
-	// 	updateScene(6)
-	// }, 2000)
 }
 
 

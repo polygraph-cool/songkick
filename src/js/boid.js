@@ -63,8 +63,13 @@ const Boid = (opts) => {
 	let data
 
 	let sizeBig
-	let sizeAll
-	let pack
+	let sizeExplore
+	let packBig
+	let packBigX
+	let packBigY
+	let packExplore
+	let packExploreX
+	let packExploreY
 	let isBig
 	let isMedium
 	let mode
@@ -128,8 +133,6 @@ const Boid = (opts) => {
 					mode = 'big'
 						
 					// x, y, size
-					pack = [sizeBig * data.bX, sizeBig * data.bY, sizeBig / 2]
-
 					size = Math.min(Math.floor(data.bR * sizeBig * 2), 14)
 					size -= 2
 					
@@ -141,10 +144,7 @@ const Boid = (opts) => {
 			case 'explore':
 				mode = 'explore'
 				
-				// x, y, size
-				pack = [sizeAll * data.pX, sizeAll * data.pY, sizeAll / 2]
-				
-				size = Math.max(2, Math.floor(data.pR * sizeAll * 2) - 2)
+				size = Math.max(2, Math.floor(data.pR * sizeExplore * 2) - 2)
 				setSize(2, true)
 				if (text) text.visible = false
 				
@@ -212,9 +212,9 @@ const Boid = (opts) => {
 
 	const createPaths = (ringData, chartSize) => {
 		// TODO create lookup table
-		const tempScale = d3.scaleQuantile().domain([-PI, PI]).range(d3.range(-NUM_PATH_POINTS / 2, NUM_PATH_POINTS / 2, 1))
+		// const tempScale = d3.scaleQuantile().domain([-PI, PI]).range(d3.range(-NUM_PATH_POINTS / 2, NUM_PATH_POINTS / 2, 1))
 
-		pathScale = d3.scaleQuantile().domain([-PI, PI]).range(d3.range(-NUM_PATH_POINTS / 2, NUM_PATH_POINTS / 2, 1))
+		// pathScale = d3.scaleQuantile().domain([-PI, PI]).range(d3.range(-NUM_PATH_POINTS / 2, NUM_PATH_POINTS / 2, 1))
 		// console.log(pathScale.range())
 
 		paths = []
@@ -262,7 +262,7 @@ const Boid = (opts) => {
 					break
 				default:
 					tempTarget = follow()
-			}	
+			}
 			
 			setCurrent(tempTarget[0], tempTarget[1])
 			const f = seek()
@@ -302,9 +302,11 @@ const Boid = (opts) => {
 
 	const getScale = (deg) => {
 		// pathScale(rad)
+
 		let index = Math.ceil(deg / 360 * NUM_PATH_POINTS)
 		let off = currentPath + 1
 		// console.log(deg, index)
+		// console.log(deg, index, off)
 		const scale = index >= NUM_PATH_POINTS - off
 		? index - (NUM_PATH_POINTS - off)
 		: index + off
@@ -340,15 +342,11 @@ const Boid = (opts) => {
 	}
 
 	const followBig = () => {
-		const x = centerVec[0] + pack[0] - pack[2]
-		const y = centerVec[1] + pack[1] - pack[2]
-		return [x, y]
+		return [packBigX, packBigY]
 	}
 
 	const followExplore = () => {
-		const x = centerVec[0] + pack[0] - pack[2]
-		const y = centerVec[1] + pack[1] - pack[2]
-		return [x, y]
+		return [packExploreX, packExploreY]
 	}
 
 	const seek = () => {
@@ -411,9 +409,6 @@ const Boid = (opts) => {
 		
 		// init locationVec
 		const halfSize = chartSize / 2
-		// const angle = Math.random() * Math.PI * 2
-		// const x = Math.cos(angle) * chartSize * opts.ringData[0].factor / 2 + halfSize
-	 //  	const y = Math.sin(angle) * chartSize * opts.ringData[0].factor / 2 + halfSize
 	  	
 	  	
 		
@@ -432,20 +427,38 @@ const Boid = (opts) => {
 
 		maxspeedOrig = Math.random() * 0.5 + 0.75
 
+		vec2.set(centerVec, halfSize, halfSize)
+
 		sizeBig = data.bR ? opts.ringData[2].factor * chartSize : null
-		sizeAll = chartSize
+		sizeExplore = chartSize
 
 		// pack
-		pack = [sizeAll * data.pX, sizeAll * data.pY, sizeAll / 2]
+		// pack = [sizeExplore * data.pX, sizeExplore * data.pY, sizeExplore / 2]
+		packExplore = [sizeExplore * data.pX, sizeExplore * data.pY, sizeExplore / 2]
+		packExploreX = centerVec[0] + packExplore[0] - packExplore[2]
+		packExploreY = centerVec[1] + packExplore[1] - packExplore[2]
 
-		vec2.set(centerVec, halfSize, halfSize)
+		if (data.bR) {
+			packBig = [sizeBig * data.bX, sizeBig * data.bY, sizeBig / 2]
+			packBigX = centerVec[0] + packBig[0] - packBig[2]
+			packBigY = centerVec[1] + packBig[1] - packBig[2]	
+		}
+
+		
 		vec2.set(velocityVec, 0, 0)
 
-		// const x = centerVec[0] + pack[0] - pack[2]
-		// const y = centerVec[1] + pack[1] - pack[2]
+		// const x = centerVec[0] + packExplore[0] - packExplore[2]
+		// const y = centerVec[1] + packExplore[1] - packExplore[2]
 		const x = centerVec[0]
 		const y = centerVec[1]
 	  	vec2.set(locationVec, x, y)
+
+	 // 	const angle = Math.random() * Math.PI * 2
+		// const x = Math.cos(angle) * chartSize * opts.ringData[0].factor / 2 + halfSize
+	 //  	const y = Math.sin(angle) * chartSize * opts.ringData[0].factor / 2 + halfSize
+	 //  	vec2.set(location, x, y)
+
+
 		
 		sprite.tint = 0XF2929D
 		// sprite.tint = 0X666666
