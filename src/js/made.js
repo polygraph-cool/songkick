@@ -20,6 +20,7 @@ let nextPoint
 
 let chartSize = 0
 let numBoids = 0
+let numNotSmall = 0
 
 let currentSceneIndex = 0
 
@@ -31,6 +32,7 @@ const madeEl = d3.select('#made')
 const madeProseEl = d3.select('.made__prose')
 const madeVisEl = d3.select('.made__vis')
 const chartEl = d3.select('.made__chart') 
+const bandTriggerEl = d3.selectAll('.trigger.band') 
 
 
 let boids = []
@@ -39,6 +41,11 @@ let venues = []
 let bands = []
 
 let bigBandIds = []
+
+let notSmallList = []
+let smalls
+let otherContainer
+const NUM_SMALL_CONTAINERS = 10
 
 function setupDOM() {
 	chartSize = Math.floor(Math.min(window.innerHeight * 0.8, chartEl.node().offsetWidth))
@@ -62,10 +69,19 @@ function setupDOM() {
 
 	// Create a container object called the `stage`
 	stage = new PIXI.Container()
-
+	
+	smalls = d3.range(NUM_SMALL_CONTAINERS).map(d => ({
+		container: new PIXI.Container(),
+		speed: d * 0.0002 + 0.001,
+	}))
+	otherContainer = new PIXI.Container()
+	
+	smalls.forEach(d => stage.addChild(d.container))
+	stage.addChild(otherContainer)
+	
 	// debug
-	nextPoint = new PIXI.Graphics()
-	stage.addChild(nextPoint)
+	// nextPoint = new PIXI.Graphics()
+	// stage.addChild(nextPoint)
 }
 
 
@@ -127,31 +143,59 @@ function setupBoids() {
 		const sprite = new PIXI.Sprite(texture)
 
 		let text
-		if (d.tier === 2) {
-			text = new PIXI.Text(d.name)	
-			container.addChild(text)
-		}	
-		
+		// if (d.tier === 2) {
+		text = new PIXI.Text(d.name)	
+		container.addChild(text)
+		// }
+
 		container.addChild(sprite)
+
+		// add to container for groupings
+		const containerIndex = d.tier > 0 ? null : Math.floor(Math.random() * NUM_SMALL_CONTAINERS)
+		if (d.tier > 0) {
+			otherContainer.addChild(container)
+			notSmallList.push(i)
+		} else {
+			smalls[containerIndex].container.addChild(container)
+		}
 		
-		stage.addChild(container)
+		// stage.addChild(container)
 
 		boids.push(Boid({
-			// inc: incScale(d.shows.length),
 			data: d,
 			container,
+			containerIndex,
 			sprite,
 			text,
 			ringData,
 			chartSize,
 		}))
 
+		// boids[i].update()
 		if (d.tier === 2) bigBandIndexes[d.id] = i
 		i++
 	}
-	
+		
 	texture.baseTexture.dispose()
 	numBoids = boids.length
+	numNotSmall = notSmallList.length
+}
+
+function setupSmalls() {
+	smalls.forEach(d => {
+		const bounds = d.container.getLocalBounds()
+		// const pivotX = bounds.width / 2
+		// const pivotY = bounds.height / 2
+		// d.container.pivot.x = pivotX
+		// d.container.pivot.y = pivotY
+		// console.log(bounds)
+		// console.log(bounds.width / 2)
+		const offX = chartSize / 2
+		const offY = chartSize / 2
+		// const offX = pivotX
+		// const offY = pivotY
+		d.container.position.set(offX, offY)
+	})
 }
 
 function setupScroll() {
@@ -191,6 +235,13 @@ function setupScroll() {
 			currentSceneIndex = i
 			currentSceneId = sel.attr('data-id')
 			currentSceneBand = sel.attr('data-band')
+
+			// focus if band
+			if (sel.classed('band')) {
+				bandTriggerEl.classed('is-focus', false)
+				sel.classed('is-focus', true)
+			}
+
 			updateScene()
 		})
 		.addTo(controller)
@@ -207,10 +258,12 @@ function updateScene() {
 
 	const toMedium = ['big', 'band']
 	const scene = toMedium.indexOf(currentSceneId) > -1 ? 'medium': currentSceneId
-	let i = numBoids
+	
+	let i = numNotSmall
 
 	while (i--) {
-		boids[i].setScene(scene)
+		const index = notSmallList[i]
+		boids[index].setScene(scene)
 	}
 
 	// special case
@@ -247,11 +300,13 @@ function updateScene() {
 }
 	
 function render() {
-	let i = numBoids
-	
-	while (--i) {
-		boids[i].applyBehaviors()
-		boids[i].update()
+	// let i = numBoids
+	let i = numNotSmall
+
+	while (i--) {
+		const index = notSmallList[i]
+		boids[index].applyBehaviors()
+		boids[index].update()
 		
 		// // debug
 		// if (debug) {
@@ -263,6 +318,11 @@ function render() {
 		// }
 		
 	}
+
+	// rotate smalls
+	smalls.forEach(d => {
+		d.container.rotation += d.speed
+	})
 	renderer.render(stage)
 	requestAnimationFrame(render)
 }
@@ -274,6 +334,7 @@ function init(data) {
 	setupDOM()
 	setupText()
 	setupBoids()
+	setupSmalls()
 	setupScroll()
 	render()
 }

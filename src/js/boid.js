@@ -7,6 +7,7 @@ const TWO_PI = Math.PI * 2
 const NUM_PATH_POINTS = 64
 const HALF_PP = NUM_PATH_POINTS / 2
 const QUARTER_PP = NUM_PATH_POINTS / 4
+let MIN_SIZE
 
 const debugId = '2575'
 
@@ -112,7 +113,7 @@ const Boid = (opts) => {
 	}
 		
 	const setScene = (id) => {
-		let size = 2
+		let size = MIN_SIZE
 		stable = false
 		mode = 'default'
 		setMaxspeed(size)
@@ -141,14 +142,14 @@ const Boid = (opts) => {
 					setSize(size)
 				}
 				break
-			case 'explore':
-				mode = 'explore'
+			// case 'explore':
+			// 	mode = 'explore'
 				
-				size = Math.max(2, Math.floor(data.pR * sizeExplore * 2) - 2)
-				setSize(2, true)
-				if (text) text.visible = false
+			// 	size = Math.max(2, Math.floor(data.pR * sizeExplore * 2) - 2)
+			// 	// setSize(2, true)
+			// 	if (text) text.visible = false
 				
-				break
+			// 	break
 			default:
 				currentPath = 0
 				// only reset size if different
@@ -410,8 +411,11 @@ const Boid = (opts) => {
 		// init locationVec
 		const halfSize = chartSize / 2
 	  	
+	  	MIN_SIZE = chartSize < 480 ? 1 : 2
 	  	
-		
+		isBig = data.tier === 2
+		isMedium = data.tier > 0
+
 		// hide text
 		if (text) {
 			text.anchor.set(0.5, 1)
@@ -422,7 +426,7 @@ const Boid = (opts) => {
 				fontSize: '11px',
 				// fontWeight: 'bold',
 				fill: '#efefef',
-			}	
+			}
 		}
 
 		maxspeedOrig = Math.random() * 0.5 + 0.75
@@ -438,7 +442,7 @@ const Boid = (opts) => {
 		packExploreX = centerVec[0] + packExplore[0] - packExplore[2]
 		packExploreY = centerVec[1] + packExplore[1] - packExplore[2]
 
-		if (data.bR) {
+		if (isBig) {
 			packBig = [sizeBig * data.bX, sizeBig * data.bY, sizeBig / 2]
 			packBigX = centerVec[0] + packBig[0] - packBig[2]
 			packBigY = centerVec[1] + packBig[1] - packBig[2]	
@@ -449,32 +453,47 @@ const Boid = (opts) => {
 
 		// const x = centerVec[0] + packExplore[0] - packExplore[2]
 		// const y = centerVec[1] + packExplore[1] - packExplore[2]
-		const x = centerVec[0]
-		const y = centerVec[1]
-	  	vec2.set(locationVec, x, y)
+
+		// const x = centerVec[0]
+		// const y = centerVec[1]
+	  	
 
 	 // 	const angle = Math.random() * Math.PI * 2
 		// const x = Math.cos(angle) * chartSize * opts.ringData[0].factor / 2 + halfSize
 	 //  	const y = Math.sin(angle) * chartSize * opts.ringData[0].factor / 2 + halfSize
-	 //  	vec2.set(location, x, y)
 
+		// hard code hard news
+	 	const diff = (opts.ringData[0].factor - opts.ringData[1].factor) / 2
+		const factor = Math.random() * diff + opts.ringData[1].factor + diff
+		const ranPathPoint = Math.random() * NUM_PATH_POINTS
+		// console.log(diff, factor, ranPathPoint)
 
+		const angle = ranPathPoint / NUM_PATH_POINTS * 360
+		const rad = toRadians(angle)
+		const x = Math.cos(rad) * halfSize * factor
+		const y = Math.sin(rad) * halfSize * factor
+		
+		if (isMedium) vec2.set(locationVec, x + halfSize , y + halfSize)
+		else vec2.set(locationVec, x, y)
+	 	
 		
 		sprite.tint = 0XF2929D
 		// sprite.tint = 0X666666
 		// sprite.tint = 0X47462F
 
 		sprite.alpha = 0.5
-		// sprite.blendMode = PIXI.BLEND_MODES.ADD
+		// sprite.blendMode = PIXI.BLEND_MODES.SCREEN
+		
 
 		createPaths(opts.ringData, opts.chartSize)
 
-		isBig = data.tier === 2
-		isMedium = data.tier > 0
+		// if (data.id === '1077331') toggleText(true)
+		
 
 		// TODO hack?
-		setSize(2)
-		setScene('explore')
+		// setSize(100)
+		update()
+		setScene('intro-1')
 		return {
 			setScene,
 			setSize,
