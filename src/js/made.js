@@ -207,7 +207,6 @@ function setupScroll() {
 	const visHeight = madeVisEl.node().offsetHeight
 	
 	madeEl.style('height', `${proseHeight}px`)
-	console.log(proseHeight)
 	const controller = new ScrollMagic.Controller()
 	const madeScene = new ScrollMagic.Scene({
 		triggerElement: '#made',
@@ -240,12 +239,14 @@ function setupScroll() {
 			currentSceneIndex = i
 			currentSceneId = sel.attr('data-id')
 			currentSceneBand = sel.attr('data-band')
-
+			
 			// focus if band
 			if (sel.classed('band')) {
 				bandTriggerEl.classed('is-focus', false)
 				sel.classed('is-focus', true)
 			}
+
+			if (currentSceneId === 'big') bandTriggerEl.classed('is-focus', false)
 
 			updateScene()
 		})
@@ -273,11 +274,13 @@ function updateScene() {
 
 	// special case
 	if (currentSceneId === 'band') {
+
 		const foundIndex = bigBandIds.findIndex(d => d === currentSceneBand)
 		let remove
 		let add
 		if (foundIndex > -1) {
-			remove = bigBandIds.pop()
+			const notSame = bigBandIds[bigBandIds.length - 1] !== currentSceneBand
+			if (notSame) remove = bigBandIds.pop()
 		} else {
 			add = currentSceneBand
 			bigBandIds.push(currentSceneBand)
@@ -287,9 +290,12 @@ function updateScene() {
 			const index = bigBandIndexes[d]
 			boids[index].enterBig()
 		})
-		console.log({add})
-		console.log({remove})
+		
+		// console.log({add})
+		// console.log({remove})
+		
 		if (add) boids[bigBandIndexes[add]].enterBig(true)
+		
 		if (remove) {
 			boids[bigBandIndexes[remove]].exitBig()
 			if (bigBandIds.length) {
@@ -297,6 +303,7 @@ function updateScene() {
 				boids[bigBandIndexes[id]].toggleText(true)
 			}
 		}
+		// console.log(bigBandIds)
 	}
 
 	if (currentSceneId === 'big') {
