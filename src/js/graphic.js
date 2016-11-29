@@ -2,16 +2,18 @@ import fetchData from './fetch-data'
 // import flock from './flock'
 // import test from './test'
 import made from './made'
+import search from './search'
 
 const init = () => {
 	console.time('fetch data')
 	fetchData((err, data) => {
 		console.timeEnd('fetch data')
 		const venues = data[0]
-		const bands = data[1].sort((a, b) => b.tier - a.tier)
+		const bands = data[1]
 		// const bands = data[1].slice(0, 1000)
 		// flock.init({ venues, bands })
 		made.init({ venues, bands })
+		search.init({ venues, bands })
 		// test.init({ venues, bands })
 	})
 }

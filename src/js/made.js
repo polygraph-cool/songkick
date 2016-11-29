@@ -76,7 +76,11 @@ function setupDOM() {
 	}))
 	otherContainer = new PIXI.Container()
 	
-	smalls.forEach(d => stage.addChild(d.container))
+	otherContainer.alpha = 0.25
+	smalls.forEach(d => {
+		d.container.alpha = 0.25
+		stage.addChild(d.container)
+	})
 	stage.addChild(otherContainer)
 	
 	// debug
@@ -203,7 +207,7 @@ function setupScroll() {
 	const visHeight = madeVisEl.node().offsetHeight
 	
 	madeEl.style('height', `${proseHeight}px`)
-
+	console.log(proseHeight)
 	const controller = new ScrollMagic.Controller()
 	const madeScene = new ScrollMagic.Scene({
 		triggerElement: '#made',
@@ -222,6 +226,7 @@ function setupScroll() {
 			madeVisEl.classed('is-bottom', event.scrollDirection === 'FORWARD')
 		})
 		.addTo(controller)
+
 
 	const triggerScenes = d3.selectAll('.made__prose .trigger').each(function(d, i) {
 		const el = this
@@ -296,6 +301,12 @@ function updateScene() {
 
 	if (currentSceneId === 'big') {
 		bigBandIds = []
+	}
+
+	if (currentSceneId === 'medium') {
+		smalls.forEach(s => {
+			s.container.alpha = 0.5
+		})
 	}
 }
 	

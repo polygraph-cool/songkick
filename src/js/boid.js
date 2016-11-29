@@ -142,14 +142,6 @@ const Boid = (opts) => {
 					setSize(size)
 				}
 				break
-			// case 'explore':
-			// 	mode = 'explore'
-				
-			// 	size = Math.max(2, Math.floor(data.pR * sizeExplore * 2) - 2)
-			// 	// setSize(2, true)
-			// 	if (text) text.visible = false
-				
-			// 	break
 			default:
 				currentPath = 0
 				// only reset size if different
@@ -481,7 +473,7 @@ const Boid = (opts) => {
 		// sprite.tint = 0X666666
 		// sprite.tint = 0X47462F
 
-		sprite.alpha = 0.5
+		// sprite.alpha = 0.5
 		// sprite.blendMode = PIXI.BLEND_MODES.SCREEN
 		
 
