@@ -37,10 +37,45 @@ function loadData(cb) {
 	d3.csv('assets/data/web_data.csv', cleanData, cb)
 }
 
+function cleanHistory(data) {
+	const parseDate = d3.timeParse('%Y-%m-%d')
+
+	const bands = data.filter(d => d.shows.length)
+
+	return bands.map(band => {
+		const startDate = parseDate(band.shows[0].date)
+
+		const shows = band.shows.map(show => {
+			const currentDate = parseDate(show.date)
+			// TODO assumption is that first appearance is opener
+			const diff = d3.timeDay.count(startDate, currentDate)
+			return {
+				...show,
+				date_parsed: currentDate,
+				normalized_days: diff,
+			}
+		})
+
+		return {
+			...band,
+			shows,
+		}
+	})
+}
+
+function loadHistory(cb) {
+	d3.json('assets/data/web_history.json', (err, data) => {
+		const clean = cleanHistory(data)
+		cb(err, clean)
+	})
+}
+
+
 function init(cb) {
 	d3.queue()
 		.defer(loadVenues)
     	.defer(loadData)
+    	.defer(loadHistory)
     	.awaitAll(cb)
 }
 
