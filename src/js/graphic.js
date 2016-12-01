@@ -12,9 +12,9 @@ const init = () => {
 		const history = data[2]
 		// const bands = data[1].slice(0, 1000)
 		// flock.init({ venues, bands })
-		// made.init({ venues, bands })
-		// search.init({ venues, bands })
-		ascent.init({ venues, history })
+		made.init({ venues, bands })
+		search.init({ venues, bands })
+		// ascent.init({ venues, history })
 	})
 }
 

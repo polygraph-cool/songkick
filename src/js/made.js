@@ -248,6 +248,9 @@ function setupScroll() {
 
 			if (currentSceneId === 'big') bandTriggerEl.classed('is-focus', false)
 
+			// hack
+			if (i > 3) otherContainer.alpha = 0.75
+			else otherContainer.alpha = 0.25
 			updateScene()
 		})
 		.addTo(controller)
@@ -306,11 +309,14 @@ function updateScene() {
 		// console.log(bigBandIds)
 	}
 
+	
 	if (currentSceneId === 'big') {
 		bigBandIds = []
-	}
-
-	if (currentSceneId === 'medium') {
+	} else if (currentSceneId === 'medium') {
+		smalls.forEach(s => {
+			s.container.alpha = 0.25
+		})
+	} else if (currentSceneId === 'small') {
 		smalls.forEach(s => {
 			s.container.alpha = 0.5
 		})
