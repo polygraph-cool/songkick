@@ -9,6 +9,8 @@ const HALF_PP = NUM_PATH_POINTS / 2
 const QUARTER_PP = NUM_PATH_POINTS / 4
 let MIN_SIZE
 
+const TINT = 0XF2929D
+const TINT_SPECIAL = 0XFFFFFF
 const debugId = '2575'
 
 
@@ -73,6 +75,7 @@ const Boid = (opts) => {
 	let packExploreY
 	let isBig
 	let isMedium
+	let isSpecial
 	let mode
 
 	// let wanderTheta = Math.random() * TWO_PI
@@ -125,6 +128,7 @@ const Boid = (opts) => {
 					currentPath = 1
 					setSize(6, true)
 					toggleText(false)
+					if (isSpecial) sprite.tint = TINT
 				} else {
 					setSize(size)
 				}
@@ -143,6 +147,10 @@ const Boid = (opts) => {
 				}
 				break
 			default:
+				if (isSpecial) {
+					sprite.tint = TINT_SPECIAL
+					toggleText(true)	
+				} 
 				currentPath = 0
 				// only reset size if different
 				if (currentSize !== size) setSize(size, false)
@@ -217,7 +225,8 @@ const Boid = (opts) => {
 			if (i < ringData.length - 1) nextFactor = ringData[i + 1].factor
 
 			const diff = (datum.factor - nextFactor) / 2
-			const factor = Math.random() * diff + nextFactor + diff
+			const ran = isSpecial ? 0.2 : Math.random()
+			const factor = ran * diff + nextFactor + diff
 
 			// add point to path
 			d3.range(NUM_PATH_POINTS).map(d => {
@@ -393,24 +402,25 @@ const Boid = (opts) => {
 	} 
 
 	const init = () => {
-		// inc = opts.inc
 		container = opts.container
 		sprite = opts.sprite
 		text = opts.text
 		data = opts.data
 		chartSize = opts.chartSize
 		
-		// init locationVec
-		const halfSize = chartSize / 2
-	  	
-	  	MIN_SIZE = chartSize < 480 ? 1 : 2
-	  	
+		isSpecial = data.name === 'Lake Street Dive'
 		isBig = data.tier === 2
 		isMedium = data.tier > 0
 
+		const halfSize = chartSize / 2
+	  	
+	  	MIN_SIZE = chartSize < 480 ? 1 : 2
+	  	MIN_SIZE = isSpecial ? MIN_SIZE * 2 : MIN_SIZE
+	  		  	
+
 		// hide text
 		if (text) {
-			text.anchor.set(0.5, 1)
+			text.anchor.set(0.5, 1.5)
 			text.visible = false
 			text.style = {
 				align: 'center',
@@ -426,13 +436,6 @@ const Boid = (opts) => {
 		vec2.set(centerVec, halfSize, halfSize)
 
 		sizeBig = data.bR ? opts.ringData[2].factor * chartSize : null
-		sizeExplore = chartSize
-
-		// pack
-		// pack = [sizeExplore * data.pX, sizeExplore * data.pY, sizeExplore / 2]
-		packExplore = [sizeExplore * data.pX, sizeExplore * data.pY, sizeExplore / 2]
-		packExploreX = centerVec[0] + packExplore[0] - packExplore[2]
-		packExploreY = centerVec[1] + packExplore[1] - packExplore[2]
 
 		if (isBig) {
 			packBig = [sizeBig * data.bX, sizeBig * data.bY, sizeBig / 2]
@@ -440,19 +443,9 @@ const Boid = (opts) => {
 			packBigY = centerVec[1] + packBig[1] - packBig[2]	
 		}
 
-		
 		vec2.set(velocityVec, 0, 0)
 
-		// const x = centerVec[0] + packExplore[0] - packExplore[2]
-		// const y = centerVec[1] + packExplore[1] - packExplore[2]
-
-		// const x = centerVec[0]
-		// const y = centerVec[1]
-	  	
-
-	 // 	const angle = Math.random() * Math.PI * 2
-		// const x = Math.cos(angle) * chartSize * opts.ringData[0].factor / 2 + halfSize
-	 //  	const y = Math.sin(angle) * chartSize * opts.ringData[0].factor / 2 + halfSize
+		createPaths(opts.ringData, opts.chartSize)
 
 		// hard code hard news
 	 	const diff = (opts.ringData[0].factor - opts.ringData[1].factor) / 2
@@ -467,23 +460,17 @@ const Boid = (opts) => {
 		
 		if (isMedium) vec2.set(locationVec, x + halfSize , y + halfSize)
 		else vec2.set(locationVec, x, y)
-	 	
 		
-		sprite.tint = 0XF2929D
-		// sprite.tint = 0X666666
-		// sprite.tint = 0X47462F
-
-		// sprite.alpha = 0.5
-		// sprite.blendMode = PIXI.BLEND_MODES.SCREEN
+		sprite.tint = TINT
+		sprite.alpha = isMedium ? 0.3 : 0.6
 		
-
-		createPaths(opts.ringData, opts.chartSize)
-
-		// if (data.id === '1077331') toggleText(true)
+		if (isSpecial) {
+			sprite.alpha = 1
+			sprite.tint = TINT_SPECIAL
+			toggleText(true)
+		}
 		
-
-		// TODO hack?
-		// setSize(100)
+		
 		update()
 		setScene('intro-1')
 		return {

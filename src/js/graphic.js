@@ -8,12 +8,12 @@ const init = () => {
 	fetchData((err, data) => {
 		console.timeEnd('fetch data')
 		const venues = data[0]
-		const bands = data[1]
+		// const bands = data[1]
 		const history = data[2]
-		// const bands = data[1].slice(0, 1000)
+		const bands = data[1]
 		// flock.init({ venues, bands })
 		made.init({ venues, bands })
-		search.init({ venues, bands })
+		// search.init({ venues, bands })
 		// ascent.init({ venues, history })
 	})
 }

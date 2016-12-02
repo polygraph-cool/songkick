@@ -76,18 +76,22 @@ function setupDOM() {
 	}))
 	otherContainer = new PIXI.Container()
 	
-	otherContainer.alpha = 0.25
-	smalls.forEach(d => {
-		d.container.alpha = 0.25
-		stage.addChild(d.container)
-	})
 	stage.addChild(otherContainer)
-	
+		
+	setAlpha(1, 0.5)
 	// debug
 	// nextPoint = new PIXI.Graphics()
 	// stage.addChild(nextPoint)
 }
 
+function setAlpha(otherVal, smallVal) {
+	console.log(otherVal, smallVal)
+	otherContainer.alpha = otherVal
+	smalls.forEach(d => {
+		d.container.alpha = smallVal
+		stage.addChild(d.container)
+	})
+}
 
 function setupText() {
 	const svg = chartEl.select('svg')
@@ -164,7 +168,6 @@ function setupBoids() {
 		}
 		
 		// stage.addChild(container)
-
 		boids.push(Boid({
 			data: d,
 			container,
@@ -249,8 +252,8 @@ function setupScroll() {
 			if (currentSceneId === 'big') bandTriggerEl.classed('is-focus', false)
 
 			// hack
-			if (i > 3) otherContainer.alpha = 0.75
-			else otherContainer.alpha = 0.25
+			// if (i > 3) setAlpha(0.75, 0.25)
+			// else setAlpha(1, 0.5)
 			updateScene()
 		})
 		.addTo(controller)
@@ -263,7 +266,7 @@ function updateScene() {
 	// toggle text labels
 	const ring = d3.selectAll('.ring')
 	if (currentSceneId === 'explore') ring.classed('is-hidden', true)
-	else ring.classed('is-hidden', (d, i) => i + 3 > currentSceneIndex)
+	else ring.classed('is-hidden', (d, i) => i + 4 > currentSceneIndex)
 
 	const toMedium = ['big', 'band']
 	const scene = toMedium.indexOf(currentSceneId) > -1 ? 'medium': currentSceneId
@@ -313,13 +316,11 @@ function updateScene() {
 	if (currentSceneId === 'big') {
 		bigBandIds = []
 	} else if (currentSceneId === 'medium') {
-		smalls.forEach(s => {
-			s.container.alpha = 0.25
-		})
+		setAlpha(1, 0.5)
 	} else if (currentSceneId === 'small') {
-		smalls.forEach(s => {
-			s.container.alpha = 0.5
-		})
+		setAlpha(1, 0.5)
+	} else {
+		setAlpha(1, 0.5)
 	}
 }
 	
@@ -354,6 +355,11 @@ function render() {
 function init(data) {
 	venues = data.venues
 	bands = data.bands
+
+	// put lake street on top
+	const lakeIndex = bands.findIndex(d => d.id === '1077331')
+	const lake = bands.splice(lakeIndex, 1)
+	bands.push(lake[0])
 
 	setupDOM()
 	setupText()
