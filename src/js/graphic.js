@@ -14,7 +14,7 @@ const init = () => {
 
 		// flock.init({ venues, bands })
 		made.init({ venues, bands })
-		// search.init({ venues, bands })
+		search.init({ venues, bands })
 		// ascent.init({ venues, history })
 	})
 }
