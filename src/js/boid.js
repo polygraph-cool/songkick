@@ -225,7 +225,7 @@ const Boid = (opts) => {
 			if (i < ringData.length - 1) nextFactor = ringData[i + 1].factor
 
 			const diff = (datum.factor - nextFactor) / 2
-			const ran = isSpecial ? 0.2 : Math.random()
+			const ran = isSpecial ? 0.4 : 0.2 + Math.random() * 0.8
 			const factor = ran * diff + nextFactor + diff
 
 			// add point to path
@@ -258,9 +258,6 @@ const Boid = (opts) => {
 					break
 				case 'big': 
 					tempTarget = followBig()
-					break
-				case 'explore': 
-					tempTarget = followExplore()
 					break
 				default:
 					tempTarget = follow()
@@ -306,7 +303,7 @@ const Boid = (opts) => {
 		// pathScale(rad)
 
 		let index = Math.ceil(deg / 360 * NUM_PATH_POINTS)
-		let off = currentPath + 1
+		let off = currentPath + 2
 		// console.log(deg, index)
 		// console.log(deg, index, off)
 		const scale = index >= NUM_PATH_POINTS - off
@@ -315,18 +312,18 @@ const Boid = (opts) => {
 
 		return scale
 	}
-	const getFinal = (scaled) => {
-		let final = 0
-		if (scaled < 0) {
-			final = QUARTER_PP - scaled
-		} else {
-			if (scaled > QUARTER_PP) final = (NUM_PATH_POINTS - QUARTER_PP) + (HALF_PP - scaled)
-			else final = QUARTER_PP - scaled
-		}
+	// const getFinal = (scaled) => {
+	// 	let final = 0
+	// 	if (scaled < 0) {
+	// 		final = QUARTER_PP - scaled
+	// 	} else {
+	// 		if (scaled > QUARTER_PP) final = (NUM_PATH_POINTS - QUARTER_PP) + (HALF_PP - scaled)
+	// 		else final = QUARTER_PP - scaled
+	// 	}
 
-		final = final < NUM_PATH_POINTS - 2 ? final + 1 : 0
-		return final 
-	}
+	// 	final = final < NUM_PATH_POINTS - 2 ? final + 1 : 0
+	// 	return final 
+	// }
 	const getTarget = (i) => {
 		const index = (currentPath * NUM_PATH_POINTS + i) * 2
 		const tX = paths[index]
@@ -420,7 +417,7 @@ const Boid = (opts) => {
 
 		// hide text
 		if (text) {
-			text.anchor.set(0.5, 1.5)
+			text.anchor.set(0.5, 1.25)
 			text.visible = false
 			text.style = {
 				align: 'center',
