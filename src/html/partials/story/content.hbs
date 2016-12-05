@@ -13,7 +13,7 @@
 				{{#if band}}
 				<div class='band__img'><img src='assets/lake-street-dive.png'></div>
 				<ul class='band__list'>
-					<li class='list__name'>{{name}} @@include('misc/audio-on.svg')</li>
+					<li class='list__name'>{{name}} <span class='btn__audio' data-src='{{audio}}'>@@include('misc/audio-on.svg')</span></li>
 					<li class='list__date'>date: {{date}}</li>
 					<li class='list__venue'>venue: {{venue}}</li>
 				</ul>
@@ -26,6 +26,8 @@
 		{{/each}}
 	</div>
 </div>
+
+<audio class='audio-player'></audio>
 
 <div id='ascent'>
 	<div class='ascent__vis'></div>

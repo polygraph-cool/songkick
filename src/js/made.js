@@ -47,6 +47,8 @@ let smalls
 let otherContainer
 const NUM_SMALL_CONTAINERS = 10
 
+let audioPlayer
+
 function setupDOM() {
 	chartSize = Math.floor(Math.min(window.innerHeight * 0.8, chartEl.node().offsetWidth))
 	renderer = PIXI.autoDetectRenderer(chartSize, chartSize, { 
@@ -262,6 +264,21 @@ function setupScroll() {
 	})
 }
 
+function handleAudio() {
+	const src = this.getAttribute('data-src')
+	const url = `https://p.scdn.co/mp3-preview/${src}`
+	audioPlayer.src = url
+	audioPlayer.load()
+	audioPlayer.play()
+}
+
+function setupAudio() {
+	audioPlayer = document.createElement('audio')
+	d3.selectAll('.btn__audio').on('click', handleAudio)
+}
+
+
+
 function updateScene() {
 	// toggle text labels
 	const ring = d3.selectAll('.ring')
@@ -366,6 +383,7 @@ function init(data) {
 	setupBoids()
 	setupSmalls()
 	setupScroll()
+	setupAudio()
 	render()
 }
 
