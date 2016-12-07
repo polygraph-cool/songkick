@@ -7,17 +7,27 @@
 		stroke $gray
 		stroke-opacity 1
 	circle 
-		fill-opacity 0.25
+		opacity 0.5
+		fill-opacity 0.5
+		stroke-width 1
+		stroke white
 		fill white
 		&:last-child
+			opacity 1
 			fill $c2
 			fill-opacity 1
-	 text 
-		fill $gray-light
+	text 
+		fill $off-white
 		font-size 12px
 		font-weight bold
+	
+	tspan
+		font-weight normal
+		// font-size 10px
+
 
 .ascent__vis .axis
+	display none
 	text
 		fill $gray-light
 	path

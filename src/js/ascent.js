@@ -8,6 +8,8 @@ const BAND_NAMES = {'2575': 'Wade Bowen','4409368': 'Bad Suns','6325384': 'Miste
 
 const visEl = d3.select('.ascent__vis')
 
+const formatNumber = d3.format('.1f')
+
 function getVenue(id) {
 	// return venues.find(d => d.id === id) || {}
 	return venues[id]
@@ -46,6 +48,7 @@ function addVenueDetails() {
 		const start = band.small.normalized_days
 		// band.days_until_medium = band.medium ? band.medium.normalized_days - start : null 
 		band.days_until_big = band.big ? band.big.normalized_days - start : null
+		band.years_until_big = band.big ? (band.big.normalized_days - start) / 365 : null
 
 		// filter out shows that are after big perf and before start
 		band.shows = band.shows.filter(show => {
@@ -55,6 +58,7 @@ function addVenueDetails() {
 		// yuck! find days since start
 		band.shows.forEach(show => {
 			show.days_since_start = show.normalized_days - start
+			show.years_since_start = (show.normalized_days - start) / 365
 		})
 		// band.data = [{days: 0, h: 0}, {days: band.days_until_big, h: 1}]
 		// console.log(band.id, band.days_until_medium, band.days_until_big)
@@ -173,6 +177,7 @@ function addVenueDetails() {
 
 function setupChart() {
 	const daysMax = d3.max(history, d => d.days_until_big)
+	const yearsMax = d3.max(history, d => d.years_until_big)
 
 	const capacityMax = d3.max(history, d => d.big.capacity)
 	const capacityMin = d3.min(history, d => d3.min(d.shows, e => e.capacity))
@@ -181,13 +186,13 @@ function setupChart() {
 	// 	return d3.max(d.shows, s => s.capacity)
 	// })
 	const margin = 24
-	const itemHeight = 40
+	const itemHeight = 48
 
 	const w = visEl.node().offsetWidth - margin * 2
 	// const h = window.innerHeight * 0.8 - margin * 2
 	const h = itemHeight * (history.length + 1) - (margin * 2)
 	
-	const scaleX = d3.scaleLinear().domain([0, daysMax]).range([0, w])
+	const scaleX = d3.scaleLinear().domain([0, yearsMax]).range([0, w])
 	
 	// const bandDomain = d3.range(history.length)
 	// const scaleY = d3.scaleBand()
@@ -201,7 +206,7 @@ function setupChart() {
 	// const bandwidth = Math.floor(scaleY.bandwidth())
 
 	// size scale
-	const maxRadius = itemHeight / 4
+	const maxRadius = itemHeight / 6
 	const minRadius = 3
 	const step = (maxRadius - minRadius) / 5
 	const sizeDomain = [200, 500, 1000, 3000] 
@@ -237,19 +242,23 @@ function setupChart() {
 		.attr('transform', (d, i) => `translate(0,${(i + 1) * itemHeight})`)
 	
 	bandEnter.append('text')
-		.text(d => BAND_NAMES[d.id])
+		.html((d, i) => {
+			const years = formatNumber(d.years_until_big)
+			const extra =  i === 0 ? 'until they made it big' : ''
+			return `${BAND_NAMES[d.id]} <tspan dx='5'>${years} years ${extra}</tspan>`
+		})
 		.attr('y', -12)
 
 	bandEnter.append('path')
 		.attr('class', 'line')
-		.attr('d', d => line([0, d.days_until_big]))
+		.attr('d', d => line([0, d.years_until_big]))
 
 	const show = bandEnter.selectAll('circle')
 
 	const showEnter = show.data(d => d.shows)
 		.enter()
 	.append('circle')
-		.attr('cx', d => scaleX(d.days_since_start))
+		.attr('cx', d => scaleX(d.years_since_start))
 		.attr('cy', 0)
 		.attr('r', d => scaleSize(d.capacity))
 
