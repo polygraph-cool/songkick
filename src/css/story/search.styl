@@ -1,15 +1,41 @@
 $search-size = 8px
+
+#search
+	margin-top 10em
+	position relative
+	
 .search__vis
 	transform translate3d(0px,0px,0px)
 	position fixed
+	top 0
+	left 0
 	clearfix()
-	// text-transform uppercase
 	opacity 0.15
+	z-index set-index('bottom')
+	// transition opacity 0.5s
+	text-align center	
+	line-height $search-size
 	.band
-		line-height $search-size
-		display inline-block
-		margin 0
-		padding 0
+		line-height 1
 		font-size $search-size - 1
-		margin-right 5px
-		float left
+		margin 0
+		padding 0 1px
+		display inline
+		// display inline-block
+		// float left
+
+.search__vis.is-static
+	position absolute
+	opacity 0.7
+	cursor pointer
+	.band 
+		// opacity 0.5
+		// font-size $search-size * 1.5
+		// line-height $search-size + 2
+		&:hover
+			opacity 1
+			background-color $c2
+			color $c1
+		 
+		
+		

@@ -472,10 +472,7 @@ const Boid = (opts) => {
 		setScene('intro-1')
 		return {
 			setScene,
-			setSize,
-
 			getPathPoint,
-
 			applyBehaviors,
 			update,
 			enterBig,

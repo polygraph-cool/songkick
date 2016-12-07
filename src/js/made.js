@@ -211,7 +211,7 @@ function setupScroll() {
 	const proseHeight = madeProseEl.node().offsetHeight
 	const visHeight = madeVisEl.node().offsetHeight
 	
-	madeEl.style('height', `${proseHeight}px`)
+	// madeEl.style('height', `${proseHeight}px`)
 	const controller = new ScrollMagic.Controller()
 	const madeScene = new ScrollMagic.Scene({
 		triggerElement: '#made',
@@ -370,6 +370,12 @@ function render() {
 }
 
 function init(data) {
+	// TODO on resize too
+	// const proseHeight = madeProseEl.node().offsetHeight
+	// const visHeight = madeVisEl.node().offsetHeight
+	// madeEl.style('height', `${proseHeight}px`)
+
+	// TODO deep copy before assigning to bands
 	venues = data.venues
 	bands = data.bands
 

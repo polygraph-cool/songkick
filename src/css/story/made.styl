@@ -6,17 +6,19 @@ $trigger-width = 20em
 .made__prose
 	// width 100%
 	width 35%
-	position absolute
 	top 0
-	right 0
+	left 0
 	padding 1rem
+	z-index set-index('top')
+	position relative
+	&.is-ready
+		position absolute
 	.trigger 
 		height 80vh
 		max-width 25em
 		margin 0 auto
-		margin-bottom 1em
 		p 
-			margin 0
+			margin 1.5rem 0
 		&.lead
 			height auto
 		&.big
@@ -52,18 +54,18 @@ $band-img-width = 64px
 	
 .made__vis
 	position absolute
-	left 0
+	right 0
 	top 0
 	// width 100%
 	width 65%
 	height 100vh
 	margin 0
 	transform translate3d(0px,0px,0px)
-	z-index -1
+	z-index set-index('bottom')
 	&.is-fixed
 		position fixed
 		top 0
-		left 0
+		right 0
 	&.is-bottom
 		position absolute
 		top auto
