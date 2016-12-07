@@ -10,32 +10,98 @@ $search-size = 8px
 	left 0
 	clearfix()
 	opacity 0.2
-	color lighten($c1, 20)
 	z-index set-index('bottom')
-	// transition opacity 0.5s
-	text-align center	
-	line-height $search-size
+	transition opacity 0.5s ease-in-out
+	padding 0.5rem
+	// text-align center	
+	// font-size $search-size - 1
+	// line-height 1
+	// line-height $search-size
 	.band
-		line-height 1
-		font-size $search-size - 1
+		color lighten($c1, 20)
+		line-height 1.5
+		font-size $search-size
 		margin 0
-		padding 0 1px
-		display inline
-		// display inline-block
-		// float left
+		// display inline
+		display inline-block
+		float left
+		&:after
+			content '\2022'
+			display inline block
+			padding 0 2px
+			color lighten($c1, 20)
+	.alphabet
+		&::first-letter		
+			font-weight bold
 
-.search__vis.is-static
-	position absolute
-	opacity 0.7
-	cursor pointer
-	.band 
-		// opacity 0.5
-		// font-size $search-size * 1.5
-		// line-height $search-size + 2
-		&:hover
-			opacity 1
-			background-color $c2
-			color $c1
-		 
+.is-static
+	.search__vis
+		z-index set-index('top')
+		position absolute
+		opacity 0.7
+		cursor pointer
+		.band
+			&:hover
+				opacity 1
+				background-color $c2
+				color $c1
+	.search__find
+		display block
+	.search__popup
+		display block
+	.alphabet
+		color $c2
+	
+.search__find
+	display none
+	position fixed
+	top 25%
+	left 0
+	width 100%
+	z-index set-index('top')
+	
+	.find__container
+		max-width 40rem
+		margin 0 auto
 		
-		
+	
+	.find__input 
+		display none
+		width 100%
+		background none
+		border none
+		border-bottom 1px solid $c2
+		outline none
+		font-size 2em
+		color $c2
+
+.search__popup
+	display none
+	font-size 13px
+	position fixed 
+	top 0 
+	left 0
+	width 200px
+	z-index set-index('top')
+	background-color $c1
+	color $c2
+	border-radius 3px
+	box-shadow 0 0 1px $off-white
+	padding 0.25em 0.5em
+	line-height 1.5
+	pointer-events none
+	.popup__name
+		font-weight bold
+	
+.popup__vis
+	circle 
+		fill white
+		fill-opacity 0.25
+		stroke white
+		stroke-opacity 0.5
+	.tick
+		display none
+	.tick:first-child
+		display block
+	.tick:last-child
+		display block

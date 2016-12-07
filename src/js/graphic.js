@@ -16,7 +16,7 @@ const init = () => {
 		// flock.init({ venues, bands })
 		made.init({ venues, bands: clonedeep(bands) })
 		ascent.init({ venues, history })
-		search.init({ venues, bands })
+		search.init({ venues, bands: clonedeep(bands) })
 	})
 }
 

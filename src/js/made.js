@@ -87,7 +87,7 @@ function setupDOM() {
 }
 
 function setAlpha(otherVal, smallVal) {
-	console.log(otherVal, smallVal)
+	// console.log(otherVal, smallVal)
 	otherContainer.alpha = otherVal
 	smalls.forEach(d => {
 		d.container.alpha = smallVal

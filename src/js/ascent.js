@@ -269,7 +269,7 @@ function init(data) {
 	venues = data.venues
 	addVenueDetails()
 	setupChart()
-	console.log(history)
+	// console.log(history)
 }
 
 export default { init }
