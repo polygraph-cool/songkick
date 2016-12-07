@@ -4,6 +4,10 @@ import './utils/find'
 let history
 let venues
 
+const BAND_NAMES = {'2575': 'Wade Bowen','4409368': 'Bad Suns','6325384': 'Misterwives','189890': 'The Boys','1077331': 'Lake Street Dive','423511': 'Emmanuel','3909026': 'Courtney Barnett','5767534': 'Torres','2337283': 'Great Caesar','6018139': 'ODESZA','5183683': 'Houndmouth','6664009': 'X Ambassadors','457177': 'Bob Moses','6140284': 'Sturgill Simpson'}
+
+const visEl = d3.select('.ascent__vis')
+
 function getVenue(id) {
 	// return venues.find(d => d.id === id) || {}
 	return venues[id]
@@ -57,6 +61,8 @@ function addVenueDetails() {
 	})
 
 	history = history.filter(d => d.shows.length)
+
+	history.sort((a, b) => d3.descending(a.days_until_big, b.days_until_big))
 }
 
 // function setupChart() {
@@ -174,17 +180,35 @@ function setupChart() {
 	// const maxCapacity = d3.max(history, d => {
 	// 	return d3.max(d.shows, s => s.capacity)
 	// })
+	const margin = 24
+	const itemHeight = 40
 
-	const w = 800
-	const h = 500
-
-	const margin = 40
+	const w = visEl.node().offsetWidth - margin * 2
+	// const h = window.innerHeight * 0.8 - margin * 2
+	const h = itemHeight * (history.length + 1) - (margin * 2)
+	
 	const scaleX = d3.scaleLinear().domain([0, daysMax]).range([0, w])
-	const maxRadius = h / history.length / 2
-	const minRadius = 2
-	const scaleSize = d3.scalePow().exponent(0.25).domain([capacityMin, capacityMax]).range([minRadius, maxRadius])
+	
+	// const bandDomain = d3.range(history.length)
+	// const scaleY = d3.scaleBand()
+	// scaleY
+	// 	.domain(bandDomain)
+	// 	.range([0, h])
+	// 	.paddingOuter(1)
+	// 	.paddingInner(0.2)
+	// 	.round()
 
-	const visEl = d3.select('.ascent__vis')
+	// const bandwidth = Math.floor(scaleY.bandwidth())
+
+	// size scale
+	const maxRadius = itemHeight / 4
+	const minRadius = 3
+	const step = (maxRadius - minRadius) / 5
+	const sizeDomain = [200, 500, 1000, 3000] 
+	const sizeRange = d3.range(minRadius, maxRadius, step)
+	const scaleSize = d3.scaleThreshold().domain(sizeDomain).range(sizeRange)
+
+	
 	const svg = visEl.append('svg')
 
 	svg
@@ -195,10 +219,11 @@ function setupChart() {
 	
 	chart.attr('transform', `translate(${margin},${margin})`)
 
-	chart.append('g')
+
+	svg.append('g')
       .attr('class', 'axis axis__x')
-      .attr('transform', `translate(0,${h})`)
-      .call(d3.axisBottom(scaleX))
+      .attr('transform', `translate(${margin}, ${margin})`)
+      .call(d3.axisTop(scaleX))
 
 	const line = d3.line()
 		.x(d => scaleX(d))
@@ -209,8 +234,12 @@ function setupChart() {
 	const bandEnter = band.data(history)
 		.enter()
 	.append('g').attr('class', 'band')
-		.attr('transform', (d, i) => `translate(0,${i / history.length * h})`)
+		.attr('transform', (d, i) => `translate(0,${(i + 1) * itemHeight})`)
 	
+	bandEnter.append('text')
+		.text(d => BAND_NAMES[d.id])
+		.attr('y', -12)
+
 	bandEnter.append('path')
 		.attr('class', 'line')
 		.attr('d', d => line([0, d.days_until_big]))

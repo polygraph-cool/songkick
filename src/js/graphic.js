@@ -1,3 +1,4 @@
+import clonedeep from 'lodash.clonedeep'
 import fetchData from './fetch-data'
 import made from './made'
 import search from './search'
@@ -13,7 +14,7 @@ const init = () => {
 		// const bands = data[1].filter(d => d.name === 'Lake Street Dive')
 
 		// flock.init({ venues, bands })
-		made.init({ venues, bands })
+		made.init({ venues, bands: clonedeep(bands) })
 		ascent.init({ venues, history })
 		search.init({ venues, bands })
 	})

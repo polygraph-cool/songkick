@@ -41,6 +41,7 @@
     "d3": "^4.3.0",
     "fontfaceobserver": "^2.0.5",
     "gl-matrix-vec2": "^2.2.1-npm",
+    "lodash.clonedeep": "^4.5.0",
     "lodash.debounce": "^4.0.8",
     "pixi.js": "^4.1.1",
     "promis": "^1.1.4",

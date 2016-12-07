@@ -375,7 +375,6 @@ function init(data) {
 	// const visHeight = madeVisEl.node().offsetHeight
 	// madeEl.style('height', `${proseHeight}px`)
 
-	// TODO deep copy before assigning to bands
 	venues = data.venues
 	bands = data.bands
 
