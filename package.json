@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "d3": "^4.3.0",
+    "d3-svg-legend": "^2.19.0",
     "fontfaceobserver": "^2.0.5",
     "gl-matrix-vec2": "^2.2.1-npm",
     "lodash.clonedeep": "^4.5.0",

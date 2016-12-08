@@ -1,5 +1,8 @@
 import * as d3 from 'd3'
+import ScrollMagic from 'scrollmagic'
 import './utils/find'
+
+import { legendSize } from 'd3-svg-legend'
 
 let history
 let venues
@@ -9,6 +12,10 @@ const BAND_NAMES = {'2575': 'Wade Bowen','4409368': 'Bad Suns','6325384': 'Miste
 const visEl = d3.select('.ascent__vis')
 
 const formatNumber = d3.format('.1f')
+
+let line
+let scale = {}
+let chart
 
 function getVenue(id) {
 	// return venues.find(d => d.id === id) || {}
@@ -69,109 +76,6 @@ function addVenueDetails() {
 	history.sort((a, b) => d3.descending(a.days_until_big, b.days_until_big))
 }
 
-// function setupChart() {
-// 	const daysMax = d3.max(history, d => {
-// 		const last = d.shows.slice(-1)[0]
-// 		return last.normalized_days
-// 	})
-// 	const maxCapacity = d3.max(history, d => {
-// 		return d3.max(d.shows, s => s.capacity)
-// 	})
-
-// 	const w = 800
-// 	const h = 500
-
-// 	const margin = 40
-// 	const scaleX = d3.scaleLinear().domain([0, daysMax]).range([0, w])
-// 	const scaleY = d3.scaleLinear().domain([0, maxCapacity]).range([h, 0])
-	
-// 	const visEl = d3.select('.ascent__vis')
-// 	const svg = visEl.append('svg')
-
-// 	svg
-// 		.attr('width', w + margin * 2)
-// 		.attr('height', h + margin * 2)
-
-// 	const chart = svg.append('g')
-	
-// 	chart.attr('transform', `translate(${margin},${margin})`)
-
-// 	chart.append('g')
-//       .attr('class', 'axis axis__x')
-//       .attr('transform', `translate(0,${h})`)
-//       .call(d3.axisBottom(scaleX))
-
-//      chart.append('g')
-//       .attr('class', 'axis axis__y')
-//       .attr('transform', `translate(0,0)`)
-//       .call(d3.axisLeft(scaleY))
-
-// 	const line = d3.line()
-// 		.x(d => scaleX(d.normalized_days))
-// 		.y(d => scaleY(d.capacity))
-
-
-// 	const band = chart.selectAll('.band')
-
-// 	const bandEnter = band.data(history).enter()
-	
-// 	bandEnter.append('g').attr('class', 'band')
-// 		.append('path')
-//   			.attr('class', 'line')
-//   			.attr('d', d => line(d.shows))
-// }
-
-// function setupChart() {
-// 	const daysMax = d3.max(history, d => d.days_until_big)
-	
-// 	// const maxCapacity = d3.max(history, d => {
-// 	// 	return d3.max(d.shows, s => s.capacity)
-// 	// })
-
-// 	const w = 800
-// 	const h = 500
-
-// 	const margin = 40
-// 	const scaleX = d3.scaleLinear().domain([0, daysMax]).range([0, w])
-// 	const scaleY = d3.scaleLinear().domain([0, 1]).range([h, 0])
-	
-// 	const visEl = d3.select('.ascent__vis')
-// 	const svg = visEl.append('svg')
-
-// 	svg
-// 		.attr('width', w + margin * 2)
-// 		.attr('height', h + margin * 2)
-
-// 	const chart = svg.append('g')
-	
-// 	chart.attr('transform', `translate(${margin},${margin})`)
-
-// 	chart.append('g')
-//       .attr('class', 'axis axis__x')
-//       .attr('transform', `translate(0,${h})`)
-//       .call(d3.axisBottom(scaleX))
-
-//      chart.append('g')
-//       .attr('class', 'axis axis__y')
-//       .attr('transform', `translate(0,0)`)
-//       .call(d3.axisLeft(scaleY))
-
-// 	const line = d3.line()
-// 		.x(d => scaleX(d.days))
-// 		.y(d => scaleY(d.h))
-// 		.curve(d3.curveMonotoneY)
-
-
-// 	const band = chart.selectAll('.band')
-
-// 	const bandEnter = band.data(history).enter()
-	
-// 	bandEnter.append('g').attr('class', 'band')
-// 		.append('path')
-//   			.attr('class', 'line')
-//   			.attr('d', d => line(d.data))
-// }
-
 
 // straight lines with bubbles for venues
 
@@ -185,25 +89,14 @@ function setupChart() {
 	// const maxCapacity = d3.max(history, d => {
 	// 	return d3.max(d.shows, s => s.capacity)
 	// })
-	const margin = 24
+	const margin = { top: 48, bottom: 24, left: 24, right: 24 }
 	const itemHeight = 48
 
-	const w = visEl.node().offsetWidth - margin * 2
+	const w = visEl.node().offsetWidth - margin.left - margin.right
 	// const h = window.innerHeight * 0.8 - margin * 2
-	const h = itemHeight * (history.length + 1) - (margin * 2)
+	const h = itemHeight * (history.length + 1) - margin.top - margin.bottom
 	
-	const scaleX = d3.scaleLinear().domain([0, yearsMax]).range([0, w])
-	
-	// const bandDomain = d3.range(history.length)
-	// const scaleY = d3.scaleBand()
-	// scaleY
-	// 	.domain(bandDomain)
-	// 	.range([0, h])
-	// 	.paddingOuter(1)
-	// 	.paddingInner(0.2)
-	// 	.round()
-
-	// const bandwidth = Math.floor(scaleY.bandwidth())
+	scale.x = d3.scaleLinear().domain([0, yearsMax]).range([0, w])
 
 	// size scale
 	const maxRadius = itemHeight / 6
@@ -211,28 +104,51 @@ function setupChart() {
 	const step = (maxRadius - minRadius) / 5
 	const sizeDomain = [200, 500, 1000, 3000] 
 	const sizeRange = d3.range(minRadius, maxRadius, step)
-	const scaleSize = d3.scaleThreshold().domain(sizeDomain).range(sizeRange)
+	
+	scale.size = d3.scaleThreshold().domain(sizeDomain).range(sizeRange)
+
+
+	// create line function
+	line = d3.line()
+		.x(d => scale.x(d))
+		.y(d => 0)
+
 
 	
 	const svg = visEl.append('svg')
 
 	svg
-		.attr('width', w + margin * 2)
-		.attr('height', h + margin * 2)
+		.attr('width', w + margin.left + margin.right)
+		.attr('height', h + margin.top + margin.bottom)
 
-	const chart = svg.append('g')
 	
-	chart.attr('transform', `translate(${margin},${margin})`)
 
+	// legend
+	const legendGroup = svg.append('g')
+		.attr('class', 'legend__size')
+	
+	const legend = legendSize()
+		.scale(scale.size)
+		.shape('circle')
+		.shapePadding(10)
+		.labelOffset(20)
+		.title('Venue capacity')
+		.orient('horizontal')
+		.labels(['Small', '', '', '', 'Big'])
 
-	svg.append('g')
-      .attr('class', 'axis axis__x')
-      .attr('transform', `translate(${margin}, ${margin})`)
-      .call(d3.axisTop(scaleX))
+	legendGroup.call(legend)
 
-	const line = d3.line()
-		.x(d => scaleX(d))
-		.y(d => 0)
+	const bb = d3.select('.legend__size').node().getBoundingClientRect()
+	const legendX = w - bb.width + margin.left
+	legendGroup.attr('transform', `translate(${legendX},${margin.top / 4})`)
+
+	
+
+	
+	chart = svg.append('g')
+	
+	chart.attr('transform', `translate(${margin.left},${margin.top})`)
+
 
 	const band = chart.selectAll('.band')
 
@@ -240,6 +156,7 @@ function setupChart() {
 		.enter()
 	.append('g').attr('class', 'band')
 		.attr('transform', (d, i) => `translate(0,${(i + 1) * itemHeight})`)
+		.classed('is-transparent', true)
 	
 	bandEnter.append('text')
 		.html((d, i) => {
@@ -248,20 +165,81 @@ function setupChart() {
 			return `${BAND_NAMES[d.id]} <tspan dx='5'>${years} years ${extra}</tspan>`
 		})
 		.attr('y', -12)
-
+		
 	bandEnter.append('path')
-		.attr('class', 'line')
-		.attr('d', d => line([0, d.years_until_big]))
+		.attr('class', 'band__path')
+		.attr('d', d => line([0, 0]))
 
-	const show = bandEnter.selectAll('circle')
+	// const show = bandEnter.selectAll('circle')
 
-	const showEnter = show.data(d => d.shows)
+	const showEnter = bandEnter.selectAll('circle').data(d => d.shows)
 		.enter()
 	.append('circle')
-		.attr('cx', d => scaleX(d.years_since_start))
+		.attr('class', 'band__circle')
+		.attr('cx', d => scale.x(d.years_since_start))
 		.attr('cy', 0)
-		.attr('r', d => scaleSize(d.capacity))
+		.attr('r', 0)
+		
 
+	// const showMerge = showEnter.merge(show)
+		
+	// showMerge.transition(t)
+	
+}
+
+function setupScroll() {
+	const controller = new ScrollMagic.Controller()
+	
+	const triggerScenes = chart.selectAll('.band').each(function(d, i) {
+		const el = this
+		const sel = d3.select(this)
+		const scene = new ScrollMagic.Scene({
+			triggerElement: el,
+			triggerHook: 0.7,
+		})
+		
+		scene.on('enter', event => {
+			animateChart(sel)
+		})
+		.addTo(controller)
+		
+		return scene
+	})
+
+	// const scene = new ScrollMagic.Scene({
+	// 	triggerElement: '.ascent__vis',
+	// 	// triggerHook: 0,
+	// 	// duration: proseHeight - visHeight,
+	// })
+	
+	// scene
+	// 	.on('enter', event => {
+	// 		animateChart()
+	// 	})
+	// 	.addTo(controller)
+}
+
+function animateChart(sel) {
+	const total = 2000
+	const data = sel.data()
+	const count = data[0].shows.length
+
+	sel.classed('is-transparent', false)
+	// chart.selectAll('.band__circle')
+	sel.selectAll('.band__circle')
+		.transition()
+		.duration(500)
+		.ease(d3.easeCubicInOut)
+		.delay((d, i) => i / count * total + 250)
+		.attr('r', d => scale.size(d.capacity))
+
+	// chart.selectAll('.band__path')
+	sel.select('.band__path')
+		.transition()
+		.duration(500)
+		.delay(250)
+		.ease(d3.easeCubicOut)
+		.attr('d', d => line([0, d.years_until_big]))
 }
 
 function init(data) {
@@ -269,6 +247,7 @@ function init(data) {
 	venues = data.venues
 	addVenueDetails()
 	setupChart()
+	setupScroll()
 	// console.log(history)
 }
 
