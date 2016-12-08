@@ -16,6 +16,12 @@ const formatNumber = d3.format('.1f')
 let line
 let scale = {}
 let chart
+let svg
+let chartW
+let chartH
+
+const MARGIN = { top: 48, bottom: 24, left: 24, right: 24 }
+const itemHeight = 48
 
 function getVenue(id) {
 	// return venues.find(d => d.id === id) || {}
@@ -79,6 +85,33 @@ function addVenueDetails() {
 
 // straight lines with bubbles for venues
 
+function createLegend() {
+	// legend
+	const legendGroup = svg.append('g')
+		.attr('class', 'legend__size')
+	
+	const legend = legendSize()
+		.scale(scale.size)
+		.shape('circle')
+		.shapePadding(10)
+		.labelOffset(20)
+		.title('Venue capacity')
+		.orient('horizontal')
+		.labels(['Small', '', '', '', 'Big'])
+
+	legendGroup.call(legend)
+
+	const bb = svg.select('.legend__size').node().getBoundingClientRect()
+	const textBB = svg.select('.legendTitle').node().getBoundingClientRect()
+
+	const legendX = MARGIN.left - bb.width / 2 + chartW / 2
+	legendGroup.attr('transform', `translate(${legendX},${MARGIN.top / 4})`)
+
+	// center text
+	const offsetText = Math.floor((bb.width - textBB.width))
+	svg.select('.legendTitle').attr('x', offsetText)
+
+}
 function setupChart() {
 	const daysMax = d3.max(history, d => d.days_until_big)
 	const yearsMax = d3.max(history, d => d.years_until_big)
@@ -86,17 +119,12 @@ function setupChart() {
 	const capacityMax = d3.max(history, d => d.big.capacity)
 	const capacityMin = d3.min(history, d => d3.min(d.shows, e => e.capacity))
 	
-	// const maxCapacity = d3.max(history, d => {
-	// 	return d3.max(d.shows, s => s.capacity)
-	// })
-	const margin = { top: 48, bottom: 24, left: 24, right: 24 }
-	const itemHeight = 48
 
-	const w = visEl.node().offsetWidth - margin.left - margin.right
-	// const h = window.innerHeight * 0.8 - margin * 2
-	const h = itemHeight * (history.length + 1) - margin.top - margin.bottom
+	chartW = visEl.node().offsetWidth - MARGIN.left - MARGIN.right
+	// const h = window.innerHeight * 0.8 - MARGIN * 2
+	chartH = itemHeight * (history.length + 1) - MARGIN.top - MARGIN.bottom
 	
-	scale.x = d3.scaleLinear().domain([0, yearsMax]).range([0, w])
+	scale.x = d3.scaleLinear().domain([0, yearsMax]).range([0, chartW])
 
 	// size scale
 	const maxRadius = itemHeight / 6
@@ -115,39 +143,22 @@ function setupChart() {
 
 
 	
-	const svg = visEl.append('svg')
+	svg = visEl.append('svg')
 
 	svg
-		.attr('width', w + margin.left + margin.right)
-		.attr('height', h + margin.top + margin.bottom)
+		.attr('width', chartW + MARGIN.left + MARGIN.right)
+		.attr('height', chartH + MARGIN.top + MARGIN.bottom)
 
 	
 
-	// legend
-	const legendGroup = svg.append('g')
-		.attr('class', 'legend__size')
-	
-	const legend = legendSize()
-		.scale(scale.size)
-		.shape('circle')
-		.shapePadding(10)
-		.labelOffset(20)
-		.title('Venue capacity')
-		.orient('horizontal')
-		.labels(['Small', '', '', '', 'Big'])
-
-	legendGroup.call(legend)
-
-	const bb = d3.select('.legend__size').node().getBoundingClientRect()
-	const legendX = w - bb.width + margin.left
-	legendGroup.attr('transform', `translate(${legendX},${margin.top / 4})`)
+	createLegend()
 
 	
 
 	
 	chart = svg.append('g')
 	
-	chart.attr('transform', `translate(${margin.left},${margin.top})`)
+	chart.attr('transform', `translate(${MARGIN.left},${MARGIN.top})`)
 
 
 	const band = chart.selectAll('.band')
