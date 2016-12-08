@@ -33,6 +33,7 @@ const madeProseEl = d3.select('.made__prose')
 const madeVisEl = d3.select('.made__vis')
 const chartEl = d3.select('.made__chart') 
 const bandTriggerEl = d3.selectAll('.trigger.band') 
+const audioButtonEl = d3.selectAll('.btn__audio')
 
 
 let boids = []
@@ -48,8 +49,13 @@ let otherContainer
 const NUM_SMALL_CONTAINERS = 10
 
 let audioPlayer
+let playingAudio
 
 function setupDOM() {
+	const total = d3.select('#made').node().offsetWidth
+	const prose = madeProseEl.node().offsetWidth
+	const w = total - prose
+	madeVisEl.style('width', `${w}px`)
 	chartSize = Math.floor(Math.min(window.innerHeight * 0.8, chartEl.node().offsetWidth))
 	renderer = PIXI.autoDetectRenderer(chartSize, chartSize, { 
 		resolution: 2,
@@ -264,22 +270,39 @@ function setupScroll() {
 	})
 }
 
+function pauseAudio() {
+	audioPlayer.pause()
+	audioButtonEl.classed('is-playing', false)
+	playingAudio = false
+}
 function handleAudio() {
-	const src = this.getAttribute('data-src')
-	const url = `https://p.scdn.co/mp3-preview/${src}`
-	audioPlayer.src = url
-	audioPlayer.load()
-	audioPlayer.play()
+	if (playingAudio) {
+		pauseAudio()
+	} else {
+		const src = this.getAttribute('data-src')
+		const url = `https://p.scdn.co/mp3-preview/${src}`
+		d3.select(this).classed('is-playing', true)
+		audioPlayer.src = url
+		audioPlayer.load()
+		audioPlayer.play()
+	}
+	
 }
 
 function setupAudio() {
 	audioPlayer = document.createElement('audio')
-	d3.selectAll('.btn__audio').on('click', handleAudio)
+	audioPlayer.addEventListener('play', () => {
+		playingAudio = true
+	})
+	audioButtonEl.on('click', handleAudio)
 }
 
 
 
 function updateScene() {
+	// pause audio
+	if (playingAudio) pauseAudio()
+
 	// toggle text labels
 	const ring = d3.selectAll('.ring')
 	if (currentSceneId === 'explore') ring.classed('is-hidden', true)

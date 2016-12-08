@@ -142,6 +142,7 @@ const Boid = (opts) => {
 					size -= 2
 					
 					setSize(size, true)
+					if (isSpecial) sprite.alpha = 0.6
 				} else {
 					setSize(size)
 				}
