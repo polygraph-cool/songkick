@@ -130,7 +130,7 @@ const Boid = (opts) => {
 					setSize(6, true)
 					toggleText(false)
 					sprite.tint = TINT2
-					sprite.alpha = 0.5
+					sprite.alpha = 0.65
 					// if (isSpecial) {
 					// 	// sprite.tint = TINT
 					// 	sprite.alpha = 0.5
@@ -169,8 +169,10 @@ const Boid = (opts) => {
 		if (mode !== 'big') setScene('big')
 		if (recent) {
 			text.y = sizeTransitionGoal ? -sizeTransitionGoal : -currentSize
+			text.anchor.set(0.5, 0.5)
 			text.visible = true
 		} else {
+			text.anchor.set(0.5, 1.25)
 			text.visible = false
 		}
 	}
@@ -432,6 +434,8 @@ const Boid = (opts) => {
 				fontSize: '11px',
 				// fontWeight: 'bold',
 				fill: '#efefef',
+				stroke: '#333',
+				strokeThickness: 2,
 			}
 		}
 

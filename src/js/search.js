@@ -15,11 +15,22 @@ const popupVisEl = d3.select('.popup__vis')
 const svg = popupVisEl.select('svg')
 
 const POPUP_WIDTH = 240
+const POPUP_MARGIN = 17
+const MAX_RADIUS = 14
+const MIN_RADIUS = 2
+const MARGIN = { top: 20, bottom: 20, left: 20, right: 20 }
 
 let timelineEl
 let pathEl
 let showsEl
 let scale = {}
+let chartWidth
+let chartHeight
+
+let viewportHeight = window.innerHeight
+let viewportWidth = d3.select('body').node().offsetWidth
+
+
 
 const parseDate = d3.timeParse('%Y-%m-%d')
 
@@ -46,33 +57,63 @@ function addAlphabet() {
 	}
 }
 
+function grammarize(num, text) {
+	if (num === 0) {
+		return `never ${text}`
+	} else if (num === 1) {
+		return `${text} once`
+	} else {
+		return `${text} ${num} times`
+	}
+}
+
 function updatePopup(d) {
 	const bb = this.getBoundingClientRect()
 	const { top, right, left, bottom, width, height } = bb
 
-	const posLeft = Math.floor((left + width / 2) - POPUP_WIDTH / 2)
-	const posTop = Math.floor(top + height * 2)
+	let posLeft = Math.floor((left + width / 2) - POPUP_WIDTH / 2)
+	let posTop = Math.floor(top + height * 2)
 	
+	const fromLeftEdge = posLeft - POPUP_WIDTH / 2
+	const fromRightEdge = posLeft + POPUP_WIDTH > window.innerWidth
+	if (fromLeftEdge < 0) {
+		posLeft = Math.floor(left + width / 2)
+	} else if (fromRightEdge) {
+		posLeft = Math.floor(left + width / 2) - POPUP_WIDTH
+	}
+
 	popupEl
 		.style('left', `${posLeft}px`)
 		.style('top', `${posTop}px`)
+		.classed('is-visible', true)
 
 	// find show capacities
 	const data = d.shows.map(show => {
 		const venue = getVenue(show.venue)
 		return {
 			capacity: venue.capacity,
+			name: venue.venue,
 			opener: show.order > 0,
 			date: parseDate(show.date)
 		}
 	}).filter(d => d.date >= begin && d.date <= end)
 
-	const biggest = d3.max(data, d => d.capacity)
-	const biggestFormatted = biggest ? formatNumber(biggest) : 'N/A'
+	const bigIndex = d3.scan(data, (a,b) => b.capacity - a.capacity)
+	const biggest = data[bigIndex]
+	const bigCapacity = biggest.capacity ? formatNumber(biggest.capacity) : 'N/A'
+	const bigName = biggest.name
 	
+	const openCount = data.filter(d => d.opener).length
+	const opened = grammarize(openCount, 'opened')
+	const headlined = grammarize(data.length - openCount, 'headlined')
 	popupNameEl.text(d.name)
-	popupShowsEl.text(`NYC shows: ${data.length}`)
-	popupBiggestEl.text(`Biggest capacity: ${biggestFormatted}`)
+
+	const html = `Played ${data.length} shows in the NYC area since 2013.
+	They have <span>${headlined}</span> and have <span>${opened}</span>.
+	Their biggest venue was at <span>${bigName}</span> with a capacity of <span>${bigCapacity}</span>.`
+
+	popupShowsEl.html(html)
+	// popupBiggestEl.text(`Biggest capacity: ${biggestFormatted}`)
 
 	const shows = showsEl.selectAll('circle').data(data)
 
@@ -90,17 +131,18 @@ function updatePopup(d) {
 }
 
 function setupScales() {
-	const maxRadius = 14
-	const minRadius = 2
-	const step = (maxRadius - minRadius) / 5
+	const step = (MAX_RADIUS - MIN_RADIUS) / 5
 	const sizeDomain = [200, 500, 1000, 3000] 
-	const sizeRange = d3.range(minRadius, maxRadius, step)
+	const sizeRange = d3.range(MIN_RADIUS, MAX_RADIUS, step)
 	scale.size = d3.scaleThreshold().domain(sizeDomain).range(sizeRange)
 
-	scale.date = d3.scaleTime().domain([begin, end]).range([0, 227])
+	scale.date = d3.scaleTime().domain([begin, end]).range([0, chartWidth]).nice()
 }
 
 function setupChart() {
+	chartWidth = POPUP_WIDTH - POPUP_MARGIN - MARGIN.left - MARGIN.right
+	chartHeight = MAX_RADIUS * 2 - MARGIN.top
+
 	const band = visEl.selectAll('.band')
 
 	const bandEnter = band.data(bands)
@@ -111,24 +153,29 @@ function setupChart() {
 		.text(d => d.name)
 		.classed('alphabet', d => d.first_letter)
 		.on('mouseenter', updatePopup)
+
+	containerEl.on('mouseleave', () => {
+		popupEl.classed('is-visible', false)
+	})
 }
 
 function setupPopupVis() {
 	// TODO fix
-	const margin = { top: 20, bottom: 20, left: 20, right: 20 }
-	const w = POPUP_WIDTH - margin.left - margin.right
-	const h = 80 - margin.top - margin.bottom
-	svg.attr('width', w)
-	svg.attr('height', h)
+	
+	svg.attr('width', chartWidth + MARGIN.left + MARGIN.right)
+	svg.attr('height', chartHeight + MARGIN.top + MARGIN.bottom)
 
 	svg.append('g')
       .attr('class', 'axis axis__x')
-      .attr('transform', `translate(${margin.left}, ${margin.top})`)
-      .call(d3.axisTop(scale.date))
+      .attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`)
+      .call(d3.axisBottom(scale.date)
+      		.tickFormat(d3.timeFormat('%b %Y'))
+      		.ticks(5)
+      )
 
 	timelineEl = svg.append('g')
 		.attr('class', 'timeline')
-		.attr('transform', `translate(${margin.left}, ${margin.top})`)
+		.attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`)
 
 
 	pathEl = timelineEl.append('path').attr('class', 'line')

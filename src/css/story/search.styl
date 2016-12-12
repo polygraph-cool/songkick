@@ -38,7 +38,7 @@ $search-size = 8px
 	.search__vis
 		z-index set-index('top')
 		position absolute
-		opacity 0.7
+		opacity 1
 		cursor pointer
 		.band
 			&:hover
@@ -47,7 +47,7 @@ $search-size = 8px
 				color $c1
 	.search__find
 		display block
-	.search__popup
+	.search__popup.is-visible
 		display block
 	.alphabet
 		color $c2
@@ -83,10 +83,10 @@ $search-size = 8px
 	left 0
 	width 240px
 	z-index set-index('top')
-	background-color lighten($c1, 10)
-	color $gray-light
+	background-color $off-white
+	color $c1
 	border-radius 3px
-	box-shadow 0 0 3px $c2
+	box-shadow 0 0 3px white
 	padding 0.5em 0.75em
 	line-height 1.5
 	pointer-events none
@@ -94,21 +94,17 @@ $search-size = 8px
 		font-weight bold
 		font-size 13px
 		margin-bottom 0.5em
-	.popup__shows
-		text-transform uppercase
+	.popup__shows span 
+		font-weight bold
+		
 	.popup__biggest
 		text-transform uppercase
 .popup__vis
 	circle 
-		fill white
+		fill $c1
 		fill-opacity 0.25
-		stroke white
+		stroke $c1
 		stroke-opacity 0.5
-	.axis
+	.tick:nth-child(n+3):nth-child(-n + 5)
 		display none
-	.tick
-		display none
-	.tick:first-child
-		display block
-	.tick:last-child
-		display block
+	

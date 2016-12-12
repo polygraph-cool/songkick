@@ -298,25 +298,27 @@ function setupScroll() {
 }
 
 function animateChart(sel) {
-	const total = 2000
+	const factor = 500
 	const data = sel.data()
+	const total = data[0].years_until_big * factor
 	const count = data[0].shows.length
 
 	sel.classed('is-transparent', false)
 	// chart.selectAll('.band__circle')
 	sel.selectAll('.band__circle')
 		.transition()
-		.duration(500)
-		.ease(d3.easeCubicInOut)
-		.delay((d, i) => i / count * total + 250)
+		.duration(1000)
+		.ease(d3.easeCubicOut)
+		// .delay((d, i) => i / count * total + 250)
+		.delay(d => d.years_since_start * factor)
 		.attr('r', d => scale.size(d.capacity))
 
 	// chart.selectAll('.band__path')
 	sel.select('.band__path')
 		.transition()
-		.duration(500)
-		.delay(250)
-		.ease(d3.easeCubicOut)
+		.duration(total)
+		// .delay(250)
+		.ease(d3.easeLinear)
 		.attr('d', d => line([0, d.years_until_big]))
 }
 
