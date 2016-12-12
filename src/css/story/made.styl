@@ -2,6 +2,8 @@ $trigger-width = 20em
 
 #made
 	position relative
+	max-width 70rem
+	margin 0 auto
 	// display none
 .made__prose
 	// width 100%
@@ -37,10 +39,15 @@ $trigger-width = 20em
 $band-img-width = 64px
 .band__img 
 	width $band-img-width
+	height $band-img-width
+	border-radius $band-img-width
+	background-size cover
+	background-position center center
+	background-repeat no-repeat
 	float left
 
 .band__list
-	padding-left $band-img-width * 1.1
+	padding-left $band-img-width * 1.2
 	font-size 0.8em
 	text-transform uppercase
 	li 
@@ -54,10 +61,9 @@ $band-img-width = 64px
 	
 .made__vis
 	position absolute
-	right 0
 	top 0
-	// width 100%
-	margin-left 25rem
+	right 0px
+	// margin-left 25rem
 	height 100vh
 	margin 0
 	transform translate3d(0px,0px,0px)
@@ -65,7 +71,6 @@ $band-img-width = 64px
 	&.is-fixed
 		position fixed
 		top 0
-		right 0
 	&.is-bottom
 		position absolute
 		top auto

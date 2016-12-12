@@ -51,12 +51,20 @@ const NUM_SMALL_CONTAINERS = 10
 let audioPlayer
 let playingAudio
 
+let rightOffset
+
 function setupDOM() {
+	const outerWidth = d3.select('body').node().offsetWidth
 	const total = d3.select('#made').node().offsetWidth
 	const prose = madeProseEl.node().offsetWidth
 	const w = total - prose
+	
+	chartSize = Math.floor(Math.min(window.innerHeight * 0.8, w))
+	
+	rightOffset = Math.floor((outerWidth - total) / 2)
+	
 	madeVisEl.style('width', `${w}px`)
-	chartSize = Math.floor(Math.min(window.innerHeight * 0.8, chartEl.node().offsetWidth))
+	
 	renderer = PIXI.autoDetectRenderer(chartSize, chartSize, { 
 		resolution: 2,
 		transparent: true,
@@ -229,11 +237,13 @@ function setupScroll() {
 		.on('enter', event => {
 			madeVisEl.classed('is-fixed', true)
 			madeVisEl.classed('is-bottom', false)
+			madeVisEl.style('right', `${rightOffset}px`)
 
 		})
 		.on('leave', event => {
 			madeVisEl.classed('is-fixed', false)
 			madeVisEl.classed('is-bottom', event.scrollDirection === 'FORWARD')
+			madeVisEl.style('right', `0`)
 		})
 		.addTo(controller)
 

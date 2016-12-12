@@ -21,7 +21,7 @@ let chartW
 let chartH
 
 const MARGIN = { top: 48, bottom: 24, left: 24, right: 24 }
-const itemHeight = 48
+const itemHeight = 64
 
 function getVenue(id) {
 	// return venues.find(d => d.id === id) || {}

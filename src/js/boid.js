@@ -7,7 +7,6 @@ const TWO_PI = Math.PI * 2
 const NUM_PATH_POINTS = 64
 const HALF_PP = NUM_PATH_POINTS / 2
 const QUARTER_PP = NUM_PATH_POINTS / 4
-let MIN_SIZE
 
 const TINT = 0XF2929D
 const TINT_SPECIAL = 0XFFFFFF
@@ -89,6 +88,8 @@ const Boid = (opts) => {
 	let sizeTransitionGoal
 	let sizeTransitionRate
 
+	let minSize
+
 	const getPathPoint = () => currentTargetVec
 
 	// SETTERS
@@ -104,7 +105,6 @@ const Boid = (opts) => {
 			sprite.width = s
 			sprite.height = s
 			sprite.position.set(-currentRadius, -currentRadius)
-
 		}
 		setMaxspeed(s)
 	}
@@ -116,11 +116,11 @@ const Boid = (opts) => {
 	}
 		
 	const setScene = (id) => {
-		let size = MIN_SIZE
+		// console.log(id, minSize)
+		let size = minSize
 		stable = false
 		mode = 'default'
 		setMaxspeed(size)
-		
 		switch (id) {
 			case 'medium':
 				mode = 'default'
@@ -128,7 +128,10 @@ const Boid = (opts) => {
 					currentPath = 1
 					setSize(6, true)
 					toggleText(false)
-					if (isSpecial) sprite.tint = TINT
+					if (isSpecial) {
+						sprite.tint = TINT
+						sprite.alpha = 0.3
+					}
 				} else {
 					setSize(size)
 				}
@@ -142,7 +145,6 @@ const Boid = (opts) => {
 					size -= 2
 					
 					setSize(size, true)
-					if (isSpecial) sprite.alpha = 0.6
 				} else {
 					setSize(size)
 				}
@@ -150,6 +152,7 @@ const Boid = (opts) => {
 			default:
 				if (isSpecial) {
 					sprite.tint = TINT_SPECIAL
+					sprite.alpha = 1
 					toggleText(true)	
 				} 
 				currentPath = 0
@@ -412,9 +415,8 @@ const Boid = (opts) => {
 
 		const halfSize = chartSize / 2
 	  	
-	  	MIN_SIZE = chartSize < 480 ? 1 : 2
-	  	MIN_SIZE = isSpecial ? MIN_SIZE * 2 : MIN_SIZE
-	  		  	
+	  	minSize = chartSize < 480 ? 1 : 2
+	  	minSize = isSpecial ? minSize * 2 : minSize
 
 		// hide text
 		if (text) {
