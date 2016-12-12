@@ -10,24 +10,47 @@
 		fill none
 		stroke $gray
 		stroke-opacity 1
+		pointer-events none
 	circle 
+		pointer-events none
 		opacity 0.5
 		fill-opacity 0.5
 		stroke-width 1
 		stroke white
 		fill white
-		&:last-child
-			opacity 1
-			fill $c2
-			fill-opacity 1
+
 	text 
 		fill $off-white
 		font-size 12px
 		font-weight bold
+		pointer-events none
 	
 	tspan
+		pointer-events none
 		font-weight normal
 		// font-size 10px
+	
+	.interaction
+		cursor pointer
+	
+	.band__show:last-child circle 
+		opacity 1
+		fill $c2
+		fill-opacity 1
+	.band__info
+		visibility hidden
+		text 
+			fill $c2
+		
+	.band__show.is-visible
+		.band__info
+			visibility visible
+		circle
+			stroke-width 2
+			stroke $c2
+			fill-opacity 1
+			opacity 1
+		
 
 
 .ascent__vis .axis

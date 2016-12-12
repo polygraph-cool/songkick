@@ -9,6 +9,7 @@ const HALF_PP = NUM_PATH_POINTS / 2
 const QUARTER_PP = NUM_PATH_POINTS / 4
 
 const TINT = 0XF2929D
+const TINT2 = 0Xf8bfc6
 const TINT_SPECIAL = 0XFFFFFF
 const debugId = '2575'
 
@@ -128,10 +129,12 @@ const Boid = (opts) => {
 					currentPath = 1
 					setSize(6, true)
 					toggleText(false)
-					if (isSpecial) {
-						sprite.tint = TINT
-						sprite.alpha = 0.3
-					}
+					sprite.tint = TINT2
+					sprite.alpha = 0.5
+					// if (isSpecial) {
+					// 	// sprite.tint = TINT
+					// 	sprite.alpha = 0.5
+					// }
 				} else {
 					setSize(size)
 				}
@@ -143,7 +146,8 @@ const Boid = (opts) => {
 					// x, y, size
 					size = Math.min(Math.floor(data.bR * sizeBig * 2), 14)
 					size -= 2
-					
+					sprite.tint = TINT_SPECIAL
+					sprite.alpha = 0.8
 					setSize(size, true)
 				} else {
 					setSize(size)
@@ -462,7 +466,7 @@ const Boid = (opts) => {
 		else vec2.set(locationVec, x, y)
 		
 		sprite.tint = TINT
-		sprite.alpha = isMedium ? 0.3 : 0.6
+		sprite.alpha = isMedium ? 0.5 : 0.8
 		
 		if (isSpecial) {
 			sprite.alpha = 1

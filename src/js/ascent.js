@@ -12,6 +12,8 @@ const BAND_NAMES = {'2575': 'Wade Bowen','4409368': 'Bad Suns','6325384': 'Miste
 const visEl = d3.select('.ascent__vis')
 
 const formatNumber = d3.format('.1f')
+const formatDate = d3.timeFormat('%B %d, %Y')
+const formatCapacity = d3.format(',')
 
 let line
 let scale = {}
@@ -22,6 +24,8 @@ let chartH
 
 const MARGIN = { top: 48, bottom: 24, left: 24, right: 24 }
 const itemHeight = 64
+
+let currentHoverEl
 
 function getVenue(id) {
 	// return venues.find(d => d.id === id) || {}
@@ -112,6 +116,36 @@ function createLegend() {
 	svg.select('.legendTitle').attr('x', offsetText)
 
 }
+
+function hidePreviousHover(id) {
+	
+}
+
+function handleMouse(d, i) {
+	const [x, y] = d3.mouse(this)
+	const time = scale.x.invert(x)
+	// find nearest
+	// const bisectYear = d3.bisector(d => d.years_since_start).left
+	// const index = bisectYear(d.shows, time, 1)
+	
+	const index = d3.scan(d.shows, (a, b) => {
+		const diffA = Math.abs(a.years_since_start - time)
+		const diffB = Math.abs(b.years_since_start - time)
+		return diffA - diffB
+	})
+	
+	const selection = d3.select(this.parentNode).selectAll('.band__show')
+
+	const el = selection.filter((d, i) => i === index)
+	
+	// hide old
+	if (currentHoverEl) currentHoverEl.classed('is-visible', false)
+
+	currentHoverEl = el
+	currentHoverEl.classed('is-visible', true)
+
+}
+
 function setupChart() {
 	const daysMax = d3.max(history, d => d.days_until_big)
 	const yearsMax = d3.max(history, d => d.years_until_big)
@@ -169,6 +203,18 @@ function setupChart() {
 		.attr('transform', (d, i) => `translate(0,${(i + 1) * itemHeight})`)
 		.classed('is-transparent', true)
 	
+	bandEnter.append('rect')
+		.style('opacity', 0)
+		.classed('interaction', true)
+		.attr('x', 0)
+		.attr('y', -itemHeight / 4)
+		.attr('width', d => scale.x(d.years_until_big))
+		.attr('height', itemHeight / 2)
+		.on('mousemove', handleMouse)
+		.on('mouseleave', () => {
+			if (currentHoverEl) currentHoverEl.classed('is-visible', false)
+		})
+
 	bandEnter.append('text')
 		.html((d, i) => {
 			const years = formatNumber(d.years_until_big)
@@ -185,12 +231,33 @@ function setupChart() {
 
 	const showEnter = bandEnter.selectAll('circle').data(d => d.shows)
 		.enter()
-	.append('circle')
+			.append('g')
+			.attr('class', 'band__show')
+			.attr('transform', d => `translate(${scale.x(d.years_since_start)}, 0)`)
+		
+	showEnter.append('circle')
 		.attr('class', 'band__circle')
-		.attr('cx', d => scale.x(d.years_since_start))
+		.attr('cx', 0)
 		.attr('cy', 0)
 		.attr('r', 0)
-		
+	
+	const infoEnter = showEnter.append('g')
+		.attr('class', 'band__info')
+		// .attr('transform', `translate(0, ${itemHeight / 2})`)
+	
+	infoEnter.append('text')
+		.attr('alignment-baseline', 'hanging')
+		.attr('y', itemHeight / 4)
+		.attr('text-anchor', d => {
+			return d.years_since_start > 2.3 ? 'end' : 'start'
+		})
+		.html((d, i) => {
+			const date = formatDate(d.date_parsed)
+			const capacity = formatCapacity(d.capacity)
+			const name = d.name
+			return `${date} <tspan alignment-baseline='hanging' dx='5'>${name} (${capacity})</tspan>`
+		})
+	
 
 	// const showMerge = showEnter.merge(show)
 		
