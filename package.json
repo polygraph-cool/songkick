@@ -48,6 +48,7 @@
     "pixi.js": "^4.1.1",
     "promis": "^1.1.4",
     "scrollmagic": "^2.0.5",
+    "smooth-scroll": "github:cferdinandi/smooth-scroll",
     "two.js": "^0.6.0",
     "victor": "^1.1.0",
     "waud.js": "^0.8.0"

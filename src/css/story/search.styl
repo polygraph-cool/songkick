@@ -15,16 +15,11 @@ $popup-width = 360px
 	z-index set-index('bottom')
 	transition opacity 0.5s ease-in-out
 	padding 0.5rem
-	// text-align center	
-	// font-size $search-size - 1
-	// line-height 1
-	// line-height $search-size
 	.band
 		color lighten($c1, 20)
 		line-height 1.5
 		font-size $search-size
 		margin 0
-		// display inline
 		display inline-block
 		float left
 		&:after
@@ -48,27 +43,70 @@ $popup-width = 360px
 				background-color $off-white
 				color $c1
 	.search__find
+		// display block
+		opacity 1
+		position fixed
+		pointer-events auto
+	.search__launch
 		display block
 	.search__popup.is-visible
 		display block
 	.alphabet
 		color $c2
-	
-.search__find
-	display none
-	position fixed
-	top 25%
+
+.search__explore
+	position absolute
+	top 33%
 	left 0
 	width 100%
 	z-index set-index('top')
-	
+	h2 
+		text-align center
+		font-size 2em
+		font-weight 900
+		
+.search__launch
+	display none
+	position fixed
+	cursor pointer
+	top 1em
+	right 1em
+	z-index set-index('top')
+	opacity 0.7
+	transition opacity 0.25s
+	&:hover 
+		opacity 1
+	svg 
+		width 34px
+		fill $c2
+	&.is-hidden
+		display none
+		
+.search__find
+	display none
+	// position fixed
+	// position absolute
+	position relative
+	left 0
+	top 0
+	width 100%
+	height 100vh
+	z-index set-index('top')
+	transform translate3d(0px,0px,0px)
+	pointer-events none
+	opacity 0.25
+	transition opacity 0.25s
+	background rgba($c1,0.75)
+	padding-top 33vh
+	&.is-visible
+		display block
 	.find__container
+		position relative
 		max-width 40rem
 		margin 0 auto
 		
 	
 	.find__input 
-		display none
 		width 100%
 		background none
 		border none
@@ -77,6 +115,34 @@ $popup-width = 360px
 		font-size 2em
 		color $c2
 
+	.find__icon
+		position absolute
+		cursor pointer
+		top 0
+		right 0
+		z-index set-index('top')
+		opacity 0.7
+		transition opacity 0.25s
+		&:hover 
+			opacity 1
+		svg 
+			width 38px
+			fill $c2
+	
+	.find__close 
+		position absolute
+		top 1em
+		right 1em
+		cursor pointer
+		opacity 0.7
+		transition opacity 0.25s
+		&:hover 
+			opacity 1
+		svg 
+			width 32px
+			height 32px
+			fill $c2
+	
 .search__popup
 	display none
 	font-size 11px
@@ -139,4 +205,20 @@ $popup-width = 360px
 		stroke-opacity 0.5
 	.tick:nth-child(n+3):nth-child(-n + 5)
 		display none
+
+		
+p.search__instruction
+	text-align center
+	font-weight 700
+	color $c2
+	margin-bottom 0
 	
+p.down-arrow
+	margin-top 0
+	text-align center
+	font-size 2em
+	font-weight 900
+	color $c2
+	a 
+		cursor pointer
+		text-decoration none

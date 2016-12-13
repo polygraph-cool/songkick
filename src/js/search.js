@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import ScrollMagic from 'scrollmagic'
+import smoothScroll from 'smooth-scroll'
 
 let venues
 let bands
@@ -10,11 +11,12 @@ const visEl = d3.select('.search__vis')
 const popupEl = d3.select('.search__popup')
 const popupNameEl = d3.select('.popup__name')
 const popupTextEl = d3.select('.popup__text')
-
 const popupShowsEl = d3.select('.popup__shows')
-
 const popupVisEl = d3.select('.popup__vis')
 const svg = popupVisEl.select('svg')
+const searchLaunchEl = d3.select('.search__launch')
+const findCloseEl = d3.select('.find__close')
+const findEl = d3.select('.search__find')
 
 const POPUP_WIDTH = 360
 const POPUP_MARGIN = 20
@@ -174,6 +176,10 @@ function setupChart() {
 	containerEl.on('mouseleave', () => {
 		popupEl.classed('is-visible', false)
 	})
+
+	searchLaunchEl.on('mouseenter', () => {
+		popupEl.classed('is-visible', false)
+	})
 }
 
 function setupPopupVis() {
@@ -222,6 +228,37 @@ function setupScroll() {
 		.addTo(controller)
 }
 
+function launchSearch() {
+	findEl.classed('is-visible', true)
+	searchLaunchEl.classed('is-hidden', true)
+}
+
+function closeSearch() {
+	findEl.classed('is-visible', false)
+	searchLaunchEl.classed('is-hidden', false)
+}
+
+function scrollTo(e) {
+	e.preventDefault()
+	smoothScroll.animateScroll(
+		d3.select('#search').node(),
+		null,
+	    {
+	    	speed: 500, // Integer. How fast to complete the scroll in milliseconds
+	    	easing: 'easeInOutCubic', // Easing pattern to use
+	    	offset: 0, // Integer. How far to offset the scrolling anchor location in pixels
+	    	callback: function ( anchor, toggle ) {} // Function to run after scrolling
+		}
+	)
+	return false
+}
+
+function setupEvents() {
+	searchLaunchEl.on('click', launchSearch)
+	findCloseEl.on('click', closeSearch)
+	d3.select('.jump-to-search').node().addEventListener('click', scrollTo)
+}
+
 function init(data) {
 	venues = data.venues
 	bands = data.bands
@@ -230,6 +267,7 @@ function init(data) {
 	setupScroll()
 	setupScales()
 	setupPopupVis()
+	setupEvents()
 
 }
 
