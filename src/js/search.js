@@ -244,10 +244,9 @@ function scrollTo(e) {
 		d3.select('#search').node(),
 		null,
 	    {
-	    	speed: 500, // Integer. How fast to complete the scroll in milliseconds
-	    	easing: 'easeInOutCubic', // Easing pattern to use
-	    	offset: 0, // Integer. How far to offset the scrolling anchor location in pixels
-	    	callback: function ( anchor, toggle ) {} // Function to run after scrolling
+	    	speed: 400,
+	    	easing: 'easeInOutCubic',
+	    	offset: 0,
 		}
 	)
 	return false
