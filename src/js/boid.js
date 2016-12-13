@@ -13,6 +13,10 @@ const TINT2 = 0Xf8bfc6
 const TINT_SPECIAL = 0XFFFFFF
 const debugId = '2575'
 
+const MED_ALPHA = 0.5
+const BIG_ALPHA = 0.7
+const SMALL_ALPHA = 0.8
+
 
 // add limit function to vec library
 vec2.limit = function(out, v, high) {
@@ -131,6 +135,8 @@ const Boid = (opts) => {
 					toggleText(false)
 					sprite.tint = TINT2
 					sprite.alpha = 0.65
+
+					if (isBig) text.anchor.set(0.5, 1.25)
 					// if (isSpecial) {
 					// 	// sprite.tint = TINT
 					// 	sprite.alpha = 0.5
@@ -141,13 +147,14 @@ const Boid = (opts) => {
 				break
 			case 'big':
 				if (isBig) {
+					text.anchor.set(0.5, 0.75)
 					mode = 'big'
 						
 					// x, y, size
 					size = Math.min(Math.floor(data.bR * sizeBig * 2), 14)
 					size -= 2
 					sprite.tint = TINT_SPECIAL
-					sprite.alpha = 0.8
+					sprite.alpha = BIG_ALPHA
 					setSize(size, true)
 				} else {
 					setSize(size)
@@ -168,11 +175,11 @@ const Boid = (opts) => {
 	const enterBig = (recent) => {
 		if (mode !== 'big') setScene('big')
 		if (recent) {
+			sprite.alpha = 1
 			text.y = sizeTransitionGoal ? -sizeTransitionGoal : -currentSize
-			text.anchor.set(0.5, 0.5)
 			text.visible = true
 		} else {
-			text.anchor.set(0.5, 1.25)
+			sprite.alpha = BIG_ALPHA
 			text.visible = false
 		}
 	}
@@ -470,7 +477,7 @@ const Boid = (opts) => {
 		else vec2.set(locationVec, x, y)
 		
 		sprite.tint = TINT
-		sprite.alpha = isMedium ? 0.5 : 0.8
+		sprite.alpha = isMedium ? MED_ALPHA : SMALL_ALPHA
 		
 		if (isSpecial) {
 			sprite.alpha = 1

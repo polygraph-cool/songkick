@@ -1,6 +1,5 @@
 $libre = 'Libre Franklin'
 $libre-hash = 'libre-franklin'
-fontify($libre, $libre-hash, 300, $sans)
 fontify($libre, $libre-hash, 400, $sans)
 fontify($libre, $libre-hash, 700, $sans)
 fontify($libre, $libre-hash, 900, $sans)
@@ -30,4 +29,16 @@ p
 .bridge
 	max-width 40rem
 	margin 0 auto
+	padding-top 1em
+
+.outro
+	margin 2em auto
 	padding 1em 0 2em 0
+	max-width 40rem
+	p
+		font-size 0.8em
+		span 
+			font-weight 700
+		&:first-child 
+			padding-top 0.5em
+			border-top 2px solid $gray-light
