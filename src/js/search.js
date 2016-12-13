@@ -9,13 +9,15 @@ const containerEl = d3.select('#search')
 const visEl = d3.select('.search__vis')
 const popupEl = d3.select('.search__popup')
 const popupNameEl = d3.select('.popup__name')
+const popupTextEl = d3.select('.popup__text')
+
 const popupShowsEl = d3.select('.popup__shows')
-const popupBiggestEl = d3.select('.popup__biggest')
+
 const popupVisEl = d3.select('.popup__vis')
 const svg = popupVisEl.select('svg')
 
-const POPUP_WIDTH = 240
-const POPUP_MARGIN = 17
+const POPUP_WIDTH = 360
+const POPUP_MARGIN = 20
 const MAX_RADIUS = 14
 const MIN_RADIUS = 2
 const MARGIN = { top: 20, bottom: 20, left: 20, right: 20 }
@@ -38,6 +40,8 @@ const begin = parseDate('2013-01-01')
 const end = parseDate('2016-12-31')
 
 const formatNumber = d3.format(',')
+
+const formatCapacity = d3.format(',')
 
 function getVenue(id) {
 	return venues[id]
@@ -112,7 +116,7 @@ function updatePopup(d) {
 	They have <span>${headlined}</span> and have <span>${opened}</span>.
 	Their biggest venue was at <span>${bigName}</span> with a capacity of <span>${bigCapacity}</span>.`
 
-	popupShowsEl.html(html)
+	popupTextEl.html(html)
 	// popupBiggestEl.text(`Biggest capacity: ${biggestFormatted}`)
 
 	const shows = showsEl.selectAll('circle').data(data)
@@ -128,6 +132,18 @@ function updatePopup(d) {
 
 	shows.exit().remove()
 
+	const recentData = data.reverse().slice(0, 5)
+
+	const recent = popupShowsEl.selectAll('li').data(recentData)
+
+	recent.exit().remove()
+
+	recent.enter().append('li')
+		.merge(recent)
+		.html(d => {
+			const capacity = d.capacity ? formatNumber(d.capacity) : 'N/A'
+			return `${d.name} <span>(${capacity})</span>`
+		})
 }
 
 function setupScales() {
@@ -140,7 +156,8 @@ function setupScales() {
 }
 
 function setupChart() {
-	chartWidth = POPUP_WIDTH - POPUP_MARGIN - MARGIN.left - MARGIN.right
+	// GROSS MAGIC NUMBER
+	chartWidth = ((POPUP_WIDTH - POPUP_MARGIN - 10) * 0.6) - MARGIN.left - MARGIN.right
 	chartHeight = MAX_RADIUS * 2 - MARGIN.top
 
 	const band = visEl.selectAll('.band')
@@ -160,8 +177,6 @@ function setupChart() {
 }
 
 function setupPopupVis() {
-	// TODO fix
-	
 	svg.attr('width', chartWidth + MARGIN.left + MARGIN.right)
 	svg.attr('height', chartHeight + MARGIN.top + MARGIN.bottom)
 

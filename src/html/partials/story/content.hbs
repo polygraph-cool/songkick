@@ -53,13 +53,17 @@
 <div id='search'>
 	<div class='search__vis'></div>
 	<div class='search__popup'>
-		<ul>
-			<li class='popup__name'></li>
-			<li class='popup__shows'></li>
-			{{!-- <li class='popup__biggest'></li> --}}
-			<li class='popup__vis'><svg></svg></li>
-		</ul>
-
+		<p class='popup__name'></p>
+		<div class='popup__info'>
+			<div class='left'>
+				<p class='popup__text'></p>
+				<div class='popup__vis'><svg></svg></div>
+			</div>
+			<div class='right'>
+				<p class='popup__recent'>Recent shows</p>
+				<ul class='popup__shows'></ul>
+			</div>
+		</div>
 	</div>
 	<div class='search__find'>
 		<div class='find__container'>

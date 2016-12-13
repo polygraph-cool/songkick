@@ -46,7 +46,6 @@ function addVenueDetails() {
 		})
 		// overwrite shows with new data
 		band.shows = shows
-		
 		// proper algorithm
 		// find small
 		// band.small = shows.find(show => show.opener && show.capacity < 700)
@@ -77,17 +76,17 @@ function addVenueDetails() {
 			show.days_since_start = show.normalized_days - start
 			show.years_since_start = (show.normalized_days - start) / 365
 		})
+
+		band.shows[band.shows.length - 1].made = true
 		// band.data = [{days: 0, h: 0}, {days: band.days_until_big, h: 1}]
 		// console.log(band.id, band.days_until_medium, band.days_until_big)
+		// console.log(band)
 	})
 
 	history = history.filter(d => d.shows.length)
 
 	history.sort((a, b) => d3.descending(a.days_until_big, b.days_until_big))
 }
-
-
-// straight lines with bubbles for venues
 
 function createLegend() {
 	// legend
@@ -114,11 +113,9 @@ function createLegend() {
 	// center text
 	const offsetText = Math.floor((bb.width - textBB.width))
 	svg.select('.legendTitle').attr('x', offsetText)
-
 }
 
 function hidePreviousHover(id) {
-	
 }
 
 function handleMouse(d, i) {
@@ -143,7 +140,6 @@ function handleMouse(d, i) {
 
 	currentHoverEl = el
 	currentHoverEl.classed('is-visible', true)
-
 }
 
 function setupChart() {
@@ -234,6 +230,7 @@ function setupChart() {
 			.append('g')
 			.attr('class', 'band__show')
 			.attr('transform', d => `translate(${scale.x(d.years_since_start)}, 0)`)
+			.classed('show__made', d => d.made)
 		
 	showEnter.append('circle')
 		.attr('class', 'band__circle')
@@ -262,7 +259,6 @@ function setupChart() {
 	// const showMerge = showEnter.merge(show)
 		
 	// showMerge.transition(t)
-	
 }
 
 function setupScroll() {
@@ -320,6 +316,12 @@ function animateChart(sel) {
 		// .delay(250)
 		.ease(d3.easeLinear)
 		.attr('d', d => line([0, d.years_until_big]))
+		.on('end', (d) => {
+			if (d.id === '1077331') {
+				currentHoverEl = d3.select('.show__made')
+				currentHoverEl.classed('is-visible', true)
+			}
+		})
 }
 
 function init(data) {

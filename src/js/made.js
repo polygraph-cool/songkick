@@ -1,9 +1,11 @@
 import * as d3 from 'd3'
 import ScrollMagic from 'scrollmagic'
+// import howler from 'howler'
 import Boid from './boid'
 import loadImage from './utils/load-image'
 import * as $ from './utils/dom'
 import './utils/find-index'
+import Audio from './audio'
 PIXI.utils.skipHello()
 
 import sceneData from './data-scenes'
@@ -33,8 +35,6 @@ const madeProseEl = d3.select('.made__prose')
 const madeVisEl = d3.select('.made__vis')
 const chartEl = d3.select('.made__chart') 
 const bandTriggerEl = d3.selectAll('.trigger.band') 
-const audioButtonEl = d3.selectAll('.btn__audio')
-
 
 let boids = []
 let bigBandIndexes = []
@@ -47,9 +47,6 @@ let notSmallList = []
 let smalls
 let otherContainer
 const NUM_SMALL_CONTAINERS = 10
-
-let audioPlayer
-let playingAudio
 
 let rightOffset
 
@@ -280,38 +277,9 @@ function setupScroll() {
 	})
 }
 
-function pauseAudio() {
-	audioPlayer.pause()
-	audioButtonEl.classed('is-playing', false)
-	playingAudio = false
-}
-function handleAudio() {
-	if (playingAudio) {
-		pauseAudio()
-	} else {
-		const src = this.getAttribute('data-src')
-		const url = `https://p.scdn.co/mp3-preview/${src}`
-		d3.select(this).classed('is-playing', true)
-		audioPlayer.src = url
-		audioPlayer.load()
-		audioPlayer.play()
-	}
-	
-}
-
-function setupAudio() {
-	audioPlayer = document.createElement('audio')
-	audioPlayer.addEventListener('play', () => {
-		playingAudio = true
-	})
-	audioButtonEl.on('click', handleAudio)
-}
-
-
-
 function updateScene() {
 	// pause audio
-	if (playingAudio) pauseAudio()
+	Audio.pause()
 
 	// toggle text labels
 	const ring = d3.selectAll('.ring')
@@ -421,7 +389,7 @@ function init(data) {
 	setupBoids()
 	setupSmalls()
 	setupScroll()
-	setupAudio()
+	Audio.setup()
 	render()
 }
 
