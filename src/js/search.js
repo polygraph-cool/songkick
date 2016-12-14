@@ -9,14 +9,24 @@ const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('').reverse()
 const containerEl = d3.select('#search')
 const visEl = d3.select('.search__vis')
 const popupEl = d3.select('.search__popup')
-const popupNameEl = d3.select('.popup__name')
-const popupTextEl = d3.select('.popup__text')
-const popupShowsEl = d3.select('.popup__shows')
-const popupVisEl = d3.select('.popup__vis')
+const popupNameEl = popupEl.select('.popup__name')
+const popupTextEl = popupEl.select('.popup__text')
+const popupShowsEl = popupEl.select('.popup__shows')
+const popupVisEl = popupEl.select('.popup__vis')
 const svg = popupVisEl.select('svg')
 const searchLaunchEl = d3.select('.search__launch')
 const findCloseEl = d3.select('.find__close')
 const findEl = d3.select('.search__find')
+const findInputEl = d3.select('.find__input')
+const resultsEl = d3.select('.find__results')
+
+
+const popupFindEl = d3.select('.find__popup')
+const popupFindNameEl = popupFindEl.select('.popup__name')
+const popupFindTextEl = popupFindEl.select('.popup__text')
+const popupFindShowsEl = popupFindEl.select('.popup__shows')
+const popupFindVisEl = popupFindEl.select('.popup__vis')
+const svgFind = popupFindEl.select('svg')
 
 const POPUP_WIDTH = 360
 const POPUP_MARGIN = 20
@@ -27,6 +37,11 @@ const MARGIN = { top: 20, bottom: 20, left: 20, right: 20 }
 let timelineEl
 let pathEl
 let showsEl
+
+let timelineFindEl
+let pathFindEl
+let showsFindEl
+
 let scale = {}
 let chartWidth
 let chartHeight
@@ -148,6 +163,99 @@ function updatePopup(d) {
 		})
 }
 
+function updatePopupFind(d) {
+	popupFindEl
+		.classed('is-visible', true)
+
+	// find show capacities
+	const data = d.shows.map(show => {
+		const venue = getVenue(show.venue)
+		return {
+			capacity: venue.capacity,
+			name: venue.venue,
+			opener: show.order > 0,
+			date: parseDate(show.date)
+		}
+	}).filter(d => d.date >= begin && d.date <= end)
+
+	const bigIndex = d3.scan(data, (a,b) => b.capacity - a.capacity)
+	const biggest = data[bigIndex]
+	const bigCapacity = biggest.capacity ? formatNumber(biggest.capacity) : 'N/A'
+	const bigName = biggest.name
+	
+	const openCount = data.filter(d => d.opener).length
+	const opened = grammarize(openCount, 'opened')
+	const headlined = grammarize(data.length - openCount, 'headlined')
+	popupFindNameEl.text(d.name)
+
+	const html = `Played ${data.length} shows in the NYC area since 2013.
+	They have <span>${headlined}</span> and have <span>${opened}</span>.
+	Their biggest venue was at <span>${bigName}</span> with a capacity of <span>${bigCapacity}</span>.`
+
+	popupFindTextEl.html(html)
+	// popupBiggestEl.text(`Biggest capacity: ${biggestFormatted}`)
+
+	const shows = showsFindEl.selectAll('circle').data(data)
+
+	const showsEnter = shows.enter().append('circle')
+
+	const showsMerge = shows.merge(showsEnter)
+
+	showsMerge
+		.attr('r', d => scale.size(d.capacity))
+		.attr('cx', d => scale.date(d.date))
+		.attr('cy', 0)
+
+	shows.exit().remove()
+
+	const recentData = data.reverse().slice(0, 5)
+
+	const recent = popupFindShowsEl.selectAll('li').data(recentData)
+
+	recent.exit().remove()
+
+	recent.enter().append('li')
+		.merge(recent)
+		.html(d => {
+			const capacity = d.capacity ? formatNumber(d.capacity) : 'N/A'
+			return `${d.name} <span>(${capacity})</span>`
+		})
+}
+
+function handleSearch() {
+	popupFindEl.classed('is-visible', false)
+	const val = this.value.trim().toLowerCase()
+	if (val.length > 1) {
+		const re = new RegExp(`\\b${val}`)
+		const results = bands.filter(d => d.name.toLowerCase().match(re))
+			.slice(0, 5)
+		
+		const li = resultsEl.selectAll('li').data(results)
+
+		li.enter().append('li')
+			.merge(li)
+			.text(d => d.name)
+			.on('click', handleResult)
+
+		li.exit().remove()
+		// const html = results.map(d =>
+		// 	`<li data-id='${d.id}'>${d.name}</li>`
+		// ).join('')
+
+		// resultsEl.html(html)
+		// resultsEl.selectAll('li').on('click', handleResult)
+	} else {
+		resultsEl.html('')
+	}
+}
+
+function handleResult(d, i) {
+	updatePopupFind(d)
+	resultsEl.html('')
+	findInputEl.node().value = ''
+	popupFindEl.classed('is-visible', true)
+}
+
 function setupScales() {
 	const step = (MAX_RADIUS - MIN_RADIUS) / 5
 	const sizeDomain = [200, 500, 1000, 3000] 
@@ -204,6 +312,28 @@ function setupPopupVis() {
 	showsEl = timelineEl.append('g').attr('class', 'shows')
 }
 
+function setupPopupFindVis() {
+	svgFind.attr('width', chartWidth + MARGIN.left + MARGIN.right)
+	svgFind.attr('height', chartHeight + MARGIN.top + MARGIN.bottom)
+
+	svgFind.append('g')
+      .attr('class', 'axis axis__x')
+      .attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`)
+      .call(d3.axisBottom(scale.date)
+      		.tickFormat(d3.timeFormat('%b %Y'))
+      		.ticks(5)
+      )
+
+	timelineFindEl = svgFind.append('g')
+		.attr('class', 'timeline')
+		.attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`)
+
+
+	pathFindEl = timelineFindEl.append('path').attr('class', 'line')
+
+	showsFindEl = timelineFindEl.append('g').attr('class', 'shows')
+}
+
 function setupScroll() {
 	const visHeight = visEl.node().offsetHeight
 	
@@ -256,6 +386,8 @@ function setupEvents() {
 	searchLaunchEl.on('click', launchSearch)
 	findCloseEl.on('click', closeSearch)
 	d3.select('.jump-to-search').node().addEventListener('click', scrollTo)
+
+	findInputEl.on('keyup', handleSearch)
 }
 
 function init(data) {
@@ -266,6 +398,7 @@ function init(data) {
 	setupScroll()
 	setupScales()
 	setupPopupVis()
+	setupPopupFindVis()
 	setupEvents()
 
 }

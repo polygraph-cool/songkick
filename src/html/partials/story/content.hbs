@@ -54,7 +54,7 @@
 
 <div id='search'>
 	<div class='search__vis'></div>
-	<div class='search__popup'>
+	<div class='search__popup popup'>
 		<p class='popup__name'></p>
 		<div class='popup__info'>
 			<div class='left'>
@@ -77,10 +77,24 @@
 				@@include('misc/search.svg')
 			</div>
 		</div>
+		<ul class='find__results'></ul>
+		<div class='find__popup popup'>
+			<p class='popup__name'></p>
+			<div class='popup__info'>
+				<div class='left'>
+					<p class='popup__text'></p>
+					<div class='popup__vis'><svg></svg></div>
+				</div>
+				<div class='right'>
+					<p class='popup__recent'>Recent shows</p>
+					<ul class='popup__shows'></ul>
+				</div>
+			</div>
+		</div>
 		<div class='find__close'>
 			@@include('misc/close.svg')
 		</div>
-		<div class='find__results'></div>
+		
 	</div>
 	<div class='search__launch'>
 		@@include('misc/search.svg')

@@ -104,7 +104,15 @@ $popup-width = 360px
 		position relative
 		max-width 40rem
 		margin 0 auto
-		
+	
+	.find__results
+		max-width 40rem
+		margin 1em auto
+		li 
+			cursor pointer
+			&:hover 
+				font-weight 700
+			
 	
 	.find__input 
 		width 100%
@@ -143,12 +151,9 @@ $popup-width = 360px
 			height 32px
 			fill $c2
 	
-.search__popup
+.popup
 	display none
 	font-size 11px
-	position fixed 
-	top 0 
-	left 0
 	width $popup-width
 	z-index set-index('top')
 	background-color $off-white
@@ -173,6 +178,16 @@ $popup-width = 360px
 		float left
 		border-left 1px solid $c2
 
+.search__popup
+	position fixed 
+	top 0 
+	left 0
+
+.find__popup
+	margin 0 auto
+	margin-top 4em
+	&.is-visible
+		display block
 .popup__info
 	clearfix()	
 	p 
