@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import ScrollMagic from 'scrollmagic'
 import smoothScroll from 'smooth-scroll'
+// import isMobile from './utils/is-mobile'
 
 let venues
 let bands
@@ -48,7 +49,7 @@ let chartHeight
 
 let viewportHeight = window.innerHeight
 let viewportWidth = d3.select('body').node().offsetWidth
-
+const mobile = viewportWidth < 800
 
 
 const parseDate = d3.timeParse('%Y-%m-%d')
@@ -275,7 +276,7 @@ function setupChart() {
 	const bandEnter = band.data(bands)
 		.enter()
 
-	bandEnter.append('p')
+	bandEnter.append('li')
 		.attr('class', 'band')
 		.text(d => d.name)
 		.classed('alphabet', d => d.first_letter)
@@ -393,13 +394,15 @@ function setupEvents() {
 function init(data) {
 	venues = data.venues
 	bands = data.bands
-	addAlphabet()
+
+	addAlphabet()	
 	setupChart()
 	setupScroll()
 	setupScales()
-	setupPopupVis()
+	setupPopupVis()	
 	setupPopupFindVis()
 	setupEvents()
+	containerEl.classed('is-ready', true)
 
 }
 

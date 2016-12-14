@@ -4,6 +4,10 @@ $popup-width = 360px
 #search
 	position relative
 	margin-bottom 1em
+	opacity 0
+	transition opacity 500ms
+	&.is-ready
+		opacity 1
 	
 .search__vis
 	transform translate3d(0px,0px,0px)

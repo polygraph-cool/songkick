@@ -217,7 +217,7 @@ function setupChart() {
 			const extra =  i === 0 ? 'until they made it big' : ''
 			return `${BAND_NAMES[d.id]} <tspan dx='5'>${years} years ${extra}</tspan>`
 		})
-		.attr('y', -12)
+		.attr('y', -scale.size(3000) - 3)
 		
 	bandEnter.append('path')
 		.attr('class', 'band__path')

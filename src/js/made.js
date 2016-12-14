@@ -11,6 +11,7 @@ PIXI.utils.skipHello()
 import sceneData from './data-scenes'
 import ringData from './data-rings'
 
+const texture = PIXI.Texture.fromImage('assets/circle-24.png')
 let renderer
 let stage
 
@@ -21,8 +22,9 @@ const debug = true
 let nextPoint
 
 let chartSize = 0
-let numBoids = 0
-let numNotSmall = 0
+
+let numBoidsBig = 0
+let numBoidsSmall = 0
 
 let currentSceneIndex = 0
 
@@ -36,7 +38,9 @@ const madeVisEl = d3.select('.made__vis')
 const chartEl = d3.select('.made__chart') 
 const bandTriggerEl = d3.selectAll('.trigger.band') 
 
-let boids = []
+let boidsSmall = []
+let boidsBig = []
+
 let bigBandIndexes = []
 let venues = []
 let bands = []
@@ -152,36 +156,24 @@ function setupImages() {
 	})
 }
 
-function setupBoids() {
-
-	const texture = PIXI.Texture.fromImage('assets/circle-24.png')
-
-	let count = bands.length
-	let i = 0
-	while(i < count) {
-		const d = bands[i]
+function setupBigBoids() {
+	bands.filter(d => d.tier > 0).forEach((d, i) => {
 		const container = new PIXI.Container()
 		const sprite = new PIXI.Sprite(texture)
 
 		let text
-		// if (d.tier === 2) {
-		text = new PIXI.Text(d.name)	
-		container.addChild(text)
-		// }
+		if (d.tier === 2) {
+			text = new PIXI.Text(d.name)
+			container.addChild(text)
+		}
 
 		container.addChild(sprite)
 
-		// add to container for groupings
-		const containerIndex = d.tier > 0 ? null : Math.floor(Math.random() * NUM_SMALL_CONTAINERS)
-		if (d.tier > 0) {
-			otherContainer.addChild(container)
-			notSmallList.push(i)
-		} else {
-			smalls[containerIndex].container.addChild(container)
-		}
+		// don't add to container since not small
+		const containerIndex = null
+		otherContainer.addChild(container)
 		
-		// stage.addChild(container)
-		boids.push(Boid({
+		boidsBig.push(Boid({
 			data: d,
 			container,
 			containerIndex,
@@ -191,29 +183,50 @@ function setupBoids() {
 			chartSize,
 		}))
 
-		// boids[i].update()
 		if (d.tier === 2) bigBandIndexes[d.id] = i
-		i++
-	}
-		
-	texture.baseTexture.dispose()
-	numBoids = boids.length
-	numNotSmall = notSmallList.length
+	})
+	numBoidsBig = boidsBig.length
 }
 
-function setupSmalls() {
+function setupBoidsSmall() {
+
+	bands.filter(d => d.tier === 0).forEach((d, i) => {
+		const container = new PIXI.Container()
+		const sprite = new PIXI.Sprite(texture)
+
+		// no text
+		let text = null
+		
+		container.addChild(sprite)
+
+		// add to container for groupings
+		const containerIndex = Math.floor(Math.random() * NUM_SMALL_CONTAINERS)
+		
+		smalls[containerIndex].container.addChild(container)
+
+		boidsSmall.push(Boid({
+			data: d,
+			container,
+			containerIndex,
+			sprite,
+			text,
+			ringData,
+			chartSize,
+		}))
+	})
+
+	texture.baseTexture.dispose()
+	numBoidsSmall = boidsSmall.length
+	setupSmallContainers()
+}
+
+function setupSmallContainers() {
 	smalls.forEach(d => {
 		const bounds = d.container.getLocalBounds()
-		// const pivotX = bounds.width / 2
-		// const pivotY = bounds.height / 2
-		// d.container.pivot.x = pivotX
-		// d.container.pivot.y = pivotY
-		// console.log(bounds)
-		// console.log(bounds.width / 2)
+
 		const offX = chartSize / 2
 		const offY = chartSize / 2
-		// const offX = pivotX
-		// const offY = pivotY
+		
 		d.container.position.set(offX, offY)
 	})
 }
@@ -289,12 +302,8 @@ function updateScene() {
 	const toMedium = ['big', 'band']
 	const scene = toMedium.indexOf(currentSceneId) > -1 ? 'medium': currentSceneId
 	
-	let i = numNotSmall
-
-	while (i--) {
-		const index = notSmallList[i]
-		boids[index].setScene(scene)
-	}
+	
+	boidsBig.forEach(d => d.setScene(scene))
 
 	// special case
 	if (currentSceneId === 'band') {
@@ -312,19 +321,19 @@ function updateScene() {
 		// loop through big bands and update
 		bigBandIds.forEach(d => {
 			const index = bigBandIndexes[d]
-			boids[index].enterBig()
+			boidsBig[index].enterBig()
 		})
 		
 		// console.log({add})
 		// console.log({remove})
 		
-		if (add) boids[bigBandIndexes[add]].enterBig(true)
+		if (add) boidsBig[bigBandIndexes[add]].enterBig(true)
 		
 		if (remove) {
-			boids[bigBandIndexes[remove]].exitBig()
+			boidsBig[bigBandIndexes[remove]].exitBig()
 			if (bigBandIds.length) {
 				const id = bigBandIds[bigBandIds.length - 1]
-				boids[bigBandIndexes[id]].toggleText(true)
+				boidsBig[bigBandIndexes[id]].toggleText(true)
 			}
 		}
 		// console.log(bigBandIds)
@@ -343,34 +352,22 @@ function updateScene() {
 }
 	
 function render() {
-	// let i = numBoids
-	let i = numNotSmall
-
-	while (i--) {
-		const index = notSmallList[i]
-		boids[index].applyBehaviors()
-		boids[index].update()
-		
-		// // debug
-		// if (debug) {
-		// 	const pp = boids[i].getPathPoint()
-		// 	nextPoint.clear()
-		// 	nextPoint.beginFill(0xFF0000)
-		// 	nextPoint.drawCircle(pp[0],pp[1], 3)
-		// 	nextPoint.endFill()
-		// }
-		
+	let indexBig = numBoidsBig
+	while (indexBig--) {
+		boidsBig[indexBig].applyBehaviors()
+		boidsBig[indexBig].update()	
 	}
 
 	// rotate smalls
 	smalls.forEach(d => {
 		d.container.rotation += d.speed
 	})
+	
 	renderer.render(stage)
 	requestAnimationFrame(render)
 }
 
-function init(data) {
+function init(data, cb) {
 	// TODO on resize too
 	// const proseHeight = madeProseEl.node().offsetHeight
 	// const visHeight = madeVisEl.node().offsetHeight
@@ -384,13 +381,18 @@ function init(data) {
 	const lake = bands.splice(lakeIndex, 1)
 	bands.push(lake[0])
 
+	
+
 	setupDOM()
 	setupText()
-	setupBoids()
-	setupSmalls()
+	render()
+	setupBigBoids()
+	setupBoidsSmall()
 	setupScroll()
 	Audio.setup()
-	render()
+
+	cb()
+	
 }
 
 
