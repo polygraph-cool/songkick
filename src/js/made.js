@@ -41,7 +41,7 @@ const bandTriggerEl = d3.selectAll('.trigger.band')
 let boidsSmall = []
 let boidsBig = []
 
-let bigBandIndexes = []
+let bigBandIndexes = {}
 let venues = []
 let bands = []
 
@@ -183,8 +183,9 @@ function setupBigBoids() {
 			chartSize,
 		}))
 
-		if (d.tier === 2) bigBandIndexes[d.id] = i
+		if (d.tier === 2) bigBandIndexes[`id-${d.id}`] = i
 	})
+
 	numBoidsBig = boidsBig.length
 }
 
@@ -299,7 +300,7 @@ function updateScene() {
 	if (currentSceneId === 'explore') ring.classed('is-hidden', true)
 	else ring.classed('is-hidden', (d, i) => i + 4 > currentSceneIndex)
 
-	const toMedium = ['big', 'band']
+	const toMedium = ['big', 'band', 'remainder']
 	const scene = toMedium.indexOf(currentSceneId) > -1 ? 'medium': currentSceneId
 	
 	
@@ -320,27 +321,25 @@ function updateScene() {
 		}
 		// loop through big bands and update
 		bigBandIds.forEach(d => {
-			const index = bigBandIndexes[d]
+			const index = bigBandIndexes[`id-${d}`]
 			boidsBig[index].enterBig()
 		})
 		
-		// console.log({add})
-		// console.log({remove})
-		
-		if (add) boidsBig[bigBandIndexes[add]].enterBig(true)
+		if (add) boidsBig[bigBandIndexes[`id-${add}`]].enterBig(true)
 		
 		if (remove) {
-			boidsBig[bigBandIndexes[remove]].exitBig()
+			boidsBig[bigBandIndexes[`id-${remove}`]].exitBig()
 			if (bigBandIds.length) {
 				const id = bigBandIds[bigBandIds.length - 1]
-				boidsBig[bigBandIndexes[id]].toggleText(true)
+				boidsBig[bigBandIndexes[`id-${id}`]].toggleText(true)
 			}
 		}
-		// console.log(bigBandIds)
-	}
-
-	
-	if (currentSceneId === 'big') {
+	} else if (currentSceneId === 'remainder') {
+		for (let d in bigBandIndexes) {
+			const index = bigBandIndexes[d]
+			boidsBig[index].enterBig()
+		}
+	} else if (currentSceneId === 'big') {
 		bigBandIds = []
 	} else if (currentSceneId === 'medium') {
 		setAlpha(1, 0.5)

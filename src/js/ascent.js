@@ -7,8 +7,6 @@ import { legendSize } from 'd3-svg-legend'
 let history
 let venues
 
-const BAND_NAMES = {'2575': 'Wade Bowen','4409368': 'Bad Suns','6325384': 'Misterwives','189890': 'The Boys','1077331': 'Lake Street Dive','423511': 'Emmanuel','3909026': 'Courtney Barnett','5767534': 'Torres','2337283': 'Great Caesar','6018139': 'ODESZA','5183683': 'Houndmouth','6664009': 'X Ambassadors','457177': 'Bob Moses','6140284': 'Sturgill Simpson'}
-
 const visEl = d3.select('.ascent__vis')
 
 const formatNumber = d3.format('.1f')
@@ -215,7 +213,7 @@ function setupChart() {
 		.html((d, i) => {
 			const years = formatNumber(d.years_until_big)
 			const extra =  i === 0 ? 'until they made it big' : ''
-			return `${BAND_NAMES[d.id]} <tspan dx='5'>${years} years ${extra}</tspan>`
+			return `${d.name} <tspan dx='5'>${years} years ${extra}</tspan>`
 		})
 		.attr('y', -scale.size(3000) - 3)
 		
