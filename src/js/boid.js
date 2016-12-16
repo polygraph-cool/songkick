@@ -10,6 +10,7 @@ const QUARTER_PP = NUM_PATH_POINTS / 4
 
 const TINT = 0XF2929D
 const TINT2 = 0Xf8bfc6
+// const TINT2 = 0XE1C9C6
 const TINT_SPECIAL = 0XFFFFFF
 const debugId = '2575'
 
