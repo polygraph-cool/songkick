@@ -15,7 +15,7 @@
 	circle 
 		pointer-events none
 		opacity 0.5
-		fill-opacity 0.5
+		fill-opacity 1
 		stroke-width 1
 		stroke white
 		fill white
@@ -34,21 +34,28 @@
 	.interaction
 		cursor pointer
 	
-	.band__show:last-child circle 
-		opacity 1
-		fill $c2
-		fill-opacity 1
+	.band__show
+		&.billing-headline circle
+			fill $c2	
+		&.billing-opener circle
+			fill $c3	
+		&.show__made circle 
+			opacity 1
+			fill-opacity 1
 	.band__info
 		visibility hidden
-		text 
-			fill $c2
+		
+	.billing-opener text 
+		fill lighten($c3, 20)
+	.billing-headline text 
+		fill $c2
 		
 	.band__show.is-visible
 		.band__info
 			visibility visible
 		circle
 			stroke-width 2
-			stroke $c2
+			stroke white
 			fill-opacity 1
 			opacity 1
 		

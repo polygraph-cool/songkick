@@ -53,6 +53,7 @@ function addVenueDetails() {
 		// band.big = shows.find(show => !show.opener && show.capacity >= 3000)
 
 		// fudged
+		// their first small venue in NYC
 		band.small = shows.find(show => show.capacity < 700)
 		// find medium
 		band.medium = shows.find(show => show.capacity >= 700 && show.capacity < 3000)
@@ -66,19 +67,19 @@ function addVenueDetails() {
 
 		// filter out shows that are after big perf and before start
 		band.shows = band.shows.filter(show => {
-			return (show.normalized_days - start) <= band.days_until_big
+			return show.normalized_days - start <= band.days_until_big &&
+			show.normalized_days - start >= 0
 		})
 
 		// yuck! find days since start
-		band.shows.forEach(show => {
+		band.shows.forEach((show, i) => {
 			show.days_since_start = show.normalized_days - start
 			show.years_since_start = (show.normalized_days - start) / 365
+			show.show_index = i
 		})
 
 		band.shows[band.shows.length - 1].made = true
-		// band.data = [{days: 0, h: 0}, {days: band.days_until_big, h: 1}]
-		// console.log(band.id, band.days_until_medium, band.days_until_big)
-		// console.log(band)
+
 	})
 
 	history = history.filter(d => d.shows.length)
@@ -109,7 +110,7 @@ function createLegend() {
 	legendGroup.attr('transform', `translate(${legendX},${MARGIN.top / 4})`)
 
 	// center text
-	const offsetText = Math.floor((bb.width - textBB.width))
+	const offsetText = Math.floor((bb.width - textBB.width) / 1.5)
 	svg.select('.legendTitle').attr('x', offsetText)
 }
 
@@ -131,8 +132,9 @@ function handleMouse(d, i) {
 	
 	const selection = d3.select(this.parentNode).selectAll('.band__show')
 
-	const el = selection.filter((d, i) => i === index)
-	
+	const el = selection.filter((d, i) => d.show_index === index)
+
+	el.raise()
 	// hide old
 	if (currentHoverEl) currentHoverEl.classed('is-visible', false)
 
@@ -226,7 +228,7 @@ function setupChart() {
 	const showEnter = bandEnter.selectAll('circle').data(d => d.shows)
 		.enter()
 			.append('g')
-			.attr('class', 'band__show')
+			.attr('class', d => `band__show billing-${d.opener ? 'opener' : 'headline'}`)
 			.attr('transform', d => `translate(${scale.x(d.years_since_start)}, 0)`)
 			.classed('show__made', d => d.made)
 		
@@ -248,7 +250,7 @@ function setupChart() {
 		})
 		.html((d, i) => {
 			const date = formatDate(d.date_parsed)
-			const capacity = formatCapacity(d.capacity)
+			const capacity = d.capacity ? formatCapacity(d.capacity) : 'N/A'
 			const name = d.name
 			return `${date} <tspan alignment-baseline='hanging' dx='5'>${name} (${capacity})</tspan>`
 		})
@@ -328,7 +330,6 @@ function init(data) {
 	addVenueDetails()
 	setupChart()
 	setupScroll()
-	// console.log(history)
 }
 
 export default { init }
