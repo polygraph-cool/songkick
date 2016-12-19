@@ -1,0 +1,449 @@
+venue,capacity,id
+Madison Square Garden,20000,0
+Barclays Center,18103,1
+Forest Hills Stadium,14000,2
+Radio City Music Hall,6015,3
+Pier 94,6000,4
+Theater at Madison Square Garden,5600,5
+Pier 36,5000,6
+Metropolitan Opera,3800,7
+Manhattan Center Hammerstein Ballroom,3500,8
+United Palace Theatre,3400,9
+Terminal 5,3000,10
+Kings Theatre,3000,11
+Beacon Theatre,2894,12
+"Isaac Stern Auditorium, Carnegie Hall",2804,13
+Carnegie Hall,2804,14
+NYCB Theatre at Westbury,2800,15
+"David Geffen Hall, Lincoln Center",2738,16
+NY City Center - Main Stage,2250,17
+PlayStation Theater,2100,18
+"Colden Auditorium, Kupferberg Center for the Arts",2100,19
+B.B. King Blues Club & Grill Main Room,2000,20
+St. George Theatre,1799,21
+Count Basie Theatre,1568,22
+Webster Hall,1500,23
+Town Hall,1500,24
+Apollo Theater,1500,25
+The Space at Westbury,1500,26
+Park Avenue Armory,1500,27
+The Paramount,1500,28
+Space Ibiza New York,1400,29
+Brooklyn Masonic Temple,1200,30
+Melrose Ballroom,1200,31
+Irving Plaza,1200,32
+Mulcahy's Pub & Concert Hall,1200,33
+The Winter Garden at Brookfield Place,1200,34
+"Alice Tully Hall, Lincoln Center",1080,35
+Warsaw,1000,36
+Knockdown Center,1000,37
+House of Vans,900,38
+Jack H. Skirball Center for the Performing Arts (NYU),860,39
+"Concert Hall, New York Society for Ethical Culture",800,40
+Le Poisson Rouge,700,41
+La Boom NY,700,42
+Highline Ballroom,700,43
+Marlin Room at Webster Hall,600,44
+The Stone Pony,600,45
+Marquee,600,46
+Brooklyn Bowl,600,47
+Gramercy Theatre,600,48
+"Zankel Hall, Carnegie Hall",599,49
+The Bowery Ballroom,550,50
+Music Hall of Williamsburg,550,51
+Flash Factory,525,52
+Slake,500,53
+The Panther Room,500,54
+House of Independents,500,55
+The Appel Room at Jazz at Lincoln Center,500,56
+"Kupferberg Center for the Arts, Queens College",500,57
+Good Room,500,58
+S.O.B.'s,450,59
+Analog Bkny,450,60
+Output,450,61
+Merkin Concert Hall,449,62
+Soho House,400,63
+"Caspary Auditorium, Rockefeller University",400,64
+Roulette,400,65
+The Wick/The Well,400,66
+Saint Vitus,350,67
+Drom,350,68
+National Sawdust,350,69
+Cielo,350,70
+City Winery,300,71
+The Bell House,300,72
+Silent Barn,300,73
+Mexicali Live,300,74
+The Bulb Room at Studio Square,300,75
+The Red Lion,300,76
+Hill Country,300,77
+Wonder Bar,300,78
+Knitting Factory,300,79
+The Studio at Webster Hall,300,80
+Brooklyn Academy of Music (BAM),280,81
+"Map Room, The Bowery Electric",280,82
+Bar Matchless,280,83
+Baby's All Right,280,84
+Stage 48,280,85
+Legion Bar,280,86
+Brighton Bar,280,87
+The Sheen Center,270,88
+Mercury Lounge,250,89
+"Lucille's Bar & Grill, B.B. King's Blues Club",250,90
+Littlefield,250,91
+Shea Stadium,250,92
+The Paper Box,250,93
+Sunnyvale - Brooklyn,250,94
+Rough Trade NYC,250,95
+Trans-Pecos,250,96
+House of Yes,250,97
+Shea Stadium BK,250,98
+New Nublu,225,99
+The Bitter End,225,100
+The Slipper Room,200,101
+Blackthorn 51,200,102
+Rockwood Music Hall,200,103
+Shapeshifter Lab,200,104
+Hill Country Brooklyn,200,105
+Silvana,200,106
+The Bowery Electric,200,107
+The Delancey,200,108
+Blue Note Jazz Club,200,109
+The Cutting Room,200,110
+Birdland,200,111
+Joe's Pub,187,112
+Iridium,180,113
+Cake Shop,180,114
+Black Bear Bar,170,115
+"Symphony Space, Leonard Nimoy Thalia Theater",168,116
+"Upstairs Lounge, Pianos",166,117
+The Kitchen,155,118
+Westerlind Showroom,150,119
+Don Pedro's,150,120
+The Saint,150,121
+Fat Baby,150,122
+Goldsounds,150,123
+Union Pool,150,124
+Ginny's Supper Club,150,125
+Arlene's Grocery,150,126
+Pianos,140,127
+Dizzy's Club Coca-Cola,140,128
+Rubin Museum Of Art,137,129
+Shrine,130,130
+C'mon Everybody,125,131
+The Village Vanguard,123,132
+The Gutter,120,133
+Subrosa,120,134
+Metropolitan Room,115,135
+Rockwood Music Hall Stage 2,110,136
+Black Flamingo,100,137
+Jazz Standard,100,138
+Jalopy Theatre,100,139
+Otto's Shrunken Head,100,140
+The Orchard,100,141
+Union Hall,100,142
+Sidewalk Café,80,143
+Leftfield Bar,80,144
+Parkside Lounge,77,145
+The Manhattan Inn,75,146
+55 Bar,75,147
+Muchmore's,74,148
+Way Station,73,149
+Sugar Hill Disco,70,150
+Rockwood Music Hall Stage 1,70,151
+The Owl Music Parlor,65,152
+Rockwood Music Hall Stage 3,60,153
+Pete's Candy Store,60,154
+Barbès,60,155
+Nublu,60,156
+Club Bonafide,60,157
+Cornelia Street Café,55,158
+The Experiment Comedy Gallery,50,159
+Smalls Jazz Club,50,160
+"Postcrypt Coffeehouse, Columbia University",30,161
+Nuyorican Poets Café,0,162
+Jazz Gallery,0,163
+BROOKLYN BAZAAR,0,164
+American Folk Art Museum,0,165
+Gussy's,0,166
+Dl,0,167
+Paddy Reilly's Music Bar,0,168
+Five Spot Soul Food,0,169
+West-park Presbyterian Church,0,170
+City College of New York,0,171
+New School,0,172
+The Schoolhouse,0,173
+Cafe Vivaldi,0,174
+"Miller Theatre, Columbia University",0,175
+Villain,0,176
+HiFi,0,177
+Connolly's,0,178
+Ear Inn,0,179
+Highland Ballroom,0,180
+Sunny's Bar,0,181
+Irish Arts Center,0,182
+Brooklyn Conservatory of Music,0,183
+Home Sweet Home,0,184
+Spectrum,0,185
+Tom Clark's Treehouse at 2a,0,186
+Crescent and Vine,0,187
+"Weill Recital Hall, Carnegie Hall",0,188
+"The Gallery, Dream Downtown Hotel",0,189
+Italian Academy at Columbia University,0,190
+Mother Pug's,0,191
+St. Peter's Church,0,192
+Brooklyn Night Bazaar,0,193
+Cowgirl Seahorse,0,194
+The Strand Smokehouse,0,195
+Brooklyn Central Public Library,0,196
+The Standard Hotel - New York City,0,197
+LIC Bar,0,198
+Orange Lantern,0,199
+Bxl Cafe East,0,200
+Church of the Ascension,0,201
+City College,0,202
+Astor Room,0,203
+The Cell Theatre,0,204
+Starving Artist Cafe & Gallery,0,205
+"Rose Bar, Gramercy Park Hotel",0,206
+Sip This,0,207
+Hofstra University,0,208
+The Jewish Museum,0,209
+Skinny Dennis,0,210
+Ethical Brew Coffeehouse,0,211
+Branded Saloon,0,212
+Cipriani 42nd Street,0,213
+Madison Theatre at Molloy College,0,214
+Hornblower Infinity,0,215
+The Comic Strip Live,0,216
+Luxury Infinity Yacht,0,217
+Plattduetsche Park Restaurant,0,218
+Cannon's Blackthorn,0,219
+Scratcher Sessions,0,220
+Christopher Street Coffeehouse,0,221
+Suburbia,0,222
+Wow Cafe Theater,0,223
+The Stone,0,224
+Heckscher Park,0,225
+Williamsburg Music Center,0,226
+The Cobra Club,0,227
+The Mount Morris Ascension Presbyterian Church,0,228
+Pioneer Works,0,229
+University of Wyoming,0,230
+11th Street Bar,0,231
+"Biergarten, Plattduetsche Park Restaurant",0,232
+The Waystation,0,233
+Amazura Concert Hall,0,234
+Asbury Park Yacht Club,0,235
+Barvino,0,236
+Brooklyn Nights,0,237
+Glucksman Ireland House,0,238
+Groove,0,239
+Jimmy Ryan's,0,240
+The World,0,241
+The Monkey,0,242
+Sofar Sounds,0,243
+Jenks Club,0,244
+Hometown Bbq,0,245
+Kula Yoga Project,0,246
+Ethical Culture Society of Bergen County,0,247
+"Grace Rainey Rogers Auditorium, Metropolitan Museum of Art",0,248
+The Four Faced Liar,0,249
+Church of St. Ignatius Loyola,0,250
+Prema Yoga,0,251
+BRIC Arts Media House,0,252
+"St. Peter's Episcopal Church, Chelsea",0,253
+St. Paul's Church,0,254
+61 Local Public House,0,255
+Queens Borough Public Library,0,256
+Tomi Jazz,0,257
+"Dweck Center, Brooklyn Central Library",0,258
+Smash Studios,0,259
+Troost,0,260
+Drawing Room,0,261
+Havana Central Times Square,0,262
+The Chubby Pickle,0,263
+Babycastles,0,264
+Eve Ultra Lounge,0,265
+St. Michael's Episcopal Church,0,266
+Connolly's Pub & Restaurant,0,267
+The West End Lounge,0,268
+Pershing Square Signature Center - End Stage Theatre,0,269
+Cafe Carlyle,0,270
+Lot 45,0,271
+Hashtag Bar,0,272
+Lovecraft Bar NYC,0,273
+Mezzrow,0,274
+Asbury Festhalle and Biergarten,0,275
+The Queens Kickshaw,0,276
+Tiny Montgomery (Threes Brewing),0,277
+Kinfolk,0,278
+Prospect Park,0,279
+Multiple Venues Throughout Brooklyn and New York,0,280
+Hifi Back Room,0,281
+Diller-quaile School of Music,0,282
+Greenhouse Cafe,0,283
+St. Ignatius of Antioch Episcopal Church,0,284
+Pine Box Rock Shop,0,285
+First Acoustic Concert Pac,0,286
+Church of St. Paul & St. Andrew,0,287
+Austin Public,0,288
+The Dimenna Center for Classical Music,0,289
+Word Up Community Bookshop,0,290
+Aviv,0,291
+603 Upstairs,0,292
+The Quays Pub,0,293
+The Abigail Adams Smith Auditorium,0,294
+Halyards,0,295
+Alphaville,0,296
+Bar Lunatico,0,297
+Pangea,0,298
+Bushwick Public House,0,299
+Blue Water Grill,0,300
+Elvis Guesthouse,0,301
+Unit J,0,302
+Brookside Auditorium,0,303
+"Performing Arts Center, Adelphi University",0,304
+Shillelagh Tavern,0,305
+Viper Studios Art and Music Space,0,306
+Alhambra Ballroom Inc,0,307
+Belle Reve,0,308
+Cafe Noctambulo,0,309
+Epistrophy Cafe,0,310
+Michiko Rehearsal Studios,0,311
+"Garden Stage, Unitarian Universalist Congregation of Central Nassau",0,312
+Harlem Stage Gatehouse,0,313
+The Rainbow Room,0,314
+The Wren,0,315
+Sob,0,316
+Beautique,0,317
+Rendall Memorial Presbyterian Church,0,318
+Elvis Guest House,0,319
+Zinc Bar,0,320
+The Hall at MP,0,321
+Berlin,0,322
+Our Wicked Lady,0,323
+Secret Location T/b/a,0,324
+Oktoberfest - Resurrection Lutheran Church,0,325
+World Trade Center,0,326
+The Gateway,0,327
+"Bar Next Door, La Lanterna",0,328
+Bohemian Hall & Beer Garden,0,329
+Secret Brooklyn Location,0,330
+Nurnberger Bierhalle,0,331
+S and S Farm Brewery,0,332
+St. Stanislaus Kostka Church,0,333
+Christ & St. Stephen's Episcopal Church,0,334
+American Beauty NYC,0,335
+Manhattan Diner,0,336
+Hell Phone speakeasy,0,337
+The Hall Brooklyn,0,338
+Brooklyn Hangar,0,339
+Jimmy's No. 43,0,340
+Lovecraft Bar,0,341
+Lou's Tavern,0,342
+Market Hotel,0,343
+Little Water Radio,0,344
+Pair Wine & Cheese,0,345
+Book Revue,0,346
+Chapel of St. Bartholomew's Episcopal Church,0,347
+Kitano Jazz Club,0,348
+Exile Above 2a,0,349
+People's Voice Cafe,0,350
+Merkin Hall,0,351
+Lycée Français De New York,0,352
+Smoke Jazz & Supper Club,0,353
+"Brooklyn Center for the Performing Arts, Brooklyn College",0,354
+Gold Sounds,0,355
+Alfie's Place,0,356
+East End Temple,0,357
+Crypt Chapel of the Church of the Intercession,0,358
+Jefferson Market Library,0,359
+Erv's,0,360
+Terra Firma,0,361
+The Lantern,0,362
+Wintercheck Factory,0,363
+Langosta Lounge,0,364
+LA GAMELLE,0,365
+Bushwick A/V,0,366
+Pier Village,0,367
+Botanica,0,368
+Mexicalli Blues,0,369
+HYTE,0,370
+The Asbury Hall,0,371
+Connolly's Klub 45,0,372
+Desmond's Tavern,0,373
+Park Church Co-op,0,374
+The Footlight,0,375
+MP Taverna,0,376
+Our Lady of Perpetual Hope,0,377
+Tavern on the Green Beer Garden,0,378
+The HiFi Bar,0,379
+Dardo Galletto Studios,0,380
+Saint Vitus Bar,0,381
+Secret Location - New York,0,382
+Drexler's,0,383
+Hell Phone Bk,0,384
+Abc Carpet & Home,0,385
+BK Night Bazaar,0,386
+Esscala Warehouse,0,387
+MTV Live,0,388
+Studios 353,0,389
+Turnstyle,0,390
+The Third Man,0,391
+Natchie Nights,0,392
+Tropical Grill,0,393
+Lavo Nightclub,0,394
+Tropical Paradise Ballroom,0,395
+Brooklyn Lutherie,0,396
+Hangry Garden,0,397
+Mamajuana Cafe The Bronx,0,398
+Co-Cathedral of St. Joseph,0,399
+110 Troutman,0,400
+Taipei Ecnomic and Cultural Office (TECO),0,401
+Ministerio Internacional Rosa De Sharon,0,402
+Jamaica Center for Arts & Learning,0,403
+Paddy Quinn's,0,404
+Morrison Hotel Gallery,0,405
+2 Meadow Street,0,406
+Nice Garage at Ripe Art Gallery,0,407
+Templo Del Dios Viviente,0,408
+Dromedary Bar,0,409
+Fine and Rare,0,410
+Manhattan Youth Downtown Community Center,0,411
+Spaha Soul,0,412
+Lunt-Fontanne Theatre,0,413
+"LeFrak Concert Hall, Kupferberg Center for the Arts",0,414
+Pepela (private Club),0,415
+Middle Collegiate Church,0,416
+National Opera Center - Opera America,0,417
+Stephan Weiss Studio,0,418
+Brooklyn Baptist Church,0,419
+Ainsworth Midtown,0,420
+First Evangelical Free Church,0,421
+Paramount Theatre Mezzanine,0,422
+Two Sha's,0,423
+Unitarian Universalist Fellowship of Huntington,0,424
+Ann Maria Ciccone Theatre: Bergen Community College,0,425
+"Ballroom, BRIC House",0,426
+Side Door,0,427
+Roulette Performance Space,0,428
+TCS NYC Marathon,0,429
+Trans Pecos,0,430
+Abhaya Yoga,0,431
+Westside Theatre,0,432
+La Mama,0,433
+12 St Marks Pl,0,434
+STIMULATE,0,435
+Bb King Blues Club & Grill,0,436
+St. Joseph's Church,0,437
+Met Mus Of Art,0,438
+The Auditorium,0,439
+United Methodist Church,0,440
+St. John Nepomucene,0,441
+The Village Light Opera Group,0,442
+Interface,0,443
+College of Staten Island Center for the Arts,0,444
+North Shore Public Library,0,445
+Kirkland Chapel at Fifth Avenue Presbyterian Church,0,446
+Bar Chord,0,447

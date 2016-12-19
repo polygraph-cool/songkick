@@ -85,6 +85,7 @@ function addVenueDetails() {
 	history = history.filter(d => d.shows.length)
 
 	history.sort((a, b) => d3.descending(a.days_until_big, b.days_until_big))
+	// history.sort((a,b) => d3.ascending(a.shows[0].date_parsed, b.shows[0].date_parsed))
 }
 
 function createLegend() {
@@ -148,6 +149,10 @@ function setupChart() {
 
 	const capacityMax = d3.max(history, d => d.big.capacity)
 	const capacityMin = d3.min(history, d => d3.min(d.shows, e => e.capacity))
+
+	// date min/,ax
+	const dateMin = d3.min(history, d => d.shows[0].date_parsed)
+	const dateMax = d3.max(history, d => d.shows[d.shows.length - 1].date_parsed)
 	
 
 	chartW = visEl.node().offsetWidth - MARGIN.left - MARGIN.right
@@ -155,6 +160,7 @@ function setupChart() {
 	chartH = itemHeight * (history.length + 1) - MARGIN.top - MARGIN.bottom
 	
 	scale.x = d3.scaleLinear().domain([0, yearsMax]).range([0, chartW])
+	// scale.x = d3.scaleTime().domain([dateMin, dateMax]).range([0, chartW])
 
 	// size scale
 	const maxRadius = itemHeight / 6
@@ -205,6 +211,7 @@ function setupChart() {
 		.attr('x', 0)
 		.attr('y', -itemHeight / 4)
 		.attr('width', d => scale.x(d.years_until_big))
+		// .attr('width', d => scale.x(d.shows[d.shows.length - 1].date_parsed))
 		.attr('height', itemHeight / 2)
 		.on('mousemove', handleMouse)
 		.on('mouseleave', () => {
@@ -222,6 +229,8 @@ function setupChart() {
 	bandEnter.append('path')
 		.attr('class', 'band__path')
 		.attr('d', d => line([0, 0]))
+		// .attr('d', d => line([d.shows[0].date_parsed, d.shows[0].date_parsed]))
+
 
 	// const show = bandEnter.selectAll('circle')
 
@@ -230,6 +239,7 @@ function setupChart() {
 			.append('g')
 			.attr('class', d => `band__show billing-${d.opener ? 'opener' : 'headline'}`)
 			.attr('transform', d => `translate(${scale.x(d.years_since_start)}, 0)`)
+			// .attr('transform', d => `translate(${scale.x(d.date_parsed)}, 0)`)
 			.classed('show__made', d => d.made)
 		
 	showEnter.append('circle')
@@ -316,6 +326,9 @@ function animateChart(sel) {
 		// .delay(250)
 		.ease(d3.easeLinear)
 		.attr('d', d => line([0, d.years_until_big]))
+		// .attr('d', d => {
+		// 	return line([d.shows[0].date_parsed, d.shows[d.shows.length - 1].date_parsed])
+		// })
 		.on('end', (d) => {
 			if (d.id === '1077331') {
 				currentHoverEl = d3.select('.show__made')
