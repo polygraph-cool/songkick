@@ -8,7 +8,7 @@ function cleanVenues(row) {
 }
 
 function loadVenues(cb) {
-	d3.csv('assets/data/web_venues2.csv', cleanVenues, cb)
+	d3.csv('assets/data/web_venues.csv', cleanVenues, cb)
 }
 
 function cleanData(row) {
@@ -34,7 +34,7 @@ function cleanData(row) {
 }
 
 function loadData(cb) {
-	d3.csv('assets/data/web_data2.csv', cleanData, cb)
+	d3.csv('assets/data/web_data.csv', cleanData, cb)
 }
 
 function cleanHistory(data) {
@@ -64,7 +64,7 @@ function cleanHistory(data) {
 }
 
 function loadHistory(cb) {
-	d3.json('assets/data/web_history2.json', (err, data) => {
+	d3.json('assets/data/web_history.json', (err, data) => {
 		const clean = cleanHistory(data)
 		cb(err, clean)
 	})
@@ -80,3 +80,10 @@ function init(cb) {
 }
 
 export default init
+
+
+d3.csv('assets/made_it_bands.csv', (err, resp) => {
+	const bands = resp.map(d => ({...d, followers: +d.followers}))
+	bands.sort((a, b) => b.followers - a.followers)
+	console.table(bands)
+})

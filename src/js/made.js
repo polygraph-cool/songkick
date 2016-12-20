@@ -278,7 +278,7 @@ function setupScroll() {
 				sel.classed('is-focus', true)
 			}
 
-			if (currentSceneId === 'big') bandTriggerEl.classed('is-focus', false)
+			if (currentSceneId === 'big' || currentSceneId === 'remainder') bandTriggerEl.classed('is-focus', false)
 
 			// hack
 			// if (i > 3) setAlpha(0.75, 0.25)
