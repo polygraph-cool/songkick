@@ -97,11 +97,14 @@ $popup-width = 360px
 	height 100vh
 	z-index set-index('top')
 	transform translate3d(0px,0px,0px)
+	backface-visibility hidden
 	pointer-events none
 	opacity 0.25
 	transition opacity 0.25s
 	background rgba($c1,0.75)
+	padding 0 2em
 	padding-top 33vh
+	
 	&.is-visible
 		display block
 	.find__container

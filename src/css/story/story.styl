@@ -1,12 +1,16 @@
 $libre = 'Libre Franklin'
 $libre-hash = 'libre-franklin'
+$bitter = 'Bitter'
+$bitter-hash = 'bitter'
 fontify($libre, $libre-hash, 400, $sans)
 fontify($libre, $libre-hash, 700, $sans)
 fontify($libre, $libre-hash, 900, $sans)
+fontify($bitter, $bitter-hash, 400, $serif)
+fontify($bitter, $bitter-hash, 700, $serif)
 			
 body
 	background $c1
-	color lighten($c1, 65)
+	color lighten($c1, 70)
 	line-height 1.8
 	font-size 17px
 	overflow-x hidden	
