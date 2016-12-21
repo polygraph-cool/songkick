@@ -10,7 +10,7 @@ let inc
 let onDeck
 
 function pause() {
-
+	if (audioPlaying) fade('out')
 }
 
 function fade(direction) {
@@ -67,7 +67,6 @@ function handle() {
 function updateTimer(elapsed) {
 	currentVolume += elapsed / 1000 * inc
 	currentVolume = Math.min(Math.max(0, currentVolume), 1)
-	console.log(currentVolume)
 	audioPlayer.volume = currentVolume
 	if (targetVolume === 0 && currentVolume === 0) {
 		timer.stop()
@@ -83,10 +82,6 @@ function updateTimer(elapsed) {
 function setup() {
 	audioPlayer = document.createElement('audio')
 	audioPlayer.volume = 0
-	// audioPlayer.addEventListener('play', () => {
-		
-	// })	
-
 	audioButtonEl.on('click', handle)
 }
 
