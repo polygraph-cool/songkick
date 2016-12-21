@@ -6,9 +6,17 @@ let playingAudio
 
 function pause() {
 	if (playingAudio) {
-		audioPlayer.pause()
-		audioButtonEl.classed('is-playing', false)
-		playingAudio = false	
+		let v = 1
+		const t = d3.timer(elapsed => {
+			v -= elapsed / 1000
+			audioPlayer.volume = Math.max(0, v)
+			if (v < 0) {
+				t.stop()
+				audioPlayer.pause()
+				audioButtonEl.classed('is-playing', false)
+				playingAudio = false
+			}
+		})
 	}
 }
 
@@ -21,6 +29,7 @@ function handle() {
 		d3.select(this).classed('is-playing', true)
 		audioPlayer.src = url
 		audioPlayer.load()
+		audioPlayer.volume = 0
 		audioPlayer.play()
 	}
 }
@@ -29,6 +38,14 @@ function setup() {
 	audioPlayer = document.createElement('audio')
 	audioPlayer.addEventListener('play', () => {
 		playingAudio = true
+		let v = 0
+		const t = d3.timer(elapsed => {
+			v += elapsed / 1000
+			audioPlayer.volume = Math.min(1, v)
+			if (v > 1) {
+				t.stop()
+			}
+		})
 	})	
 
 	audioButtonEl.on('click', handle)

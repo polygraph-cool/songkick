@@ -82,8 +82,8 @@ function init(cb) {
 export default init
 
 
-d3.csv('assets/made_it_bands.csv', (err, resp) => {
-	const bands = resp.map(d => ({...d, followers: +d.followers}))
-	bands.sort((a, b) => b.followers - a.followers)
-	console.table(bands)
-})
+// d3.csv('assets/made_it_bands.csv', (err, resp) => {
+// 	const bands = resp.map(d => ({...d, followers: +d.followers}))
+// 	bands.sort((a, b) => b.followers - a.followers)
+// 	console.table(bands)
+// })
