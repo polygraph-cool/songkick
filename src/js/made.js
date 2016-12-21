@@ -30,6 +30,7 @@ let currentSceneIndex = 0
 
 let currentSceneId = null
 let currentSceneBand = null
+let currentBandEl = null
 let currentMode = null
 
 let inView = true
@@ -297,6 +298,7 @@ function setupScroll() {
 			if (sel.classed('band')) {
 				bandTriggerEl.classed('is-focus', false)
 				sel.classed('is-focus', true)
+				currentBandEl = sel
 			}
 
 			if (currentSceneId === 'big' || currentSceneId === 'remainder') bandTriggerEl.classed('is-focus', false)
@@ -313,9 +315,6 @@ function setupScroll() {
 }
 
 function updateScene() {
-	// pause audio
-	Audio.pause()
-
 	// toggle text labels
 	const ring = d3.selectAll('.ring')
 	if (currentSceneId === 'explore') ring.classed('is-hidden', true)
@@ -327,8 +326,13 @@ function updateScene() {
 	
 	boidsBig.forEach(d => d.setScene(scene))
 
+	// pause audio
+	if (currentSceneId !== 'band') Audio.pause()
+
+
 	// special case
 	if (currentSceneId === 'band') {
+		Audio.play(currentBandEl.select('.btn__audio').node())
 
 		const foundIndex = bigBandIds.findIndex(d => d === currentSceneBand)
 		let remove

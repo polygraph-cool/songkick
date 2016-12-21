@@ -118,7 +118,7 @@ const Boid = (opts) => {
 	const setMaxspeed = (size) => {
 		// maxspeed = mode !== 'default' ? 10 : inc * 100 * (Math.log(size) / 2 + 1)
 		maxspeed = mode !== 'default' ? 5 : maxspeedOrig
-		maxforce = maxspeed * 0.25
+		maxforce = maxspeed * 0.1
 	}
 		
 	const setScene = (id) => {
@@ -447,7 +447,7 @@ const Boid = (opts) => {
 			}
 		}
 
-		maxspeedOrig = Math.random() * 0.5 + 0.75
+		maxspeedOrig = Math.random() * 0.3 + 0.4
 
 		vec2.set(centerVec, halfSize, halfSize)
 
