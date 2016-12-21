@@ -10,7 +10,7 @@ let inc
 let onDeck
 
 function pause() {
-	if (audioPlaying) fade('out')
+	if (playingAudio) fade('out')
 }
 
 function fade(direction) {

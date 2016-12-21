@@ -17,6 +17,7 @@ let stage
 
 const PI = Math.PI
 const TWO_PI = Math.PI * 2
+const INTRO_GRAFS = 3
 
 const debug = true
 let nextPoint
@@ -318,7 +319,7 @@ function updateScene() {
 	// toggle text labels
 	const ring = d3.selectAll('.ring')
 	if (currentSceneId === 'explore') ring.classed('is-hidden', true)
-	else ring.classed('is-hidden', (d, i) => i + 4 > currentSceneIndex)
+	else ring.classed('is-hidden', (d, i) => i + INTRO_GRAFS > currentSceneIndex)
 
 	const toMedium = ['big', 'band', 'remainder']
 	const scene = toMedium.indexOf(currentSceneId) > -1 ? 'medium': currentSceneId
@@ -400,10 +401,11 @@ function init(data, cb) {
 	venues = data.venues
 	bands = data.bands
 
-	// put lake street on top
-	const lakeIndex = bands.findIndex(d => d.id === '1077331')
-	const lake = bands.splice(lakeIndex, 1)
-	bands.push(lake[0])
+	// put special street on top
+	// const specialIndex = bands.findIndex(d => d.id === '1077331')
+	const specialIndex = bands.findIndex(d => d.id === '6775814')
+	const special = bands.splice(specialIndex, 1)
+	bands.push(special[0])
 
 	
 

@@ -423,7 +423,7 @@ const Boid = (opts) => {
 		data = opts.data
 		chartSize = opts.chartSize
 		
-		isSpecial = data.name === 'Lake Street Dive'
+		isSpecial = data.name === 'Sylvan Esso'
 		isBig = data.tier === 2
 		isMedium = data.tier > 0
 
