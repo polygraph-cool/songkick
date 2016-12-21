@@ -457,6 +457,8 @@ const Boid = (opts) => {
 			packBig = [sizeBig * data.bX, sizeBig * data.bY, sizeBig / 2]
 			packBigX = centerVec[0] + packBig[0] - packBig[2]
 			packBigY = centerVec[1] + packBig[1] - packBig[2]	
+			// sprite.interactive = true
+			// sprite.on('mousedown', () => console.log(data.name))
 		}
 
 		vec2.set(velocityVec, 0, 0)

@@ -32,6 +32,8 @@ let currentSceneId = null
 let currentSceneBand = null
 let currentMode = null
 
+let inView = true
+
 const madeEl = d3.select('#made')
 const madeProseEl = d3.select('.made__prose')
 const madeVisEl = d3.select('.made__vis')
@@ -91,8 +93,9 @@ function setupDOM() {
 		container: new PIXI.Container(),
 		speed: d * 0.0002 + 0.001,
 	}))
-	otherContainer = new PIXI.Container()
+	smalls.forEach(d => stage.addChild(d.container))
 	
+	otherContainer = new PIXI.Container()
 	stage.addChild(otherContainer)
 		
 	setAlpha(1, 0.5)
@@ -106,7 +109,6 @@ function setAlpha(otherVal, smallVal) {
 	otherContainer.alpha = otherVal
 	smalls.forEach(d => {
 		d.container.alpha = smallVal
-		stage.addChild(d.container)
 	})
 }
 
@@ -238,6 +240,7 @@ function setupScroll() {
 	
 	// madeEl.style('height', `${proseHeight}px`)
 	const controller = new ScrollMagic.Controller()
+	
 	const madeScene = new ScrollMagic.Scene({
 		triggerElement: '#made',
 		triggerHook: 0,
@@ -255,6 +258,24 @@ function setupScroll() {
 			madeVisEl.classed('is-fixed', false)
 			madeVisEl.classed('is-bottom', event.scrollDirection === 'FORWARD')
 			madeVisEl.style('right', `0`)
+		})
+		.addTo(controller)
+
+	// to start/stop rendering for full view
+	const madeScene2 = new ScrollMagic.Scene({
+		triggerElement: '#made',
+		triggerHook: 0,
+		duration: proseHeight,
+	})
+
+	madeScene2
+		.on('enter', event => {
+			inView = true
+			render()
+
+		})
+		.on('leave', event => {
+			inView = false
 		})
 		.addTo(controller)
 
@@ -363,7 +384,7 @@ function render() {
 	})
 	
 	renderer.render(stage)
-	requestAnimationFrame(render)
+	if (inView) requestAnimationFrame(render)
 }
 
 function init(data, cb) {
