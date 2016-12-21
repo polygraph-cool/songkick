@@ -1,6 +1,8 @@
 import * as d3 from 'd3'
 const audioButtonEl = d3.selectAll('.btn__audio')
 
+const MAX_VOLUME = 0.7
+
 let audioPlayer
 let playingAudio
 let timer
@@ -16,7 +18,7 @@ function pause() {
 function fade(direction) {
 	if (direction === 'in') {
 		inc = 1
-		targetVolume = 1
+		targetVolume = MAX_VOLUME
 	} else {
 		inc = -1
 		targetVolume = 0
@@ -66,7 +68,7 @@ function handle() {
 
 function updateTimer(elapsed) {
 	currentVolume += elapsed / 1000 * inc
-	currentVolume = Math.min(Math.max(0, currentVolume), 1)
+	currentVolume = Math.min(Math.max(0, currentVolume), MAX_VOLUME)
 	audioPlayer.volume = currentVolume
 	if (targetVolume === 0 && currentVolume === 0) {
 		timer.stop()
@@ -74,7 +76,7 @@ function updateTimer(elapsed) {
 		audioButtonEl.classed('is-playing', false)
 		playingAudio = false
 		if (onDeck) handle.call(onDeck)
-	} else if (targetVolume === 1 && currentVolume === 1) {
+	} else if (targetVolume === MAX_VOLUME && currentVolume === MAX_VOLUME) {
 		timer.stop()
 	}
 }
