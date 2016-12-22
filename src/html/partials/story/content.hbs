@@ -16,7 +16,13 @@
 				{{else if video}}
 				 {{!-- <iframe class='youtube-embed' width='100%' height='198px' src='https://www.youtube.com/embed/zjabXPzwvWE?enablejsapi=1&amp;enablejsapi=true&amp;playsinline=1&autoplay=0controls=0&rel=0&showinfo=0&start=47' frameborder='0'></iframe> --}}
 				 <iframe class='youtube-embed' width='100%' height='198px' src='https://www.youtube.com/embed/qftu7ZQieuw?enablejsapi=1&amp;enablejsapi=true&amp;playsinline=1&autoplay=0&controls=0&rel=0&showinfo=0&start=45' frameborder='0'></iframe>
-				
+				{{else if list}}
+				<p>{{{text}}}</p>
+				<ul class='band__list-others tk-libre-franklin-400'>
+					{{#each other}}
+					<li>{{name}}</li>
+					{{/each}}
+				</ul>
 				{{else}}
 				<p>{{{text}}}</p>
 				{{/if}}

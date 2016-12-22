@@ -21,7 +21,7 @@ let chartW
 let chartH
 
 const MARGIN = { top: 48, bottom: 24, left: 24, right: 24 }
-const itemHeight = 64
+const itemHeight = 56
 
 let currentHoverEl
 
@@ -157,7 +157,7 @@ function setupChart() {
 
 	chartW = visEl.node().offsetWidth - MARGIN.left - MARGIN.right
 	// const h = window.innerHeight * 0.8 - MARGIN * 2
-	chartH = itemHeight * (history.length + 1) - MARGIN.top - MARGIN.bottom
+	chartH = itemHeight * (history.length + 2) - MARGIN.top - MARGIN.bottom
 	
 	scale.x = d3.scaleLinear().domain([0, yearsMax]).range([0, chartW])
 	// scale.x = d3.scaleTime().domain([dateMin, dateMax]).range([0, chartW])
@@ -190,7 +190,6 @@ function setupChart() {
 	createLegend()
 
 	
-
 	
 	chart = svg.append('g')
 	
@@ -203,8 +202,7 @@ function setupChart() {
 		.enter()
 	.append('g').attr('class', 'band')
 		.attr('transform', (d, i) => `translate(0,${(i + 1) * itemHeight})`)
-		.classed('is-transparent', true)
-	
+
 	bandEnter.append('rect')
 		.style('opacity', 0)
 		.classed('interaction', true)
@@ -228,13 +226,14 @@ function setupChart() {
 		
 	bandEnter.append('path')
 		.attr('class', 'band__path')
-		.attr('d', d => line([0, 0]))
+		// .attr('d', d => line([0, 0]))
+		.attr('d', d => line([0, d.years_until_big]))
 		// .attr('d', d => line([d.shows[0].date_parsed, d.shows[0].date_parsed]))
 
 
 	// const show = bandEnter.selectAll('circle')
 
-	const showEnter = bandEnter.selectAll('circle').data(d => d.shows)
+	const showEnter = bandEnter.selectAll('.band__show').data(d => d.shows)
 		.enter()
 			.append('g')
 			.attr('class', d => `band__show billing-${d.opener ? 'opener' : 'headline'}`)
@@ -246,7 +245,7 @@ function setupChart() {
 		.attr('class', 'band__circle')
 		.attr('cx', 0)
 		.attr('cy', 0)
-		.attr('r', 0)
+		.attr('r', d => scale.size(d.capacity))
 	
 	const infoEnter = showEnter.append('g')
 		.attr('class', 'band__info')
@@ -265,76 +264,9 @@ function setupChart() {
 			return `${date} <tspan alignment-baseline='hanging' dx='5'>${name} (${capacity})</tspan>`
 		})
 	
+	currentHoverEl = chart.select('.show__made')
+	currentHoverEl.classed('is-visible', true)
 
-	// const showMerge = showEnter.merge(show)
-		
-	// showMerge.transition(t)
-}
-
-function setupScroll() {
-	const controller = new ScrollMagic.Controller()
-	
-	const triggerScenes = chart.selectAll('.band').each(function(d, i) {
-		const el = this
-		const sel = d3.select(this)
-		const scene = new ScrollMagic.Scene({
-			triggerElement: el,
-			triggerHook: 0.7,
-		})
-		
-		scene.on('enter', event => {
-			animateChart(sel)
-		})
-		.addTo(controller)
-		
-		return scene
-	})
-
-	// const scene = new ScrollMagic.Scene({
-	// 	triggerElement: '.ascent__vis',
-	// 	// triggerHook: 0,
-	// 	// duration: proseHeight - visHeight,
-	// })
-	
-	// scene
-	// 	.on('enter', event => {
-	// 		animateChart()
-	// 	})
-	// 	.addTo(controller)
-}
-
-function animateChart(sel) {
-	const factor = 500
-	const data = sel.data()
-	const total = data[0].years_until_big * factor
-	const count = data[0].shows.length
-
-	sel.classed('is-transparent', false)
-	// chart.selectAll('.band__circle')
-	sel.selectAll('.band__circle')
-		.transition()
-		.duration(1000)
-		.ease(d3.easeCubicOut)
-		// .delay((d, i) => i / count * total + 250)
-		.delay(d => d.years_since_start * factor)
-		.attr('r', d => scale.size(d.capacity))
-
-	// chart.selectAll('.band__path')
-	sel.select('.band__path')
-		.transition()
-		.duration(total)
-		// .delay(250)
-		.ease(d3.easeLinear)
-		.attr('d', d => line([0, d.years_until_big]))
-		// .attr('d', d => {
-		// 	return line([d.shows[0].date_parsed, d.shows[d.shows.length - 1].date_parsed])
-		// })
-		.on('end', (d) => {
-			if (d.id === '1077331') {
-				currentHoverEl = d3.select('.show__made')
-				currentHoverEl.classed('is-visible', true)
-			}
-		})
 }
 
 function init(data) {
@@ -342,7 +274,6 @@ function init(data) {
 	venues = data.venues
 	addVenueDetails()
 	setupChart()
-	setupScroll()
 }
 
 export default { init }
