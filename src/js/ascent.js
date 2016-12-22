@@ -85,7 +85,7 @@ function addVenueDetails() {
 	history = history.filter(d => d.shows.length)
 
 	history.sort((a, b) => d3.descending(a.days_until_big, b.days_until_big))
-	// history.sort((a,b) => d3.ascending(a.shows[0].date_parsed, b.shows[0].date_parsed))
+	// history.sort((a,b) => d3.ascending(a.shows[a.shows.length - 1].date_parsed, b.shows[b.shows.length - 1].date_parsed))
 }
 
 function createLegend() {
@@ -156,7 +156,6 @@ function setupChart() {
 	
 
 	chartW = visEl.node().offsetWidth - MARGIN.left - MARGIN.right
-	// const h = window.innerHeight * 0.8 - MARGIN * 2
 	chartH = itemHeight * (history.length + 2) - MARGIN.top - MARGIN.bottom
 	
 	scale.x = d3.scaleLinear().domain([0, yearsMax]).range([0, chartW])
@@ -222,16 +221,14 @@ function setupChart() {
 			const extra =  i === 0 ? 'until they made it big' : ''
 			return `${d.name} <tspan dx='5'>${years} years ${extra}</tspan>`
 		})
+		// .attr('transform', d => `translate(${scale.x(d.shows[0].date_parsed)}, 0)`)
 		.attr('y', -scale.size(3000) - 3)
 		
 	bandEnter.append('path')
 		.attr('class', 'band__path')
-		// .attr('d', d => line([0, 0]))
 		.attr('d', d => line([0, d.years_until_big]))
-		// .attr('d', d => line([d.shows[0].date_parsed, d.shows[0].date_parsed]))
+		// .attr('d', d => line([d.shows[0].date_parsed, d.shows[d.shows.length - 1].date_parsed]))
 
-
-	// const show = bandEnter.selectAll('circle')
 
 	const showEnter = bandEnter.selectAll('.band__show').data(d => d.shows)
 		.enter()
@@ -249,7 +246,6 @@ function setupChart() {
 	
 	const infoEnter = showEnter.append('g')
 		.attr('class', 'band__info')
-		// .attr('transform', `translate(0, ${itemHeight / 2})`)
 	
 	infoEnter.append('text')
 		.attr('alignment-baseline', 'hanging')

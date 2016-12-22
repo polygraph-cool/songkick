@@ -1,7 +1,9 @@
 import * as d3 from 'd3'
+import { selectAll } from './utils/dom'
 const audioButtonEl = d3.selectAll('.btn__audio')
 
 const MAX_VOLUME = 0.7
+const BASE_URL = 'https://p.scdn.co/mp3-preview/'
 
 let audioPlayer
 let playingAudio
@@ -56,7 +58,7 @@ function handle() {
 	} else {
 		onDeck = false
 		const src = this.getAttribute('data-src')
-		const url = `https://p.scdn.co/mp3-preview/${src}`
+		const url = `${BASE_URL}${src}`
 		d3.select(this).classed('is-playing', true)
 		audioPlayer.src = url
 		audioPlayer.load()
@@ -81,10 +83,34 @@ function updateTimer(elapsed) {
 	}
 }
 
+function preload() {
+	const tempAudioEl = document.createElement('audio')
+	const sources = selectAll('.band .btn__audio')
+		.map(el => el.getAttribute('data-src'))
+
+	let i = 0
+	
+	const inc = () => {
+		i++
+		if (i < sources.length) loadNext()
+		else console.log('preloaded audio')
+	}
+
+	const loadNext = () => {
+		tempAudioEl.src = `${BASE_URL}${sources[i]}`
+		tempAudioEl.removeEventListener('canplay', inc)
+		tempAudioEl.addEventListener('canplay', inc)
+		tempAudioEl.load()
+	}
+	
+	loadNext()
+}
+
 function setup() {
 	audioPlayer = document.createElement('audio')
 	audioPlayer.volume = 0
 	audioButtonEl.on('click', handle)
+	preload()
 }
 
 export default { setup, pause, play }
