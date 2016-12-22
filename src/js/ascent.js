@@ -10,7 +10,7 @@ let venues
 const visEl = d3.select('.ascent__vis')
 
 const formatNumber = d3.format('.1f')
-const formatDate = d3.timeFormat('%B %d, %Y')
+const formatDate = d3.timeFormat('%b %d, %Y')
 const formatCapacity = d3.format(',')
 
 let line
@@ -24,6 +24,7 @@ const MARGIN = { top: 48, bottom: 24, left: 24, right: 24 }
 const itemHeight = 56
 
 let currentHoverEl
+let firstHover = true
 
 function getVenue(id) {
 	// return venues.find(d => d.id === id) || {}
@@ -138,7 +139,10 @@ function handleMouse(d, i) {
 	el.raise()
 	// hide old
 	if (currentHoverEl) currentHoverEl.classed('is-visible', false)
-
+	if (firstHover) {
+		firstHover = false
+		chart.select('.band__show').classed('is-visible', false)
+	}
 	currentHoverEl = el
 	currentHoverEl.classed('is-visible', true)
 }
@@ -218,7 +222,7 @@ function setupChart() {
 	bandEnter.append('text')
 		.html((d, i) => {
 			const years = formatNumber(d.years_until_big)
-			const extra =  i === 0 ? 'until they made it big' : ''
+			const extra =  i === 0 ? 'from their first small show in NYC until they made it big' : ''
 			return `${d.name} <tspan dx='5'>${years} years ${extra}</tspan>`
 		})
 		// .attr('transform', d => `translate(${scale.x(d.shows[0].date_parsed)}, 0)`)
@@ -262,6 +266,8 @@ function setupChart() {
 	
 	currentHoverEl = chart.select('.show__made')
 	currentHoverEl.classed('is-visible', true)
+
+	chart.select('.band__show').classed('is-visible', true)
 
 }
 
