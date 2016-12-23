@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import ScrollMagic from 'scrollmagic'
-import smoothScroll from 'smooth-scroll'
+// import smoothScroll from 'smooth-scroll'
 // import isMobile from './utils/is-mobile'
 
 let venues
@@ -8,21 +8,20 @@ let bands
 
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('').reverse()
 const containerEl = d3.select('#search')
-const visEl = d3.select('.search__vis')
-const popupEl = d3.select('.search__popup')
+const visEl = containerEl.select('.search__vis')
+const popupEl = containerEl.select('.search__popup')
 const popupNameEl = popupEl.select('.popup__name')
 const popupTextEl = popupEl.select('.popup__text')
 const popupShowsEl = popupEl.select('.popup__shows')
 const popupVisEl = popupEl.select('.popup__vis')
 const svg = popupVisEl.select('svg')
-const searchLaunchEl = d3.select('.search__launch')
-const findCloseEl = d3.select('.find__close')
-const findEl = d3.select('.search__find')
-const findInputEl = d3.select('.find__input')
-const resultsEl = d3.select('.find__results')
+// const searchLaunchEl = containerEl.select('.search__launch')
+const findEl = containerEl.select('.search__find')
+const findInputEl = containerEl.select('.find__input input')
+const resultsEl = containerEl.select('.find__results')
 
 
-const popupFindEl = d3.select('.find__popup')
+const popupFindEl = containerEl.select('.find__popup')
 const popupFindNameEl = popupFindEl.select('.popup__name')
 const popupFindTextEl = popupFindEl.select('.popup__text')
 const popupFindShowsEl = popupFindEl.select('.popup__shows')
@@ -228,30 +227,30 @@ function handleSearch() {
 	const val = this.value.trim().toLowerCase()
 	if (val.length > 1) {
 		const re = new RegExp(`\\b${val}`)
-		const results = bands.filter(d => d.name.toLowerCase().match(re))
+		let results = bands.filter(d => d.name.toLowerCase().match(re))
 			.slice(0, 5)
 		
+		if (!results.length) results.push({ name: 'No matches', empty: true })
 		const li = resultsEl.selectAll('li').data(results)
 
 		li.enter().append('li')
 			.merge(li)
 			.text(d => d.name)
-			.on('click', handleResult)
+			.on('click', d => {
+				if(!d.empty) handleResult(d)
+			})
 
 		li.exit().remove()
-		// const html = results.map(d =>
-		// 	`<li data-id='${d.id}'>${d.name}</li>`
-		// ).join('')
-
-		// resultsEl.html(html)
-		// resultsEl.selectAll('li').on('click', handleResult)
+		resultsEl.classed('is-visible', true)
 	} else {
+		resultsEl.classed('is-visible', false)
 		resultsEl.html('')
 	}
 }
 
 function handleResult(d, i) {
 	updatePopupFind(d)
+	resultsEl.classed('is-visible', false)
 	resultsEl.html('')
 	findInputEl.node().value = ''
 	popupFindEl.classed('is-visible', true)
@@ -282,13 +281,13 @@ function setupChart() {
 		.classed('alphabet', d => d.first_letter)
 		.on('mouseenter', updatePopup)
 
-	containerEl.on('mouseleave', () => {
+	visEl.on('mouseleave', () => {
 		popupEl.classed('is-visible', false)
 	})
 
-	searchLaunchEl.on('mouseenter', () => {
-		popupEl.classed('is-visible', false)
-	})
+	// searchLaunchEl.on('mouseenter', () => {
+	// 	popupEl.classed('is-visible', false)
+	// })
 }
 
 function setupPopupVis() {
@@ -345,28 +344,18 @@ function setupScroll() {
 	const scene = new ScrollMagic.Scene({
 		triggerElement: '#search',
 		triggerHook: 0,
-		duration: visHeight,
+		duration: visHeight - window.innerHeight / 2,
 	})
 	
 	scene
 		.on('enter', event => {
-			containerEl.classed('is-static', true)
+			findEl.classed('is-fixed', true)
 
 		})
 		.on('leave', event => {
-			containerEl.classed('is-static', false)
+			findEl.classed('is-fixed', false)
 		})
 		.addTo(controller)
-}
-
-function launchSearch() {
-	findEl.classed('is-visible', true)
-	searchLaunchEl.classed('is-hidden', true)
-}
-
-function closeSearch() {
-	findEl.classed('is-visible', false)
-	searchLaunchEl.classed('is-hidden', false)
 }
 
 function scrollTo(e) {
@@ -384,10 +373,6 @@ function scrollTo(e) {
 }
 
 function setupEvents() {
-	searchLaunchEl.on('click', launchSearch)
-	findCloseEl.on('click', closeSearch)
-	d3.select('.jump-to-search').node().addEventListener('click', scrollTo)
-
 	findInputEl.on('keyup', handleSearch)
 }
 
@@ -397,13 +382,11 @@ function init(data) {
 
 	addAlphabet()	
 	setupChart()
-	setupScroll()
 	setupScales()
 	setupPopupVis()	
 	setupPopupFindVis()
 	setupEvents()
-	containerEl.classed('is-ready', true)
-
+	setupScroll()
 }
 
 export default { init }
