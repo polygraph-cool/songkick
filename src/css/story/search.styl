@@ -16,6 +16,9 @@ $popup-width = 360px
 	cursor pointer
 	position relative
 	padding-top 84px
+	pointer-events auto
+	&.is-disabled
+		pointer-events none
 	.band
 		color lighten($c1, 35)
 		line-height 1.5
@@ -54,7 +57,6 @@ $popup-width = 360px
 		background-color $c1
 		padding 0.75rem 0
 		position relative
-		// z-index set-index('top')
 		&:after
 			content ''
 			display block
@@ -107,6 +109,8 @@ $popup-width = 360px
 		border-radius 3px
 		border 1px solid $c2
 		padding 0.5em
+		position relative
+		z-index set-index('overlay')
 		&.is-visible
 			display block
 		li 
@@ -129,6 +133,7 @@ $popup-width = 360px
 	padding 10px
 	line-height 1.5
 	pointer-events none
+	position relative
 	.popup__name
 		font-weight bold
 		font-size 13px
@@ -155,6 +160,8 @@ $popup-width = 360px
 .find__popup
 	margin 0 auto
 	margin-top 4em
+	pointer-events auto
+	cursor pointer
 	&.is-visible
 		display block
 .popup__info
@@ -207,3 +214,18 @@ p.down-arrow
 	a 
 		cursor pointer
 		text-decoration none
+
+.popup__close
+	position absolute
+	top 0
+	right 0
+	padding 0.5em
+	opacity 0.7
+	&:hover
+		opacity 1
+		transition opacity 250ms
+		
+	svg 
+		fill $c1
+		width 16px
+		height 16px

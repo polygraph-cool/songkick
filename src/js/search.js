@@ -26,7 +26,7 @@ const popupFindNameEl = popupFindEl.select('.popup__name')
 const popupFindTextEl = popupFindEl.select('.popup__text')
 const popupFindShowsEl = popupFindEl.select('.popup__shows')
 const popupFindVisEl = popupFindEl.select('.popup__vis')
-const svgFind = popupFindEl.select('svg')
+const svgFind = popupFindVisEl.select('svg')
 
 const POPUP_WIDTH = 360
 const POPUP_MARGIN = 20
@@ -224,6 +224,7 @@ function updatePopupFind(d) {
 
 function handleSearch() {
 	popupFindEl.classed('is-visible', false)
+	visEl.classed('is-disabled', false)
 	const val = this.value.trim().toLowerCase()
 	if (val.length > 1) {
 		const re = new RegExp(`\\b${val}`)
@@ -254,6 +255,7 @@ function handleResult(d, i) {
 	resultsEl.html('')
 	findInputEl.node().value = ''
 	popupFindEl.classed('is-visible', true)
+	visEl.classed('is-disabled', true)
 }
 
 function setupScales() {
@@ -358,22 +360,14 @@ function setupScroll() {
 		.addTo(controller)
 }
 
-function scrollTo(e) {
-	e.preventDefault()
-	smoothScroll.animateScroll(
-		d3.select('#search').node(),
-		null,
-	    {
-	    	speed: 400,
-	    	easing: 'easeInOutCubic',
-	    	offset: 0,
-		}
-	)
-	return false
+function handleClosePopup() {
+	popupFindEl.classed('is-visible', false)
+	visEl.classed('is-disabled', false)
 }
 
 function setupEvents() {
 	findInputEl.on('keyup', handleSearch)
+	popupFindEl.on('click', handleClosePopup)
 }
 
 function init(data) {
