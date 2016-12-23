@@ -18,15 +18,15 @@ let stage
 const PI = Math.PI
 const TWO_PI = Math.PI * 2
 const INTRO_GRAFS = 3
+const NUM_SMALL_CONTAINERS = 10
+const BREAKPOINT = 768
 
-const debug = true
+const debug = false
 let nextPoint
 
 let chartSize = 0
-
 let numBoidsBig = 0
 let numBoidsSmall = 0
-
 let currentSceneIndex = 0
 
 let currentSceneId = null
@@ -54,16 +54,22 @@ let bigBandIds = []
 let notSmallList = []
 let smalls
 let otherContainer
-const NUM_SMALL_CONTAINERS = 10
+
 
 let rightOffset
+
+let mobile
+
 
 function setupDOM() {
 	const outerWidth = d3.select('body').node().offsetWidth
 	const total = d3.select('#made').node().offsetWidth
 	const prose = madeProseEl.node().offsetWidth
-	const w = total - prose
-	
+
+	mobile = outerWidth < BREAKPOINT
+
+	const w = mobile ? total : total - prose
+
 	chartSize = Math.floor(Math.min(window.innerHeight * 0.8, w))
 	
 	rightOffset = Math.floor((outerWidth - total) / 2)
@@ -285,9 +291,13 @@ function setupScroll() {
 	const triggerScenes = d3.selectAll('.made__prose .trigger').each(function(d, i) {
 		const el = this
 		const sel = d3.select(this)
+		const offset = mobile && sel.classed('band') ? 0.9 : 0.5
+		console.log(offset)
+		
 		const scene = new ScrollMagic.Scene({
 			triggerElement: el,
 			duration: el.offsetHeight,
+			offset,
 		})
 		
 		scene.on('enter', event => {
