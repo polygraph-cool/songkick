@@ -291,13 +291,12 @@ function setupScroll() {
 	const triggerScenes = d3.selectAll('.made__prose .trigger').each(function(d, i) {
 		const el = this
 		const sel = d3.select(this)
-		const offset = mobile && sel.classed('band') ? 0.9 : 0.5
-		console.log(offset)
+		const triggerHook = mobile && sel.classed('band') ? 0.95 : 0.5
 		
 		const scene = new ScrollMagic.Scene({
 			triggerElement: el,
 			duration: el.offsetHeight,
-			offset,
+			triggerHook,
 		})
 		
 		scene.on('enter', event => {

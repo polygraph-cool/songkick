@@ -37,21 +37,23 @@ $trigger-width = 20em
 		&.band
 			height auto
 			margin 0
-			opacity 0.2
+			opacity 0.05
 			transition opacity 250ms
 			pointer-events none
 			clearfix()
 			background-color rgba($c1, 0.8)
 			padding 2em 0
 			+mq('bp-made')
+				padding 0
+				opacity 0.2
 				margin-bottom 3em
 				background-color transparent
-				
+				&.is-focus
+					opacity 1
+					pointer-events auto		
 		&.band:last-child
 			margin-bottom 50vh
-		&.is-focus
-			opacity 1
-			pointer-events auto
+		
 
 $band-img-width = 64px
 .band__img 
