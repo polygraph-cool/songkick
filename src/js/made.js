@@ -17,7 +17,6 @@ let stage
 
 const PI = Math.PI
 const TWO_PI = Math.PI * 2
-const INTRO_GRAFS = 3
 const NUM_SMALL_CONTAINERS = 10
 const BREAKPOINT = 768
 
@@ -41,6 +40,8 @@ const madeProseEl = d3.select('.made__prose')
 const madeVisEl = d3.select('.made__vis')
 const chartEl = d3.select('.made__chart') 
 const bandTriggerEl = d3.selectAll('.trigger.band') 
+
+const INTRO_GRAFS = madeProseEl.selectAll('.lead').size()
 
 let boidsSmall = []
 let boidsBig = []

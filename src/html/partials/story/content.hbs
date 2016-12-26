@@ -13,8 +13,7 @@
 					<li class='list__date'>Date: {{date}}</li>
 					<li class='list__venue'>Venue: {{venue}}</li>
 				</ul>
-				{{else if video}}
-				 {{!-- <iframe class='youtube-embed' width='100%' height='198px' src='https://www.youtube.com/embed/zjabXPzwvWE?enablejsapi=1&amp;enablejsapi=true&amp;playsinline=1&autoplay=0controls=0&rel=0&showinfo=0&start=47' frameborder='0'></iframe> --}}
+				{{else if video}}			
 				 <iframe class='youtube-embed' width='100%' height='198px' src='https://www.youtube.com/embed/qftu7ZQieuw?enablejsapi=1&amp;enablejsapi=true&amp;playsinline=1&autoplay=0&controls=0&rel=0&showinfo=0&start=45' frameborder='0'></iframe>
 				{{else if list}}
 				<p>{{{text}}}</p>
@@ -36,10 +35,9 @@
 </div>
 
 <div class='bridge'>
-	<p>Celery quandong swiss chard chicory earthnut pea potato. Salsify taro catsear garlic gram celery bitterleaf wattle seed collard greens nori. Grape wattle seed kombu beetroot horseradish carrot squash brussels sprout chard.</p>
-	<p>
-	Beetroot water spinach okra water chestnut ricebean pea catsear courgette summer purslane. Water spinach arugula pea tatsoi aubergine spring onion bush tomato kale radicchio turnip chicory salsify pea sprouts fava bean. Dandelion zucchini burdock yarrow chickpea dandelion sorrel courgette turnip greens tigernut soybean radish artichoke wattle seed endive groundnut broccoli arugula.
-	</p>
+	{{#each copy.ascent}}
+	<p>{{{value}}}</p>
+	{{/each}}
 	<p>Bla bla bla shows they <span class='opener heavy'>opened</span> and shows they <span class='headliner heavy'>headlined</span>.</p>
 </div>
 
@@ -52,12 +50,11 @@
 </div>
 
 <div class='bridge'>
-	<p>Celery quandong swiss chard chicory earthnut pea potato. Salsify taro catsear garlic gram celery bitterleaf wattle seed collard greens nori. Grape wattle seed kombu beetroot horseradish carrot squash brussels sprout chard.</p>
-	<p>
-	Beetroot water spinach okra water chestnut ricebean pea catsear courgette summer purslane. Water spinach arugula pea tatsoi aubergine spring onion bush tomato kale radicchio turnip chicory salsify pea sprouts fava bean. Dandelion zucchini burdock yarrow chickpea dandelion sorrel courgette turnip greens tigernut soybean radish artichoke wattle seed endive groundnut broccoli arugula.
-	</p>
-	<p class='search__instruction tk-libre-franklin-700'>Explore more than 3,000 bands that headlined a small venue in 2013</p>
-	{{!-- <p class='down-arrow'><a class='jump-to-search' href='#search'>&darr;</a></p> --}}
+	{{#each copy.search}}
+	<p>{{{value}}}</p>
+	{{/each}}
+
+	{{!-- <p class='search__instruction tk-libre-franklin-700'>Explore more than 3,000 bands that headlined a small venue in 2013</p> --}}
 </div>
 
 <div id='search' class='tk-libre-franklin-400'>
@@ -108,8 +105,7 @@
 </div>
 
 <div class='bridge'>
-	<p>Celery quandong swiss chard chicory earthnut pea potato. Salsify taro catsear garlic gram celery bitterleaf wattle seed collard greens nori. Grape wattle seed kombu beetroot horseradish carrot squash brussels sprout chard.</p>
-	<p>
-	Beetroot water spinach okra water chestnut ricebean pea catsear courgette summer purslane. Water spinach arugula pea tatsoi aubergine spring onion bush tomato kale radicchio turnip chicory salsify pea sprouts fava bean. Dandelion zucchini burdock yarrow chickpea dandelion sorrel courgette turnip greens tigernut soybean radish artichoke wattle seed endive groundnut broccoli arugula.
-	</p>
+	{{#each copy.conclusion}}
+	<p>{{{value}}}</p>
+	{{/each}}	
 </div>
