@@ -84,12 +84,13 @@ const Boid = (opts) => {
 	let sizeTransitionRate
 
 	let minSize
+	let mobile
 
 	const getPathPoint = () => currentTargetVec
 
 	// SETTERS
 	const setSize = (s, transition) => {
-		if (transition) {
+		if (transition && !mobile) {
 			sizeTransitionState = true
 			sizeTransitionGoal = s
 			sizeTransitionRate = Math.abs((s - currentSize) * 0.05)
@@ -411,6 +412,7 @@ const Boid = (opts) => {
 		text = opts.text
 		data = opts.data
 		chartSize = opts.chartSize
+		mobile = opts.mobile
 		
 		isSpecial = data.name === 'Sylvan Esso'
 		isBig = data.tier === 2
@@ -420,7 +422,7 @@ const Boid = (opts) => {
 	  	
 	  	minSize = chartSize < 480 ? 1 : 2
 	  	minSize = isSpecial ? minSize * 2 : minSize
-	  	sizeMedium = opts.mobile ? 4 : 6
+	  	sizeMedium = mobile ? 4 : 6
 
 		// hide text
 		if (text) {

@@ -11,6 +11,8 @@ PIXI.utils.skipHello()
 import sceneData from './data-scenes'
 import ringData from './data-rings'
 
+let test = -1
+
 const texture = PIXI.Texture.fromImage('assets/circle-24.png')
 let renderer
 let stage
@@ -93,11 +95,11 @@ function setupDOM() {
 	// Create a container object called the `stage`
 	stage = new PIXI.Container()
 	
-	smalls = d3.range(NUM_SMALL_CONTAINERS).map(d => ({
-		container: new PIXI.Container(),
-		speed: d * 0.0002 + 0.001,
-	}))
-	smalls.forEach(d => stage.addChild(d.container))
+	// smalls = d3.range(NUM_SMALL_CONTAINERS).map(d => ({
+	// 	container: new PIXI.Container(),
+	// 	speed: d * 0.0002 + 0.001,
+	// }))
+	// smalls.forEach(d => stage.addChild(d.container))
 	
 	otherContainer = new PIXI.Container()
 	stage.addChild(otherContainer)
@@ -126,11 +128,10 @@ function setupHeightHack() {
 }
 
 function setAlpha(otherVal, smallVal) {
-	// console.log(otherVal, smallVal)
 	otherContainer.alpha = otherVal
-	smalls.forEach(d => {
-		d.container.alpha = smallVal
-	})
+	// smalls.forEach(d => {
+	// 	d.container.alpha = smallVal
+	// })
 }
 
 function setupText() {
@@ -399,7 +400,7 @@ function updateScene() {
 		setAlpha(1, 0.5)
 	}
 }
-	
+
 function render() {
 	let indexBig = numBoidsBig
 	while (indexBig--) {
@@ -408,10 +409,11 @@ function render() {
 	}
 
 	// rotate smalls
-	smalls.forEach(d => {
-		d.container.rotation += d.speed
-	})
-	
+	// smalls.forEach(d => {
+	// 	d.container.rotation += d.speed
+	// 	d.container.alpha = 0
+	// })
+	// smalls[test].container.alpha = 1
 	renderer.render(stage)
 	if (inView) requestAnimationFrame(render)
 }
@@ -438,12 +440,16 @@ function init(data, cb) {
 	setupText()
 	render()
 	setupBigBoids()
-	setupBoidsSmall()
+	// setupBoidsSmall()
 	setupScroll()
 	Audio.setup()
 
 	cb()
-	
+
+	// window.addEventListener('click', () =>  {
+	// 	test++
+	// 	if (test < NUM_SMALL_CONTAINERS) render()
+	// })
 }
 
 

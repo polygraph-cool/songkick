@@ -118,6 +118,7 @@ $band-img-width = 64px
 	margin 0 auto
 	top 50%
 	transform translateY(-50%)
+	
 	canvas
 		position absolute
 		top 0
@@ -137,7 +138,24 @@ $band-img-width = 64px
 		font-weight bold
 		fill lighten($c1, 30)
 		
+	.small
+		position absolute
+		top 7.5%
+		left 7.5%
+		width 85%
+		height 85%
+		opacity 0.6
+		background-position center center
+		background-size contain
+		animation-iteration-count infinite
+		animation-timing-function linear
+		animation-name rotate-circle
 	
+	for i in (1..10)
+		.small-{i}
+			background-image url('assets/small-' + i + '.png')
+			animation-duration 20s
+
 	.ring
 		opacity 1
 		transition opacity 500ms ease-in-out
@@ -168,4 +186,10 @@ $band-img-width = 64px
 	&.is-playing
 		svg
 			fill $c2
-		
+
+
+@keyframes rotate-circle
+	from
+		transform rotate(0deg)
+	to
+		transform rotate(360deg)

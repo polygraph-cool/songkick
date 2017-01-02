@@ -93,7 +93,7 @@ function preload() {
 	const inc = () => {
 		i++
 		if (i < sources.length) loadNext()
-		else console.log('preloaded audio')
+		// else console.log('preloaded audio')
 	}
 
 	const loadNext = () => {
