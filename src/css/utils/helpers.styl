@@ -120,3 +120,6 @@ set-index(layer)
 		return $z-index[layer]
 	else
 		error('Not a layer in z-index')
+
+random(min, max)
+	return math(math(0, 'random')*(max - min + 1) + min, 'floor')

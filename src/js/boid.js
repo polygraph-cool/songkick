@@ -152,6 +152,7 @@ const Boid = (opts) => {
 				}
 				break
 			default:
+				sprite.tint = TINT
 				if (isSpecial) {
 					sprite.tint = TINT_SPECIAL
 					sprite.alpha = 1
@@ -439,7 +440,7 @@ const Boid = (opts) => {
 			}
 		}
 
-		maxspeedOrig = Math.random() * 0.3 + 0.4
+		maxspeedOrig = Math.random() * (mobile ? 0.15 : 0.3) + 0.4
 
 		vec2.set(centerVec, halfSize, halfSize)
 

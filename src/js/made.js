@@ -42,6 +42,7 @@ const madeProseEl = d3.select('.made__prose')
 const madeVisEl = d3.select('.made__vis')
 const chartEl = d3.select('.made__chart') 
 const bandTriggerEl = d3.selectAll('.trigger.band') 
+const smallEl = d3.selectAll('.small')
 
 const INTRO_GRAFS = madeProseEl.selectAll('.lead').size()
 
@@ -328,10 +329,6 @@ function setupScroll() {
 				currentBandEl = sel
 			}
 
-			if (currentSceneId === 'big' || currentSceneId === 'remainder') bandTriggerEl.classed('is-focus', false)
-			// hack
-			// if (i > 3) setAlpha(0.75, 0.25)
-			// else setAlpha(1, 0.5)
 			updateScene()
 		})
 		.addTo(controller)
@@ -341,6 +338,15 @@ function setupScroll() {
 }
 
 function updateScene() {
+	// some random classing stuff
+	if (currentSceneId === 'big' || currentSceneId === 'remainder') bandTriggerEl.classed('is-focus', false)
+	if (currentSceneId === 'small' && mobile) madeVisEl.classed('is-visible', true)
+	if (currentSceneId === 'none' && mobile) madeVisEl.classed('is-visible', false)
+	
+	if (currentSceneId === 'medium') smallEl.classed('is-blur', true)
+	if (currentSceneId === 'small') smallEl.classed('is-blur', false)
+
+
 	// toggle text labels
 	const ring = d3.selectAll('.ring')
 	if (currentSceneId === 'explore') ring.classed('is-hidden', true)
