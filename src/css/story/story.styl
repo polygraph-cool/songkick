@@ -12,8 +12,10 @@ body
 	background $c1
 	color lighten($c1, 70)
 	line-height 1.8
-	font-size 17px
+	font-size 15px
 	overflow-x hidden	
+	+mq('bp-2')
+		font-size 17px
 a 
 	color $c2
 p 
@@ -39,7 +41,7 @@ p
 
 .outro
 	margin 2em auto
-	padding 1em 0 2em 0
+	padding 1em 0.75rem 2em 0.7rem
 	max-width 40rem
 	p
 		font-size 0.8em

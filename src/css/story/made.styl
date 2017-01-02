@@ -1,4 +1,4 @@
-$trigger-width = 20em
+$band-img-width = 64px
 
 #made
 	position relative
@@ -34,6 +34,8 @@ $trigger-width = 20em
 			height auto
 		&.big
 			height auto
+		&.remainder
+				// margin-top 50vh
 		&.band
 			height auto
 			margin 0
@@ -43,19 +45,16 @@ $trigger-width = 20em
 			clearfix()
 			background-color rgba($c1, 0.8)
 			padding 2em 0
+			&.is-focus
+				opacity 1
+				pointer-events auto
 			+mq('bp-made')
 				padding 0
 				opacity 0.2
 				margin-bottom 3em
 				background-color transparent
-				&.is-focus
-					opacity 1
-					pointer-events auto		
-		&.band:last-child
-			margin-bottom 50vh
-		
 
-$band-img-width = 64px
+
 .band__img 
 	width $band-img-width
 	height $band-img-width
@@ -79,6 +78,9 @@ $band-img-width = 64px
 	font-size 0.9em
 	
 .band__list-others
+	background-color rgba($c1, 0.8)
+	padding 0.5em
+	border-radius 3px
 	font-size 0.85em
 	li
 		font-weight 700

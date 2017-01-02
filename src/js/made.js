@@ -1,9 +1,9 @@
 import * as d3 from 'd3'
 import ScrollMagic from 'scrollmagic'
-// import howler from 'howler'
 import Boid from './boid'
 import loadImage from './utils/load-image'
 import * as $ from './utils/dom'
+import isMobile from './utils/is-mobile'
 import './utils/find-index'
 import Audio from './audio'
 PIXI.utils.skipHello()
@@ -55,10 +55,7 @@ let bigBandIds = []
 let notSmallList = []
 let smalls
 let otherContainer
-
-
 let rightOffset
-
 let mobile
 
 
@@ -67,12 +64,11 @@ function setupDOM() {
 	const total = d3.select('#made').node().offsetWidth
 	const prose = madeProseEl.node().offsetWidth
 
+
 	mobile = outerWidth < BREAKPOINT
 
 	const w = mobile ? total : total - prose
-
-	chartSize = Math.floor(Math.min(window.innerHeight * 0.8, w))
-	
+	chartSize = Math.floor(Math.min(window.innerHeight * 0.8, w))	
 	rightOffset = Math.floor((outerWidth - total) / 2)
 	
 	madeVisEl.style('width', `${w}px`)
@@ -80,7 +76,6 @@ function setupDOM() {
 	renderer = PIXI.autoDetectRenderer(chartSize, chartSize, { 
 		resolution: 2,
 		transparent: true,
-		// roundPixels: true,
 	})
 
 	chartEl
@@ -111,6 +106,23 @@ function setupDOM() {
 	// debug
 	// nextPoint = new PIXI.Graphics()
 	// stage.addChild(nextPoint)
+}
+
+function setupHeightHack() {
+	if (isMobile.any()) {
+		madeProseEl.selectAll('.trigger')
+			.style('height', 'auto')
+		
+		madeProseEl.selectAll('.trigger:not(.lead):not(.band):not(.big)')
+			.style('margin-bottom', `${window.innerHeight}px`)
+		
+		const numBands = bandTriggerEl.size()
+		bandTriggerEl.filter((d, i) => i === numBands - 1)
+			.style('margin-bottom', `${window.innerHeight / 2}px`)
+		
+		madeVisEl
+			.style('height', `${window.innerHeight}px`)
+	}
 }
 
 function setAlpha(otherVal, smallVal) {
@@ -192,6 +204,7 @@ function setupBigBoids() {
 			text,
 			ringData,
 			chartSize,
+			mobile,
 		}))
 
 		if (d.tier === 2) bigBandIndexes[`id-${d.id}`] = i
@@ -224,6 +237,7 @@ function setupBoidsSmall() {
 			text,
 			ringData,
 			chartSize,
+			mobile,
 		}))
 	})
 
@@ -292,7 +306,8 @@ function setupScroll() {
 	const triggerScenes = d3.selectAll('.made__prose .trigger').each(function(d, i) {
 		const el = this
 		const sel = d3.select(this)
-		const triggerHook = mobile && sel.classed('band') ? 0.95 : 0.5
+		let triggerHook = 0.5
+		if (mobile && sel.classed('band')) triggerHook = 0.05
 		
 		const scene = new ScrollMagic.Scene({
 			triggerElement: el,
@@ -313,7 +328,6 @@ function setupScroll() {
 			}
 
 			if (currentSceneId === 'big' || currentSceneId === 'remainder') bandTriggerEl.classed('is-focus', false)
-
 			// hack
 			// if (i > 3) setAlpha(0.75, 0.25)
 			// else setAlpha(1, 0.5)
@@ -420,6 +434,7 @@ function init(data, cb) {
 	
 
 	setupDOM()
+	setupHeightHack()
 	setupText()
 	render()
 	setupBigBoids()

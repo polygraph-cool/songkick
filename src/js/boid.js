@@ -36,18 +36,6 @@ vec2.limit = function(out, v, high) {
 	return out
 }
 
-// const diamondLookup = (() => {
-// 	return d3.range(360).map(i => {
-// 		const dia = i / 360 * 4
-// 		const dir = dia <= 2 ? 1 : -1
-// 		const ab = Math.abs(2 - dia)
-
-// 		return 180 - 180 * ab * dir
-// 	})
-// })()
-
-// console.log(diamondLookup)
-
 const Boid = (opts) => {
 	let locationVec = vec2.create()
 	let velocityVec = vec2.create()
@@ -71,6 +59,7 @@ const Boid = (opts) => {
 	let data
 
 	let sizeBig
+	let sizeMedium
 	let sizeExplore
 	let packBig
 	let packBigX
@@ -132,7 +121,7 @@ const Boid = (opts) => {
 				mode = 'default'
 				if (isMedium) {
 					currentPath = 1
-					setSize(6, true)
+					setSize(sizeMedium, true)
 					toggleText(false)
 					sprite.tint = TINT2
 					sprite.alpha = 0.65
@@ -431,6 +420,7 @@ const Boid = (opts) => {
 	  	
 	  	minSize = chartSize < 480 ? 1 : 2
 	  	minSize = isSpecial ? minSize * 2 : minSize
+	  	sizeMedium = opts.mobile ? 4 : 6
 
 		// hide text
 		if (text) {

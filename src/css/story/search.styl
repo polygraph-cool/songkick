@@ -5,6 +5,7 @@ $popup-width = 360px
 	position relative
 	margin-bottom 1em
 	transition opacity 500ms
+	min-height 320px
 
 .search__vis
 	transform translate3d(0px,0px,0px)
@@ -63,10 +64,9 @@ $popup-width = 360px
 			width 100%
 			position absolute
 			left 0
-			// z-index set-index('top')
 			bottom -2rem
 			height 2.5rem
-			background linear-gradient(to top,rgba(255,255,255,0),$c1 80%)
+			background-image linear-gradient(to top,rgba($c1,0),$c1 80%)
 		
 	.find__input 
 		display block

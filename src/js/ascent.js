@@ -20,8 +20,10 @@ let svg
 let chartW
 let chartH
 
+let mobile
 const MARGIN = { top: 48, bottom: 24, left: 24, right: 24 }
 const itemHeight = 56
+const BREAKPOINT = 768
 
 let currentHoverEl
 let firstHover = true
@@ -222,7 +224,8 @@ function setupChart() {
 	bandEnter.append('text')
 		.html((d, i) => {
 			const years = formatNumber(d.years_until_big)
-			const extra =  i === 0 ? 'from their first small show in NYC until they made it big' : ''
+			const desktop = mobile ? '' : 'from their first small show in NYC'
+			const extra =  i === 0 ? `${desktop} until they made it big` : ''
 			return `${d.name} <tspan dx='5'>${years} years ${extra}</tspan>`
 		})
 		// .attr('transform', d => `translate(${scale.x(d.shows[0].date_parsed)}, 0)`)
@@ -267,13 +270,17 @@ function setupChart() {
 	currentHoverEl = chart.select('.show__made')
 	currentHoverEl.classed('is-visible', true)
 
-	chart.select('.band__show').classed('is-visible', true)
+	if (!mobile) chart.select('.band__show').classed('is-visible', true)
 
 }
 
 function init(data) {
 	history = data.history
 	venues = data.venues
+	
+	const outerWidth = d3.select('body').node().offsetWidth
+	mobile = outerWidth < BREAKPOINT
+
 	addVenueDetails()
 	setupChart()
 }

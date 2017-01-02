@@ -1,7 +1,7 @@
 import * as d3 from 'd3'
 import ScrollMagic from 'scrollmagic'
+import isMobile from './utils/is-mobile'
 // import smoothScroll from 'smooth-scroll'
-// import isMobile from './utils/is-mobile'
 
 let venues
 let bands
@@ -46,9 +46,8 @@ let scale = {}
 let chartWidth
 let chartHeight
 
-let viewportHeight = window.innerHeight
-let viewportWidth = d3.select('body').node().offsetWidth
-const mobile = viewportWidth < 800
+let mobile
+const BREAKPOINT = 768
 
 
 const parseDate = d3.timeParse('%Y-%m-%d')
@@ -272,24 +271,23 @@ function setupChart() {
 	chartWidth = ((POPUP_WIDTH - POPUP_MARGIN - 10) * 0.6) - MARGIN.left - MARGIN.right
 	chartHeight = MAX_RADIUS * 2 - MARGIN.top
 
-	const band = visEl.selectAll('.band')
+	if (!mobile && !isMobile.any()) {
+		const band = visEl.selectAll('.band')
 
-	const bandEnter = band.data(bands)
-		.enter()
+		const bandEnter = band.data(bands)
+			.enter()
 
-	bandEnter.append('li')
-		.attr('class', 'band')
-		.text(d => d.name)
-		.classed('alphabet', d => d.first_letter)
-		.on('mouseenter', updatePopup)
+		bandEnter.append('li')
+			.attr('class', 'band')
+			.text(d => d.name)
+			.classed('alphabet', d => d.first_letter)
+			.on('mouseenter', updatePopup)
 
-	visEl.on('mouseleave', () => {
-		popupEl.classed('is-visible', false)
-	})
-
-	// searchLaunchEl.on('mouseenter', () => {
-	// 	popupEl.classed('is-visible', false)
-	// })
+		visEl.on('mouseleave', () => {
+			popupEl.classed('is-visible', false)
+		})	
+	}
+	
 }
 
 function setupPopupVis() {
@@ -337,27 +335,30 @@ function setupPopupFindVis() {
 }
 
 function setupScroll() {
-	const visHeight = visEl.node().offsetHeight
+	if (!mobile && !isMobile.any()) {
+		const visHeight = visEl.node().offsetHeight
 	
-	containerEl.style('height', `${visHeight}px`)
-	
-	const controller = new ScrollMagic.Controller()
-	
-	const scene = new ScrollMagic.Scene({
-		triggerElement: '#search',
-		triggerHook: 0,
-		duration: visHeight - window.innerHeight / 2,
-	})
-	
-	scene
-		.on('enter', event => {
-			findEl.classed('is-fixed', true)
+		containerEl.style('height', `${visHeight}px`)
+		
+		const controller = new ScrollMagic.Controller()
+		
+		const scene = new ScrollMagic.Scene({
+			triggerElement: '#search',
+			triggerHook: 0,
+			duration: visHeight - window.innerHeight / 2,
+		})
+		
+		scene
+			.on('enter', event => {
+				findEl.classed('is-fixed', true)
 
-		})
-		.on('leave', event => {
-			findEl.classed('is-fixed', false)
-		})
-		.addTo(controller)
+			})
+			.on('leave', event => {
+				findEl.classed('is-fixed', false)
+			})
+			.addTo(controller)
+	}
+	
 }
 
 function handleClosePopup() {
@@ -373,6 +374,9 @@ function setupEvents() {
 function init(data) {
 	venues = data.venues
 	bands = data.bands
+
+	const outerWidth = d3.select('body').node().offsetWidth
+	mobile = outerWidth < BREAKPOINT
 
 	addAlphabet()	
 	setupChart()
