@@ -31,8 +31,6 @@
     "json-loader": "^0.5.4",
     "request": "^2.76.0",
     "require-dir": "^0.3.0",
-    "rollup": "^0.36.1",
-    "rollup-plugin-node-resolve": "^2.0.0",
     "run-sequence": "^1.2.2",
     "webpack": "^1.13.1",
     "webpack-stream": "^3.2.0"
@@ -42,15 +40,11 @@
     "d3-svg-legend": "^2.19.0",
     "fontfaceobserver": "^2.0.5",
     "gl-matrix-vec2": "^2.2.1-npm",
-    "howler": "^2.0.2",
     "lodash.clonedeep": "^4.5.0",
     "lodash.debounce": "^4.0.8",
     "pixi.js": "^4.1.1",
     "promis": "^1.1.4",
     "scrollmagic": "^2.0.5",
-    "smooth-scroll": "github:cferdinandi/smooth-scroll",
-    "two.js": "^0.6.0",
-    "victor": "^1.1.0",
-    "waud.js": "^0.8.0"
+    "smooth-scroll": "github:cferdinandi/smooth-scroll"
   }
 }

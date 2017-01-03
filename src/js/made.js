@@ -3,7 +3,6 @@ import ScrollMagic from 'scrollmagic'
 import Boid from './boid'
 import loadImage from './utils/load-image'
 import * as $ from './utils/dom'
-import isMobile from './utils/is-mobile'
 import './utils/find-index'
 import Audio from './audio'
 PIXI.utils.skipHello()
@@ -61,37 +60,84 @@ let otherContainer
 let rightOffset
 let mobile
 
+let mobileDevice = d3.select('html').classed('is-mobile')
 
-function setupDOM() {
+
+
+function resize() {
 	const outerWidth = d3.select('body').node().offsetWidth
 	const total = d3.select('#made').node().offsetWidth
 	const prose = madeProseEl.node().offsetWidth
-
-
+	
 	mobile = outerWidth < BREAKPOINT
 
 	const w = mobile ? total : total - prose
-	chartSize = Math.floor(Math.min(window.innerHeight * 0.8, w))	
+
+	chartSize = Math.floor(Math.min(window.innerHeight * 0.8, w))
 	rightOffset = Math.floor((outerWidth - total) / 2)
 	
 	madeVisEl.style('width', `${w}px`)
+
+	chartEl
+		.style('width', `${chartSize}px`)
+		.style('height', `${chartSize}px`)
+	
+	if (renderer) {
+		renderer.resize(chartSize, chartSize)
+		renderer.view.style.width = `${chartSize}px`
+		renderer.view.style.height = `${chartSize}px`
+	}
+
+	mobileHeightHack()
+	resizeText()
+	resizeBoids()
+}
+
+function resizeText() {
+	const svg = chartEl.select('svg')
+
+	svg
+		.attr('width', `${chartSize}px`)
+		.attr('height', `${chartSize}px`)
+	
+	const CHART_TEXT_SIZE = 12
+	
+	const outerRadius = chartSize / 2
+	const startY = chartSize / 2
+	const endY = startY
+
+	const arc = d3.arc()
+		.startAngle(Math.PI)
+		.endAngle(Math.PI * 3)
+
+	const ring = svg.selectAll('.ring').data(ringData)
+
+	ring.selectAll('path')
+		.attr('transform', `translate(${outerRadius}, ${outerRadius})`)
+		.attr('d', d => arc({ innerRadius: 0, outerRadius: outerRadius * d.factor + CHART_TEXT_SIZE }))
+
+	ring.selectAll('text')
+		.attr('transform', `translate(0,-${CHART_TEXT_SIZE * 0.25})`)
+}
+
+function resizeBoids() {
+	boidsBig.forEach(d => d.resize(chartSize, mobile))
+}
+
+function setupDOM() {
 	
 	renderer = PIXI.autoDetectRenderer(chartSize, chartSize, { 
 		resolution: 2,
 		transparent: true,
 	})
+	renderer.view.style.width = `${chartSize}px`
+	renderer.view.style.height = `${chartSize}px`
 
-	chartEl
-		.style('width', `${chartSize}px`)
-		.style('height', `${chartSize}px`)
 	//Add the canvas to the HTML document
 	chartEl.node().appendChild(renderer.view)
 
 	//add svg
 	chartEl.append('svg')
-
-	renderer.view.style.width = `${chartSize}px`
-	renderer.view.style.height = `${chartSize}px`
 
 	// Create a container object called the `stage`
 	stage = new PIXI.Container()
@@ -111,8 +157,8 @@ function setupDOM() {
 	// stage.addChild(nextPoint)
 }
 
-function setupHeightHack() {
-	if (isMobile.any()) {
+function mobileHeightHack() {
+	if (mobileDevice) {
 		madeProseEl.selectAll('.trigger')
 			.style('height', 'auto')
 		
@@ -137,41 +183,26 @@ function setAlpha(otherVal, smallVal) {
 
 function setupText() {
 	const svg = chartEl.select('svg')
-	//Create the SVG
-	svg
-		.attr('width', chartSize)
-		.attr('height', chartSize)
 	
-	const TEXT_chartSize = 12
-	
-	const outerRadius = chartSize / 2
-	const startY = chartSize / 2
-	const endY = startY
-
-	const arc = d3.arc()
-		.startAngle(Math.PI)
-		.endAngle(Math.PI * 3)
-
 	const ring = svg.selectAll('.ring').data(ringData)
 
 	const ringEnter = ring.enter()
 		.append('g')
-			.attr('class', (d, i) => `ring ring-${i} ring-${d.term}`)
-			.classed('is-hidden', (d, i) => true)
+			.attr('class', (d, i) => `ring ring-${i} ring-${d.term} is-hidden`)
 
 	ringEnter.append('path')
 		.attr('id', (d, i) => `text-${i}`)
-		.attr('transform', `translate(${outerRadius}, ${outerRadius})`)
-		.attr('d', d => arc({ innerRadius: 0, outerRadius: outerRadius * d.factor + TEXT_chartSize }))
 
 	ringEnter.append('text')
 		.style('text-anchor','middle')
-		.attr('transform', `translate(0,-${TEXT_chartSize * 0.25})`)
 	  .append('textPath')
 		.attr('xlink:href', (d, i) => `#text-${i}`)
 		.attr('startOffset', '50%')
 		.text(d => `${d.capacity}`)
+
+	resizeText()
 }
+
 
 function setupImages() {
 	d3.selectAll('.trigger.band').each(function() {
@@ -440,9 +471,8 @@ function init(data, cb) {
 	bands.push(special[0])
 
 	
-
+	resize()
 	setupDOM()
-	setupHeightHack()
 	setupText()
 	render()
 	setupBigBoids()
@@ -459,4 +489,4 @@ function init(data, cb) {
 }
 
 
-export default { init }
+export default { init, resize }

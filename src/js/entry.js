@@ -2,32 +2,32 @@ import debounce from 'lodash.debounce'
 import * as $ from './utils/dom'
 import isMobile from './utils/is-mobile'
 import graphic from './graphic'
-import loadImage from './utils/load-image'
 
 const dev = window.location.hostname.indexOf('localhost') > -1
-const containerEl = $.select('.container')
+const bodyEl = $.select('body')
 let previousWidth = 0
 
-const logVersion = () => {
+function logVersion() {
 	const el = $.select('html')
 	const v = el.getAttribute('data-version') 
 	console.log(`version: ${v.slice(5, v.length)}`)
 }
 
-const addMobileClass = () => {
+function addMobileClass() {
 	const el = $.select('html')
 	if (isMobile.any()) $.addClass(el, 'is-mobile')
 }
 
-const handleResize = () => {
-	const width = containerEl.offsetWidth
+function handleResize() {
+	const width = bodyEl.offsetWidth
 	if (previousWidth !== width) {
 		// resize here
 		previousWidth = width
+		graphic.resize()
 	}
 }
 
-const init = () => {
+function init() {
 	logVersion()
 	addMobileClass()
 	window.addEventListener('resize', debounce(handleResize, 150))

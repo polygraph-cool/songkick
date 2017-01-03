@@ -4,7 +4,7 @@ import made from './made'
 import search from './search'
 import ascent from './ascent'
 
-const init = () => {
+function init() {
 	// console.time('fetch data')
 	fetchData((err, data) => {
 		// console.timeEnd('fetch data')
@@ -21,5 +21,9 @@ const init = () => {
 	})
 }
 
-export default { init }
+function resize() {
+	made.resize()
+}
+
+export default { init, resize }
 

@@ -85,6 +85,7 @@ const Boid = (opts) => {
 
 	let minSize
 	let mobile
+	let ringData
 
 	const getPathPoint = () => currentTargetVec
 
@@ -220,13 +221,7 @@ const Boid = (opts) => {
 		else return (x < 0 ? 2-y/(-x-y) : 3+x/(x-y))
 	}
 
-	const createPaths = (ringData, chartSize) => {
-		// TODO create lookup table
-		// const tempScale = d3.scaleQuantile().domain([-PI, PI]).range(d3.range(-NUM_PATH_POINTS / 2, NUM_PATH_POINTS / 2, 1))
-
-		// pathScale = d3.scaleQuantile().domain([-PI, PI]).range(d3.range(-NUM_PATH_POINTS / 2, NUM_PATH_POINTS / 2, 1))
-		// console.log(pathScale.range())
-
+	const createPaths = () => {
 		paths = []
 
 		ringData.forEach((datum, i) => {
@@ -250,6 +245,32 @@ const Boid = (opts) => {
 			})
 		})
 
+	}
+
+	const resetLocation = () => {
+		const halfSize = chartSize / 2
+		// hard code hard news
+	 	const diff = (ringData[0].factor - ringData[1].factor) / 2
+		const factor = Math.random() * diff + ringData[1].factor + diff
+		const ranPathPoint = Math.random() * NUM_PATH_POINTS
+		// console.log(diff, factor, ranPathPoint)
+
+		const angle = ranPathPoint / NUM_PATH_POINTS * 360
+		const rad = toRadians(angle)
+		const x = Math.cos(rad) * halfSize * factor
+		const y = Math.sin(rad) * halfSize * factor
+		
+		if (isMedium) vec2.set(locationVec, x + halfSize , y + halfSize)
+		else vec2.set(locationVec, x, y)
+
+
+		if (isBig) {
+			packBig = [sizeBig * data.bX, sizeBig * data.bY, sizeBig / 2]
+			packBigX = centerVec[0] + packBig[0] - packBig[2]
+			packBigY = centerVec[1] + packBig[1] - packBig[2]	
+			// sprite.interactive = true
+			// sprite.on('mousedown', () => console.log(data.name))
+		}
 	}
 
 	const setCurrent = (tX, tY) => {
@@ -407,6 +428,15 @@ const Boid = (opts) => {
 		return steerVec
 	} 
 
+	const resize = (newSize) => {
+		chartSize = newSize
+		minSize = chartSize < 480 ? 1 : 2
+	  	minSize = isSpecial ? minSize * 2 : minSize
+	  	sizeBig = isBig ? ringData[2].factor * chartSize : null
+	  	createPaths()
+	  	resetLocation()
+	}
+
 	const init = () => {
 		container = opts.container
 		sprite = opts.sprite
@@ -414,6 +444,7 @@ const Boid = (opts) => {
 		data = opts.data
 		chartSize = opts.chartSize
 		mobile = opts.mobile
+		ringData = opts.ringData
 		
 		isSpecial = data.name === 'Sylvan Esso'
 		isBig = data.tier === 2
@@ -444,33 +475,13 @@ const Boid = (opts) => {
 
 		vec2.set(centerVec, halfSize, halfSize)
 
-		sizeBig = data.bR ? opts.ringData[2].factor * chartSize : null
-
-		if (isBig) {
-			packBig = [sizeBig * data.bX, sizeBig * data.bY, sizeBig / 2]
-			packBigX = centerVec[0] + packBig[0] - packBig[2]
-			packBigY = centerVec[1] + packBig[1] - packBig[2]	
-			// sprite.interactive = true
-			// sprite.on('mousedown', () => console.log(data.name))
-		}
+		sizeBig = isBig ? ringData[2].factor * chartSize : null
 
 		vec2.set(velocityVec, 0, 0)
 
-		createPaths(opts.ringData, opts.chartSize)
+		createPaths()
 
-		// hard code hard news
-	 	const diff = (opts.ringData[0].factor - opts.ringData[1].factor) / 2
-		const factor = Math.random() * diff + opts.ringData[1].factor + diff
-		const ranPathPoint = Math.random() * NUM_PATH_POINTS
-		// console.log(diff, factor, ranPathPoint)
-
-		const angle = ranPathPoint / NUM_PATH_POINTS * 360
-		const rad = toRadians(angle)
-		const x = Math.cos(rad) * halfSize * factor
-		const y = Math.sin(rad) * halfSize * factor
-		
-		if (isMedium) vec2.set(locationVec, x + halfSize , y + halfSize)
-		else vec2.set(locationVec, x, y)
+		resetLocation()
 		
 		sprite.tint = TINT
 		sprite.alpha = isMedium ? MED_ALPHA : SMALL_ALPHA
@@ -492,7 +503,7 @@ const Boid = (opts) => {
 			enterBig,
 			exitBig,
 			toggleText,
-			
+			resize,
 		}
 	}
 

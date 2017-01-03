@@ -1,6 +1,5 @@
 import * as d3 from 'd3'
 import ScrollMagic from 'scrollmagic'
-import isMobile from './utils/is-mobile'
 // import smoothScroll from 'smooth-scroll'
 
 let venues
@@ -47,6 +46,7 @@ let chartWidth
 let chartHeight
 
 let mobile
+let mobileDevice = d3.select('html').classed('is-mobile')
 const BREAKPOINT = 768
 
 
@@ -271,7 +271,7 @@ function setupChart() {
 	chartWidth = ((POPUP_WIDTH - POPUP_MARGIN - 10) * 0.6) - MARGIN.left - MARGIN.right
 	chartHeight = MAX_RADIUS * 2 - MARGIN.top
 
-	if (!mobile && !isMobile.any()) {
+	if (!mobile && !mobileDevice) {
 		const band = visEl.selectAll('.band')
 
 		const bandEnter = band.data(bands)
@@ -335,7 +335,7 @@ function setupPopupFindVis() {
 }
 
 function setupScroll() {
-	if (!mobile && !isMobile.any()) {
+	if (!mobile && !mobileDevice) {
 		const visHeight = visEl.node().offsetHeight
 	
 		containerEl.style('height', `${visHeight}px`)
