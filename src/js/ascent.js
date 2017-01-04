@@ -203,9 +203,7 @@ function setupChart() {
 			.attr('r', itemHeight / 2 - (maxRadius))
 			.attr('fill', d => `url(#pattern${d.id})`)
 
-	const bandGraph = bandEnter.append('g').attr('class', '.band__graph')
-
-	bandGraph.attr('transform', `translate(${itemHeight / 1.5},0)`)
+	const bandGraph = bandEnter.append('g').attr('class', 'band__graph')
 
 	bandGraph.append('rect')
 		.style('opacity', 0)
@@ -283,7 +281,16 @@ function resize() {
 		.attr('width', chartW + MARGIN.left + MARGIN.right)
 		.attr('height', chartH + MARGIN.top + MARGIN.bottom)
 	
-	scale.x.range([0, chartW - itemHeight / 1.5])
+	const graphOffset = mobile ? 0 : itemHeight / 1.5
+
+	scale.x.range([0, chartW - graphOffset])
+
+	const bandGraph = chart.selectAll('.band__graph')
+	const bandImg = chart.selectAll('.band__img')
+	
+	bandImg.classed('is-hidden', mobile)
+	bandGraph.attr('transform', `translate(${graphOffset},0)`)
+		
 
 	const band = chart.selectAll('.band')
 
