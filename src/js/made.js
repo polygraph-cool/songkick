@@ -70,10 +70,16 @@ function resize() {
 	mobile = outerWidth < BREAKPOINT
 
 	const w = mobile ? total : total - prose
-
+	const maxSize = 640
 	chartSize = Math.floor(Math.min(window.innerHeight * 0.8, w))
+	chartSize = Math.min(maxSize, chartSize)
 	rightOffset = Math.floor((outerWidth - total) / 2)
 	
+	let annotationOffset = Math.max(0, 150 - (w - chartSize) / 2) + 'px'
+	if (outerWidth < 1180) annotationOffset = '50%'
+
+	annotationEl.style('right', `${annotationOffset}`)
+
 	madeVisEl.style('width', `${w}px`)
 	if (madeVisEl.classed('is-fixed')) madeVisEl.style('right', `${rightOffset}px`)
 

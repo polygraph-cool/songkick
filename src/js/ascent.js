@@ -92,10 +92,6 @@ function addVenueDetails() {
 }
 
 function createLegend() {
-	// legend
-	const legendGroup = svg.append('g')
-		.attr('class', 'legend__size')
-	
 	const legend = legendSize()
 		.scale(scale.size)
 		.shape('circle')
@@ -104,6 +100,8 @@ function createLegend() {
 		.title('Venue capacity')
 		.orient('horizontal')
 		.labels(['Small', '', '', '', 'Big'])
+
+	const legendGroup = svg.select('.legend__size')
 
 	legendGroup.call(legend)
 
@@ -161,45 +159,31 @@ function setupChart() {
 	const dateMax = d3.max(history, d => d.shows[d.shows.length - 1].date_parsed)
 	
 
-	chartW = visEl.node().offsetWidth - MARGIN.left - MARGIN.right
-	chartH = itemHeight * (history.length + 2) - MARGIN.top - MARGIN.bottom
-	
-	scale.x = d3.scaleLinear().domain([0, yearsMax]).range([0, chartW])
+	scale.x = d3.scaleLinear().domain([0, yearsMax])
 	// scale.x = d3.scaleTime().domain([dateMin, dateMax]).range([0, chartW])
 
 	// size scale
+	const sizeDomain = [200, 500, 1000, 3000] 
 	const maxRadius = itemHeight / 6
 	const minRadius = 3
 	const step = (maxRadius - minRadius) / 5
-	const sizeDomain = [200, 500, 1000, 3000] 
 	const sizeRange = d3.range(minRadius, maxRadius, step)
 	
 	scale.size = d3.scaleThreshold().domain(sizeDomain).range(sizeRange)
-
 
 	// create line function
 	line = d3.line()
 		.x(d => scale.x(d))
 		.y(d => 0)
 
-
-	
 	svg = visEl.append('svg')
 
-	svg
-		.attr('width', chartW + MARGIN.left + MARGIN.right)
-		.attr('height', chartH + MARGIN.top + MARGIN.bottom)
+	svg.append('g')
+		.attr('class', 'legend__size')
 
-	
-
-	createLegend()
-
-	
-	
 	chart = svg.append('g')
 	
 	chart.attr('transform', `translate(${MARGIN.left},${MARGIN.top})`)
-
 
 	const band = chart.selectAll('.band')
 
@@ -213,7 +197,6 @@ function setupChart() {
 		.classed('interaction', true)
 		.attr('x', 0)
 		.attr('y', -itemHeight / 4)
-		.attr('width', d => scale.x(d.years_until_big))
 		// .attr('width', d => scale.x(d.shows[d.shows.length - 1].date_parsed))
 		.attr('height', itemHeight / 2)
 		.on('mousemove', handleMouse)
@@ -229,11 +212,10 @@ function setupChart() {
 			return `${d.name} <tspan dx='5'>${years} years ${extra}</tspan>`
 		})
 		// .attr('transform', d => `translate(${scale.x(d.shows[0].date_parsed)}, 0)`)
-		.attr('y', -scale.size(3000) - 3)
+		.attr('y', -scale.size(3000) - 5)
 		
 	bandEnter.append('path')
 		.attr('class', 'band__path')
-		.attr('d', d => line([0, d.years_until_big]))
 		// .attr('d', d => line([d.shows[0].date_parsed, d.shows[d.shows.length - 1].date_parsed]))
 
 
@@ -241,7 +223,6 @@ function setupChart() {
 		.enter()
 			.append('g')
 			.attr('class', d => `band__show billing-${d.opener ? 'opener' : 'headline'}`)
-			.attr('transform', d => `translate(${scale.x(d.years_since_start)}, 0)`)
 			// .attr('transform', d => `translate(${scale.x(d.date_parsed)}, 0)`)
 			.classed('show__made', d => d.made)
 		
@@ -258,7 +239,7 @@ function setupChart() {
 		.attr('alignment-baseline', 'hanging')
 		.attr('y', itemHeight / 4)
 		.attr('text-anchor', d => {
-			return d.years_since_start > 2.3 ? 'end' : 'start'
+			return d.years_since_start > 2.6 ? 'end' : 'start'
 		})
 		.html((d, i) => {
 			const date = formatDate(d.date_parsed)
@@ -270,20 +251,48 @@ function setupChart() {
 	currentHoverEl = chart.select('.show__made')
 	currentHoverEl.classed('is-visible', true)
 
+	// first time hack
+	const outerWidth = d3.select('body').node().offsetWidth
+	mobile = outerWidth < BREAKPOINT
 	if (!mobile) chart.select('.band__show').classed('is-visible', true)
+}
 
+function resize() {
+	const outerWidth = d3.select('body').node().offsetWidth
+	mobile = outerWidth < BREAKPOINT
+
+	chartW = visEl.node().offsetWidth - MARGIN.left - MARGIN.right
+	chartH = itemHeight * (history.length + 2) - MARGIN.top - MARGIN.bottom
+
+	svg
+		.attr('width', chartW + MARGIN.left + MARGIN.right)
+		.attr('height', chartH + MARGIN.top + MARGIN.bottom)
+	
+	scale.x.range([0, chartW])
+
+	const band = chart.selectAll('.band')
+
+	band.selectAll('.interaction')
+		.attr('width', d => scale.x(d.years_until_big))
+
+	band.selectAll('.band__path')
+		.attr('d', d => line([0, d.years_until_big]))
+
+	band.selectAll('.band__show')
+		.attr('transform', d => `translate(${scale.x(d.years_since_start)}, 0)`)
+
+	createLegend()
 }
 
 function init(data) {
 	history = data.history
 	venues = data.venues
 	
-	const outerWidth = d3.select('body').node().offsetWidth
-	mobile = outerWidth < BREAKPOINT
-
 	addVenueDetails()
 	setupChart()
+	resize()
+	
 }
 
-export default { init }
+export default { init, resize }
 
