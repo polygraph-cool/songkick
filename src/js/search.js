@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import ScrollMagic from 'scrollmagic'
-// import smoothScroll from 'smooth-scroll'
+import smoothScroll from 'smooth-scroll'
 
 let venues
 let bands
@@ -44,6 +44,8 @@ let showsFindEl
 let scale = {}
 let chartWidth
 let chartHeight
+
+let prevSelected
 
 let mobile
 let mobileDevice = d3.select('html').classed('is-mobile')
@@ -160,6 +162,8 @@ function updatePopup(d) {
 			const capacity = d.capacity ? formatNumber(d.capacity) : 'N/A'
 			return `${d.name} <span>(${capacity})</span>`
 		})
+
+	if (prevSelected) prevSelected.classed('is-selected', false)
 }
 
 function updatePopupFind(d) {
@@ -255,7 +259,30 @@ function handleResult(d, i) {
 	findInputEl.node().value = ''
 	popupFindEl.classed('is-visible', true)
 	visEl.classed('is-disabled', true)
+	
+	const id = `#sb-${d.id}`
+	if (prevSelected) prevSelected.classed('is-selected', false)
+	
+	prevSelected = visEl.select(id)
+	prevSelected.classed('is-selected', true)
+
+	if (!mobile && !mobileDevice) scrollTo(id)
 }
+
+function scrollTo(el) {
+	smoothScroll.animateScroll(
+		d3.select(el).node(),
+		null,
+	    {
+	    	speed: 500, // Integer. How fast to complete the scroll in milliseconds
+	    	easing: 'easeInOutCubic', // Easing pattern to use
+	    	offset: 75, // Integer. How far to offset the scrolling anchor location in pixels
+	    	callback: function ( anchor, toggle ) {} // Function to run after scrolling
+		}
+	)
+	return false
+}
+
 
 function setupScales() {
 	const step = (MAX_RADIUS - MIN_RADIUS) / 5
@@ -279,6 +306,7 @@ function setupChart() {
 
 		bandEnter.append('li')
 			.attr('class', 'band')
+			.attr('id', d => `sb-${d.id}`)
 			.text(d => d.name)
 			.classed('alphabet', d => d.first_letter)
 			.on('mouseenter', updatePopup)
