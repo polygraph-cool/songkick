@@ -70,12 +70,18 @@ function loadHistory(cb) {
 	})
 }
 
+function loadMade(cb) {
+	d3.csv('assets/data/web_made.csv', cb)
+}
+
+
 
 function init(cb) {
 	d3.queue()
 		.defer(loadVenues)
     	.defer(loadData)
     	.defer(loadHistory)
+    	.defer(loadMade)
     	.awaitAll(cb)
 }
 

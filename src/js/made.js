@@ -75,10 +75,10 @@ function resize() {
 	chartSize = Math.min(maxSize, chartSize)
 	rightOffset = Math.floor((outerWidth - total) / 2)
 	
-	let annotationOffset = Math.max(0, 150 - (w - chartSize) / 2) + 'px'
+	let annotationOffset = (w - chartSize) / 2 + chartSize - (chartSize * 0.04) + 'px'
 	if (outerWidth < 1180) annotationOffset = '50%'
 
-	annotationEl.style('right', `${annotationOffset}`)
+	annotationEl.style('left', `${annotationOffset}`)
 
 	madeVisEl.style('width', `${w}px`)
 	if (madeVisEl.classed('is-fixed')) madeVisEl.style('right', `${rightOffset}px`)

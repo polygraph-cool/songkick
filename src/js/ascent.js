@@ -6,6 +6,7 @@ import { legendSize } from 'd3-svg-legend'
 
 let history
 let venues
+let made
 
 const visEl = d3.select('.ascent__vis')
 
@@ -22,7 +23,7 @@ let chartH
 
 let mobile
 const MARGIN = { top: 48, bottom: 24, left: 24, right: 24 }
-const itemHeight = 56
+const itemHeight = 64
 const BREAKPOINT = 768
 
 let currentHoverEl
@@ -164,7 +165,7 @@ function setupChart() {
 
 	// size scale
 	const sizeDomain = [200, 500, 1000, 3000] 
-	const maxRadius = itemHeight / 6
+	const maxRadius = itemHeight / 7
 	const minRadius = 3
 	const step = (maxRadius - minRadius) / 5
 	const sizeRange = d3.range(minRadius, maxRadius, step)
@@ -177,6 +178,8 @@ function setupChart() {
 		.y(d => 0)
 
 	svg = visEl.append('svg')
+
+	setupImages()
 
 	svg.append('g')
 		.attr('class', 'legend__size')
@@ -192,7 +195,19 @@ function setupChart() {
 	.append('g').attr('class', 'band')
 		.attr('transform', (d, i) => `translate(0,${(i + 1) * itemHeight})`)
 
-	bandEnter.append('rect')
+	bandEnter.append('g')
+		.attr('class', 'band__img')
+		.append('circle')
+			.attr('cx', 0)
+			.attr('cy', 0)
+			.attr('r', itemHeight / 2 - (maxRadius))
+			.attr('fill', d => `url(#pattern${d.id})`)
+
+	const bandGraph = bandEnter.append('g').attr('class', '.band__graph')
+
+	bandGraph.attr('transform', `translate(${itemHeight / 1.5},0)`)
+
+	bandGraph.append('rect')
 		.style('opacity', 0)
 		.classed('interaction', true)
 		.attr('x', 0)
@@ -204,7 +219,7 @@ function setupChart() {
 			if (currentHoverEl) currentHoverEl.classed('is-visible', false)
 		})
 
-	bandEnter.append('text')
+	bandGraph.append('text')
 		.html((d, i) => {
 			const years = formatNumber(d.years_until_big)
 			const desktop = mobile ? '' : 'from their first small show in NYC'
@@ -214,12 +229,12 @@ function setupChart() {
 		// .attr('transform', d => `translate(${scale.x(d.shows[0].date_parsed)}, 0)`)
 		.attr('y', -scale.size(3000) - 5)
 		
-	bandEnter.append('path')
+	bandGraph.append('path')
 		.attr('class', 'band__path')
 		// .attr('d', d => line([d.shows[0].date_parsed, d.shows[d.shows.length - 1].date_parsed]))
 
 
-	const showEnter = bandEnter.selectAll('.band__show').data(d => d.shows)
+	const showEnter = bandGraph.selectAll('.band__show').data(d => d.shows)
 		.enter()
 			.append('g')
 			.attr('class', d => `band__show billing-${d.opener ? 'opener' : 'headline'}`)
@@ -268,7 +283,7 @@ function resize() {
 		.attr('width', chartW + MARGIN.left + MARGIN.right)
 		.attr('height', chartH + MARGIN.top + MARGIN.bottom)
 	
-	scale.x.range([0, chartW])
+	scale.x.range([0, chartW - itemHeight / 1.5])
 
 	const band = chart.selectAll('.band')
 
@@ -284,9 +299,29 @@ function resize() {
 	createLegend()
 }
 
+function setupImages() {
+	const defs = svg.append('defs')
+	const pattern = defs.selectAll('pattern').data(made)
+		.enter()
+		.append('pattern')
+			.attr('id', d => `pattern${d.id}`)
+			.attr('width', '100%')
+			.attr('height', '100%')
+			.attr('patternContentsUnit', 'objectBoundingBox')
+			.attr('viewBox', '0 0 1 1')
+			.attr('preserveAspectRatio', 'xMidYMid slice')
+
+	pattern.append('image')
+		.attr('width', '1')
+		.attr('height', '1')
+		.attr('preserveAspectRatio', 'xMidYMid slice')
+		.attr('xlink:href', d => `${d.img}`)
+}
+
 function init(data) {
 	history = data.history
 	venues = data.venues
+	made = data.made
 	
 	addVenueDetails()
 	setupChart()

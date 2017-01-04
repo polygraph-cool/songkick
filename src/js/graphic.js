@@ -11,10 +11,11 @@ function init() {
 		const venues = data[0]
 		const bands = data[1]
 		const history = data[2]
+		const madeIt = data[3]
 
 		made.init({ venues, bands: clonedeep(bands) }, () => {
 			search.init({ venues, bands: clonedeep(bands) })
-			ascent.init({ venues, history })
+			ascent.init({ venues, history, made: madeIt })
 		})
 		
 		
