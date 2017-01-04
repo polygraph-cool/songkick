@@ -21,9 +21,6 @@ const TWO_PI = Math.PI * 2
 const NUM_SMALL_CONTAINERS = 10
 const BREAKPOINT = 768
 
-const debug = false
-let nextPoint
-
 let chartSize = 0
 let numBoidsBig = 0
 let numBoidsSmall = 0
@@ -42,6 +39,7 @@ const madeVisEl = d3.select('.made__vis')
 const chartEl = d3.select('.made__chart') 
 const bandTriggerEl = d3.selectAll('.trigger.band') 
 const smallEl = d3.selectAll('.small')
+const annotationEl = d3.select('.made__annotation')
 
 const INTRO_GRAFS = madeProseEl.selectAll('.lead').size()
 
@@ -77,6 +75,7 @@ function resize() {
 	rightOffset = Math.floor((outerWidth - total) / 2)
 	
 	madeVisEl.style('width', `${w}px`)
+	if (madeVisEl.classed('is-fixed')) madeVisEl.style('right', `${rightOffset}px`)
 
 	chartEl
 		.style('width', `${chartSize}px`)
@@ -125,7 +124,7 @@ function resizeBoids() {
 }
 
 function setupDOM() {
-	
+	annotationEl.classed('is-hidden', false)
 	renderer = PIXI.autoDetectRenderer(chartSize, chartSize, { 
 		resolution: 2,
 		transparent: true,
@@ -152,9 +151,6 @@ function setupDOM() {
 	stage.addChild(otherContainer)
 		
 	setAlpha(1, 0.5)
-	// debug
-	// nextPoint = new PIXI.Graphics()
-	// stage.addChild(nextPoint)
 }
 
 function mobileHeightHack() {
@@ -375,7 +371,11 @@ function updateScene() {
 	if (currentSceneId === 'none' && mobile) madeVisEl.classed('is-visible', false)
 	
 	if (currentSceneId === 'medium') smallEl.classed('is-blur', true)
-	if (currentSceneId === 'small') smallEl.classed('is-blur', false)
+	if (currentSceneId === 'small') {
+		smallEl.classed('is-blur', false)
+		annotationEl.classed('is-hidden', true)
+	}
+	if (currentSceneId === 'none') annotationEl.classed('is-hidden', false)
 
 
 	// toggle text labels
@@ -442,7 +442,7 @@ function render() {
 	let indexBig = numBoidsBig
 	while (indexBig--) {
 		boidsBig[indexBig].applyBehaviors()
-		boidsBig[indexBig].update()	
+		boidsBig[indexBig].update()
 	}
 
 	// rotate smalls

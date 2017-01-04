@@ -263,6 +263,9 @@ const Boid = (opts) => {
 		if (isMedium) vec2.set(locationVec, x + halfSize , y + halfSize)
 		else vec2.set(locationVec, x, y)
 
+		vec2.set(accelerationVec, 0, 0)
+		vec2.set(velocityVec, 0, 0)
+		vec2.set(centerVec, halfSize, halfSize)
 
 		if (isBig) {
 			packBig = [sizeBig * data.bX, sizeBig * data.bY, sizeBig / 2]
@@ -383,30 +386,6 @@ const Boid = (opts) => {
 		let scaleVec = vec2.create()
 		let desiredVec = vec2.create()	
 		let steerVec = vec2.create()
-		
-		// let dist
-		// const seekDist = () => {
-		// 	dist = vec2.dist(locationVec, currentTargetVec)
-		// 	// slowdown
-		// 	const s = dist < currentSize * 3 ? dist / 20 : maxspeed
-		// 	vec2.set(scaleVec, s, s)
-		// }
-
-		// const seekDesired = () => vec2.sub(desiredVec, currentTargetVec, locationVec)
-
-		// const seekNormalized = () => vec2.normalize(desiredVec, desiredVec)
-
-		// const seekMultiply = () => vec2.multiply(desiredVec, desiredVec, scaleVec)
-
-		// const seekSub = () => vec2.sub(steerVec, desiredVec, velocityVec)
-
-		//  // vec2.limit(steerVec, steerVec, tempForce)
-
-		//  seekDist()
-		//  seekDesired()
-		//  seekNormalized()
-		//  seekMultiply()
-		//  seekSub()
 
 		let dist = vec2.dist(locationVec, currentTargetVec)
 		
@@ -428,13 +407,17 @@ const Boid = (opts) => {
 		return steerVec
 	} 
 
-	const resize = (newSize) => {
+	const resize = (newSize, m) => {
+		mobile = m
 		chartSize = newSize
 		minSize = chartSize < 480 ? 1 : 2
 	  	minSize = isSpecial ? minSize * 2 : minSize
+	  	sizeMedium = mobile ? 4 : 6
 	  	sizeBig = isBig ? ringData[2].factor * chartSize : null
+	  	maxspeedOrig = Math.random() * (mobile ? 0.15 : 0.3) + 0.4
 	  	createPaths()
 	  	resetLocation()
+
 	}
 
 	const init = () => {
@@ -450,12 +433,6 @@ const Boid = (opts) => {
 		isBig = data.tier === 2
 		isMedium = data.tier > 0
 
-		const halfSize = chartSize / 2
-	  	
-	  	minSize = chartSize < 480 ? 1 : 2
-	  	minSize = isSpecial ? minSize * 2 : minSize
-	  	sizeMedium = mobile ? 4 : 6
-
 		// hide text
 		if (text) {
 			text.anchor.set(0.5, 1.25)
@@ -464,24 +441,13 @@ const Boid = (opts) => {
 				align: 'center',
 				fontFamily: 'Helvetica',
 				fontSize: '11px',
-				// fontWeight: 'bold',
 				fill: '#efefef',
 				stroke: '#333',
 				strokeThickness: 2,
 			}
 		}
-
-		maxspeedOrig = Math.random() * (mobile ? 0.15 : 0.3) + 0.4
-
-		vec2.set(centerVec, halfSize, halfSize)
-
-		sizeBig = isBig ? ringData[2].factor * chartSize : null
-
-		vec2.set(velocityVec, 0, 0)
-
-		createPaths()
-
-		resetLocation()
+		
+		resize(chartSize, mobile)
 		
 		sprite.tint = TINT
 		sprite.alpha = isMedium ? MED_ALPHA : SMALL_ALPHA

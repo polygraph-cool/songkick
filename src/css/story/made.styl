@@ -105,6 +105,7 @@ $band-img-width = 64px
 	background-color $c1
 	opacity 0
 	transition 300ms opacity ease-in-out
+
 	+mq('bp-made')
 		opacity 1
 	&.is-visible 
@@ -201,3 +202,33 @@ $band-img-width = 64px
 		transform rotate(0deg)
 	to
 		transform rotate(360deg)
+
+.made__annotation
+	font-size 12px
+	max-width 8rem
+	line-height 1.4
+	position absolute
+	top 50%
+	right 50%
+	transform translate(50%, -50%)
+	text-align center
+	opacity 1
+	transition opacity 250ms
+	+mq('bp-annotation')
+		right 0
+		transform translate(0%, -50%)
+		text-align left
+	p 
+		margin 0
+	&:before
+		content '\2190'
+		display inline-block
+		position absolute
+		top 0
+		left 0
+		transform translateX(-150%)
+		display none
+		+mq('bp-annotation')
+			display block
+	&.is-hidden
+		opacity 0
