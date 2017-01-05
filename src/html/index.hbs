@@ -1,13 +1,14 @@
 <!doctype html>
-<html lang='en' data-version='{{timestamp}}'>
+<html lang='en' data-version='{{timestamp}}' class=''>
 <head>
 	{{> base/meta}}
 	
-	<!-- smoosh -->
 	<link rel='stylesheet' href='bundle.css' />
 	<!-- endsmoosh -->
 	
-	{{> base/font}}
+
+	<!-- smoosh -->
+	{{> base/font-subset}}
 	
 	<!-- smoosh -->
 	<script src='critical.js'></script>
@@ -15,7 +16,8 @@
 
 	{{!-- {{> base/analytics }} --}}
 </head>
-<body class='tk-bitter-400'>
+
+<body class='tk-mercury tk-mercury-subset'>
 	{{!-- <video src='assets/test2.mp4' preload style='width: auto;'></video>
 	<canvas id="canvas-test" width="480" height="408"></canvas> --}}
 	{{> base/header }}

@@ -1,19 +1,29 @@
-$libre = 'Libre Franklin'
-$libre-hash = 'libre-franklin'
-$bitter = 'Bitter'
-$bitter-hash = 'bitter'
-fontify($libre, $libre-hash, 400, $sans)
-fontify($libre, $libre-hash, 700, $sans)
-fontify($libre, $libre-hash, 900, $sans)
-fontify($bitter, $bitter-hash, 400, $serif)
-fontify($bitter, $bitter-hash, 700, $serif)
+$mercury = 'Mercury SSm A', 'Mercury SSm B'
+$mercury-hash = 'mercury'
+$mercury-subset = 'Mercury SSm subset A', 'Mercury SSm subset B'
+$mercury-subset-hash = 'mercury-subset'
+
+$whitney = 'Whitney SSm A', 'Whitney SSm B'
+$whitney-hash = 'whitney'
+$whitney-subset = 'Whitney SSm subset A', 'Whitney SSm subset B'
+$whitney-subset-hash = 'whitney-subset'
+
+fontify($whitney-subset, $whitney-subset-hash, $sans)
+fontify($whitney, $whitney-hash, $sans)
+
+fontify($mercury-subset, $mercury-subset-hash, $serif)
+fontify($mercury, $mercury-hash, $serif)
+
 			
 body
 	background $c1
 	color lighten($c1, 70)
 	line-height 1.8
 	font-size 15px
-	overflow-x hidden	
+	overflow-x hidden
+	font-weight 400
+	// &.tk-mercury-ssm-a-400
+	// 	font-weight 500
 	+mq('bp-2')
 		font-size 17px
 a 

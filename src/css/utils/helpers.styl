@@ -1,8 +1,9 @@
-fontify(font, hash, weight, fallback)
-	.tk-{hash}-{weight}
+fontify(font, hash, fallback)
+	.tk-{hash}
 		font-family fallback
-		font-weight weight
-		.loaded-{hash}-{weight} & 
+		// font-weight weight
+		.loaded-{hash} & 
+		// .loaded-fonts &
 			font-family font, fallback
 			
 // -------------------
