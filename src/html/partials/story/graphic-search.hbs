@@ -1,0 +1,51 @@
+<div id='search' class='tk-libre-franklin-400'>
+	<ul class='search__vis'></ul>
+	<div class='search__popup popup'>
+		<p class='popup__name'></p>
+		<div class='popup__info'>
+			<div class='left'>
+				<p class='popup__text'></p>
+				<div class='popup__vis'><svg></svg></div>
+			</div>
+			<div class='right'>
+				<p class='popup__recent'>Recent shows</p>
+				<ul class='popup__shows'></ul>
+			</div>
+		</div>
+	</div>
+
+	<div class='search__find'>
+		<div class='find__container'>
+			<div class='find__input'>
+				<input placeholder='Find a band or venue' type='text' class='tk-libre-franklin-400'>
+				<div class='find__icon'>
+					@@include('misc/search.svg')
+				</div>
+			</div>
+		</div>
+		<ul class='find__results'></ul>
+		<div class='find__popup popup'>
+			<div class='popup__close'>
+				@@include('misc/close.svg')
+			</div>
+			<p class='popup__name'></p>
+			<div class='popup__info'>
+				<div class='left'>
+					<p class='popup__text'></p>
+					<div class='popup__vis'><svg></svg></div>
+				</div>
+				<div class='right'>
+					<p class='popup__recent'>Recent shows</p>
+					<ul class='popup__shows'></ul>
+				</div>
+			</div>
+		</div>	
+	</div>
+	<div class='search__venue'>
+		<ul class='venue__info'>
+			<li class='venue__info-name'></li>
+			<li class='venue__info-capacity'></li>
+		</ul>
+		@@include('misc/close.svg')
+	</div>
+</div>
