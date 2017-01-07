@@ -4,6 +4,7 @@ import smoothScroll from 'smooth-scroll'
 import './utils/find'
 
 let venues
+let venuesWhitelist
 let bands
 let bandSel
 
@@ -119,6 +120,7 @@ function updatePopup(d) {
 	// find show capacities
 	const data = d.shows.map(show => {
 		const venue = getVenue(show.venue)
+
 		return {
 			capacity: venue.capacity,
 			name: venue.venue,
@@ -242,7 +244,7 @@ function handleSearch() {
 		const bandResults = bands.filter(d => d.name.toLowerCase().match(re))
 			.slice(0, 5)
 		
-		const venueResults = venues.filter(d => d.venue.toLowerCase().match(re))
+		const venueResults = venuesWhitelist.filter(d => d.venue.toLowerCase().match(re))
 			.slice(0, 3)
 
 		const results = bandResults.concat(venueResults)
@@ -428,7 +430,7 @@ function handleClosePopup() {
 }
 
 function handleCloseVenue() {
-	venueEl.classed('is-visble', false)
+	venueEl.classed('is-visible', false)
 	bandSel
 		.classed('is-venue', false)
 		.classed('is-not-venue', false)
@@ -442,7 +444,8 @@ function setupEvents() {
 }
 
 function init(data) {
-	venues = data.venues.filter(v => blacklist.indexOf(v.id) === -1)
+	venues = data.venues
+	venuesWhitelist = venues.filter(v => blacklist.indexOf(v.id) === -1)
 	bands = data.bands
 	const outerWidth = d3.select('body').node().offsetWidth
 	mobile = outerWidth < BREAKPOINT
