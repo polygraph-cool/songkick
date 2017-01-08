@@ -247,7 +247,10 @@ function handleSearch() {
 		const venueResults = venuesWhitelist.filter(d => d.venue.toLowerCase().match(re))
 			.slice(0, 3)
 
-		const results = bandResults.concat(venueResults)
+		let results
+		if (!mobile && !mobileDevice)  results = bandResults
+		else results = bandResults.concat(venueResults)
+		
 		if (!results.length) results.push({ name: 'No matches', empty: true })
 		const li = resultsEl.selectAll('li').data(results)
 
