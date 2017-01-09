@@ -479,11 +479,11 @@ function init(data, cb) {
 	
 	resize()
 	setupDOM()
-	setupText()
 	render()
 	setupBigBoids()
 	// setupBoidsSmall()
 	setupScroll()
+	setupText()
 	Audio.setup()
 
 	cb()

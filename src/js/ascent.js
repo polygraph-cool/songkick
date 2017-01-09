@@ -82,12 +82,12 @@ function addVenueDetails() {
 		})
 
 		band.shows[band.shows.length - 1].made = true
-
 	})
 
 	history = history.filter(d => d.shows.length)
 
 	history.sort((a, b) => d3.descending(a.days_until_big, b.days_until_big))
+
 	// history.sort((a,b) => d3.ascending(a.shows[a.shows.length - 1].date_parsed, b.shows[b.shows.length - 1].date_parsed))
 }
 
@@ -129,7 +129,9 @@ function handleMouse(d, i) {
 	const index = d3.scan(d.shows, (a, b) => {
 		const diffA = Math.abs(a.years_since_start - time)
 		const diffB = Math.abs(b.years_since_start - time)
-		return diffA - diffB
+		const diff = diffA - diffB
+		if (diff === 0) return b.capacity - a.capacity
+		else return diff
 	})
 	
 	const selection = d3.select(this.parentNode).selectAll('.band__show')
@@ -243,7 +245,7 @@ function setupChart() {
 		.attr('cx', 0)
 		.attr('cy', 0)
 		.attr('r', d => scale.size(d.capacity))
-	
+
 	const infoEnter = showEnter.append('g')
 		.attr('class', 'band__info')
 	
@@ -331,8 +333,7 @@ function init(data) {
 	
 	addVenueDetails()
 	setupChart()
-	resize()
-	
+	resize()	
 }
 
 export default { init, resize }
