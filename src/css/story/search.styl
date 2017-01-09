@@ -29,17 +29,30 @@ $popup-width = 360px
 		margin 0
 		display inline-block
 		float left
+		opacity 1
 		&.is-selected 
 			opacity 1
 			background-color $off-white
 			color $c1
+		&.is-not-venue
+			opacity 0.2
+		&.is-venue
+			opacity 1
+			color white
+			&:after 
+				background-color $c1
+				opacity 0.2
 		&:hover
 			opacity 1
 			background-color $off-white
 			color $c1
+			&:after 
+				opacity 1
+				background-color $c1
+				color $c1
 		&:after
 			content '\2022'
-			display inline block
+			display inline-block
 			padding 0 2px
 			color lighten($c1, 20)
 	.alphabet
@@ -78,7 +91,7 @@ $popup-width = 360px
 		display block
 		max-width 20rem
 		margin 0 auto
-		border-bottom 1px solid $c2
+		border-bottom 1px solid white
 		position relative
 		input 
 			background none
@@ -86,7 +99,7 @@ $popup-width = 360px
 			border none
 			outline none
 			font-size 1em
-			color $c2
+			color white
 
 	.find__icon
 		position absolute
@@ -105,7 +118,7 @@ $popup-width = 360px
 		svg 
 			width 20px
 			height 26px
-			fill $c2
+			fill white
 			
 	.find__results
 		display none
@@ -113,8 +126,7 @@ $popup-width = 360px
 		margin 1em auto
 		background-color rgba($c1, 0.65)
 		border-radius 3px
-		border 1px solid $c2
-		padding 0.5em
+		border 1px solid white
 		position relative
 		z-index set-index('overlay')
 		&.is-visible
@@ -122,8 +134,20 @@ $popup-width = 360px
 		li 
 			cursor pointer
 			font-size 0.9em
-			&:hover 
-				font-weight 700
+			padding 0.35em 0.5em
+			line-height 1.4
+			width 100%
+			&.result-band
+				color $c2
+				&:hover 
+					color $c1
+					background-color $c2
+			&.result-venue
+				color $c3-light
+				&:hover
+					color $c1
+					background-color $c3-light
+			
 
 	
 	
@@ -235,3 +259,37 @@ p.down-arrow
 		fill $c1
 		width 16px
 		height 16px
+
+.search__venue 
+	position fixed
+	bottom 1em
+	right 1em
+	z-index set-index('overlay')
+	background-color white
+	color $c1
+	border-radius 3px
+	box-shadow 0 0 3px $c1
+	cursor pointer
+	display none
+	&.is-visible
+		display block
+	svg 
+		width 12px
+		height 16px
+		fill $c1
+		position absolute
+		top 0.25rem
+		right 0.25rem
+		pointer-events none
+	ul 
+		padding 0.25rem 0.5rem
+		padding-right 36px
+	li 
+		font-size 0.9em
+		line-height 1.6
+		&.venue__info-name
+			font-weight bold
+		&.venue__info-capacity
+			text-transform uppercase
+			font-size 0.75em
+		

@@ -39,7 +39,6 @@ function addVenueDetails() {
 		// TODO not all venues are there
 		const shows = band.shows.filter(show => !isNaN(show.venue)).map(show => {
 			const venue = getVenue(show.venue)
-			
 			return {
 				...show,
 				capacity: venue.capacity,

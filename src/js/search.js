@@ -1,10 +1,14 @@
 import * as d3 from 'd3'
 import ScrollMagic from 'scrollmagic'
 import smoothScroll from 'smooth-scroll'
+import './utils/find'
 
 let venues
+let venuesWhitelist
 let bands
+let bandSel
 
+const blacklist = ['6','19','27','64','75','88','119','180','190','197','228','238','241','242','251','254','255','256','262','265','266','269','278','282','284','286','287','292','293','294','295','303','304','306','310','315','316','317','326','346','347','351','356','358','362','363','366','367','368','369','370','372','376','377','378','379','382','383','384','385','388','391','393','394','395','396','397','398','399','400','401','402','403','405','406','407','408','411','412','413','414','415','417','418','419','420','421','422','423','425','426','427','428','429','431','432','433','434','435','436','437','438','439','440','441','442','443','444','445','446']
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('').reverse()
 const containerEl = d3.select('#search')
 const visEl = containerEl.select('.search__vis')
@@ -25,6 +29,10 @@ const popupFindNameEl = popupFindEl.select('.popup__name')
 const popupFindTextEl = popupFindEl.select('.popup__text')
 const popupFindShowsEl = popupFindEl.select('.popup__shows')
 const popupFindVisEl = popupFindEl.select('.popup__vis')
+
+const venueEl = containerEl.select('.search__venue')
+const venueNameEl = venueEl.select('.venue__info-name')
+const venueCapacityEl = venueEl.select('.venue__info-capacity')
 const svgFind = popupFindVisEl.select('svg')
 
 const POPUP_WIDTH = 360
@@ -112,6 +120,7 @@ function updatePopup(d) {
 	// find show capacities
 	const data = d.shows.map(show => {
 		const venue = getVenue(show.venue)
+
 		return {
 			capacity: venue.capacity,
 			name: venue.venue,
@@ -231,15 +240,24 @@ function handleSearch() {
 	const val = this.value.trim().toLowerCase()
 	if (val.length > 1) {
 		const re = new RegExp(`\\b${val}`)
-		let results = bands.filter(d => d.name.toLowerCase().match(re))
+		
+		const bandResults = bands.filter(d => d.name.toLowerCase().match(re))
 			.slice(0, 5)
+		
+		const venueResults = venuesWhitelist.filter(d => d.venue.toLowerCase().match(re))
+			.slice(0, 3)
+
+		let results
+		if (!mobile && !mobileDevice)  results = bandResults
+		else results = bandResults.concat(venueResults)
 		
 		if (!results.length) results.push({ name: 'No matches', empty: true })
 		const li = resultsEl.selectAll('li').data(results)
 
 		li.enter().append('li')
 			.merge(li)
-			.text(d => d.name)
+			.attr('class', d => d.name ? 'result-band' : 'result-venue')
+			.text(d => d.name ? d.name : d.venue)
 			.on('click', d => {
 				if(!d.empty) handleResult(d)
 			})
@@ -253,20 +271,38 @@ function handleSearch() {
 }
 
 function handleResult(d, i) {
-	updatePopupFind(d)
+	if (d.name) {
+		handleCloseVenue()
+		updatePopupFind(d)
+		popupFindEl.classed('is-visible', true)
+		visEl.classed('is-disabled', true)
+		
+		const id = `#sb-${d.id}`
+		if (prevSelected) prevSelected.classed('is-selected', false)
+		
+		prevSelected = visEl.select(id)
+		prevSelected.classed('is-selected', true)
+
+		if (!mobile && !mobileDevice) scrollTo(id)	
+	} else {
+		handleClosePopup()
+		filterVenues(d)
+	}
+	findInputEl.node().value = ''
 	resultsEl.classed('is-visible', false)
 	resultsEl.html('')
-	findInputEl.node().value = ''
-	popupFindEl.classed('is-visible', true)
-	visEl.classed('is-disabled', true)
-	
-	const id = `#sb-${d.id}`
-	if (prevSelected) prevSelected.classed('is-selected', false)
-	
-	prevSelected = visEl.select(id)
-	prevSelected.classed('is-selected', true)
+}
 
-	if (!mobile && !mobileDevice) scrollTo(id)
+function filterVenues(d) {
+	const { venue, capacity, id } = d
+	bandSel
+		.classed('is-not-venue', true)
+		.classed('is-venue', b => b.shows.find(s => s.venue === id))
+
+	const formatted = capacity ? formatCapacity(capacity) : 'N/A'
+	venueNameEl.text(venue)
+	venueCapacityEl.text(`Capacity: ${formatted}`)
+	venueEl.classed('is-visible', true)
 }
 
 function scrollTo(el) {
@@ -299,17 +335,19 @@ function setupChart() {
 	chartHeight = MAX_RADIUS * 2 - MARGIN.top
 
 	if (!mobile && !mobileDevice) {
-		const band = visEl.selectAll('.band')
+		bandSel = visEl.selectAll('.band')
+			.data(bands)
 
-		const bandEnter = band.data(bands)
-			.enter()
-
-		bandEnter.append('li')
+		const bandEnter = bandSel.enter().append('li')
+		
+		bandEnter
 			.attr('class', 'band')
 			.attr('id', d => `sb-${d.id}`)
-			.text(d => d.name)
+			.html(d => `&nbsp;${d.name}&nbsp;`)
 			.classed('alphabet', d => d.first_letter)
 			.on('mouseenter', updatePopup)
+
+		bandSel = bandSel.merge(bandEnter)
 
 		visEl.on('mouseleave', () => {
 			popupEl.classed('is-visible', false)
@@ -394,15 +432,24 @@ function handleClosePopup() {
 	visEl.classed('is-disabled', false)
 }
 
+function handleCloseVenue() {
+	venueEl.classed('is-visible', false)
+	bandSel
+		.classed('is-venue', false)
+		.classed('is-not-venue', false)
+
+}
+
 function setupEvents() {
 	findInputEl.on('keyup', handleSearch)
 	popupFindEl.on('click', handleClosePopup)
+	venueEl.on('click', handleCloseVenue)
 }
 
 function init(data) {
 	venues = data.venues
+	venuesWhitelist = venues.filter(v => blacklist.indexOf(v.id) === -1)
 	bands = data.bands
-
 	const outerWidth = d3.select('body').node().offsetWidth
 	mobile = outerWidth < BREAKPOINT
 
@@ -413,6 +460,17 @@ function init(data) {
 	setupPopupFindVis()
 	setupEvents()
 	setupScroll()
+
+
+	// const filtered = venues.filter(v => {
+	// 	return !bands.filter(b => {
+	// 		return b.shows.find(s => s.venue === v.id)
+	// 	}).length
+	// })
+
+	// console.log(filtered.map(f => `'${f.id}'`).join(','))
+	// const csvOut = d3.csvFormat(filtered)
+	// console.log(csvOut)
 }
 
 export default { init }
