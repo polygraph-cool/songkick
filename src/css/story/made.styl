@@ -61,6 +61,9 @@ $band-img-width = 64px
 	background-position center center
 	background-repeat no-repeat
 	float left
+	// box-shadow inset 0 0 0px 3px $c1
+	border 1px solid $c3
+	
 
 .band__list
 	padding-left $band-img-width * 1.2
@@ -142,7 +145,8 @@ $band-img-width = 64px
 		text-transform uppercase
 		font-size 12px
 		font-weight bold
-		fill lighten($c1, 30)
+		// fill lighten($c1, 30)
+		fill $c3
 		
 	.small
 		position absolute
@@ -170,7 +174,8 @@ $band-img-width = 64px
 		transition opacity 500ms ease-in-out
 		path 
 			fill none
-			stroke lighten($c1, 30)
+			// stroke lighten($c1, 30)
+			stroke $c3
 			
 			stroke-dasharray 4 4
 		&.is-hidden
@@ -188,7 +193,7 @@ $band-img-width = 64px
 		opacity 1
 	
 	svg 
-		fill white
+		fill $c2
 		height 12px
 		width 15px
 		
