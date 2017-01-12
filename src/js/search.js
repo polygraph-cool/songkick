@@ -248,8 +248,8 @@ function handleSearch() {
 			.slice(0, 3)
 
 		let results
-		if (!mobile && !mobileDevice)  results = bandResults
-		else results = bandResults.concat(venueResults)
+		if (!mobile && !mobileDevice) results = bandResults.concat(venueResults)
+		else results = bandResults
 		
 		if (!results.length) results.push({ name: 'No matches', empty: true })
 		const li = resultsEl.selectAll('li').data(results)
