@@ -74,17 +74,23 @@ function getVenue(id) {
 }
 
 function addAlphabet() {
-	for (let i = 0; i < bands.length; i++) {
-		const band = bands[i]
-		const first = band.name.charAt(0)
+	const positions = []
+	bands.forEach((band, i) => {
+		if (alphabet.length) {
+			const first = band.name.charAt(0)
 
-		const letter = alphabet[alphabet.length - 1]
+			const letter = alphabet[alphabet.length - 1]
 
-		if (first.match(/[a-zA-Z]/) && first.toLowerCase() === letter) {
-			band.first_letter = alphabet.pop()
-			if (!alphabet.length) break
+			if (first.match(/[a-zA-Z]/) && first.toLowerCase() === letter) {
+				positions.push({letter: alphabet.pop(), index: i })
+			}
 		}
-	}
+	})
+
+	positions.forEach((position, i) => {
+		const { letter, index } = position
+		bands.splice(index + i, 0, { id: `letter-${letter}`, letter, name: letter })
+	})
 }
 
 function grammarize(num, text) {
@@ -98,6 +104,8 @@ function grammarize(num, text) {
 }
 
 function updatePopup(d) {
+	if (d.letter) return null
+
 	const bb = this.getBoundingClientRect()
 	const { top, right, left, bottom, width, height } = bb
 
@@ -344,7 +352,7 @@ function setupChart() {
 			.attr('class', 'band')
 			.attr('id', d => `sb-${d.id}`)
 			.html(d => `&nbsp;${d.name}&nbsp;`)
-			.classed('alphabet', d => d.first_letter)
+			.classed('alphabet', d => d.letter)
 			.on('mouseenter', updatePopup)
 
 		bandSel = bandSel.merge(bandEnter)

@@ -57,8 +57,8 @@ $popup-width = 360px
 			color lighten($c1, 20)
 	.alphabet
 		color $c2
-		&::first-letter		
-			font-weight bold
+		font-weight bold
+		text-transform uppercase
 					
 .search__find
 	opacity 1
@@ -108,7 +108,7 @@ $popup-width = 360px
 		display block
 		vertical-align middle
 		margin 0
-		cursor pointer
+		pointer-events none
 		opacity 0.7
 		transition opacity 0.25s
 		width 20px
