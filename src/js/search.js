@@ -10,7 +10,7 @@ let bandSel
 
 const blacklist = ['6','19','27','64','75','88','119','180','190','197','228','238','241','242','251','254','255','256','262','265','266','269','278','282','284','286','287','292','293','294','295','303','304','306','310','315','316','317','326','346','347','351','356','358','362','363','366','367','368','369','370','372','376','377','378','379','382','383','384','385','388','391','393','394','395','396','397','398','399','400','401','402','403','405','406','407','408','411','412','413','414','415','417','418','419','420','421','422','423','425','426','427','428','429','431','432','433','434','435','436','437','438','439','440','441','442','443','444','445','446']
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('').reverse()
-const containerEl = d3.select('#search')
+const containerEl = d3.select('.search__graphic')
 const visEl = containerEl.select('.search__vis')
 const popupEl = containerEl.select('.search__popup')
 const popupNameEl = popupEl.select('.popup__name')
@@ -417,7 +417,7 @@ function setupScroll() {
 		const controller = new ScrollMagic.Controller()
 		
 		const scene = new ScrollMagic.Scene({
-			triggerElement: '#search',
+			triggerElement: '.search__graphic',
 			triggerHook: 0,
 			duration: visHeight - window.innerHeight / 2,
 		})

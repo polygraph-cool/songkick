@@ -20,11 +20,9 @@ $band-img-width = 64px
 		margin 0 auto
 		p 
 			margin 1.5rem 0
-			background-color rgba($c1, 0.8)
+			// background-color rgba($c1, 0.8)
 			padding 0.5em
-			// border-top 2px solid lighten($c1, 10)
 			border-radius 3px
-			// box-shadow 0 0 1px 1px lighten($c1, 10)
 			+mq('bp-made')
 				padding 0
 				border-radius 0
@@ -41,7 +39,7 @@ $band-img-width = 64px
 			transition opacity 250ms
 			pointer-events none
 			clearfix()
-			background-color rgba($c1, 0.8)
+			// background-color rgba($c1, 0.8)
 			padding 2em 0
 			&.is-focus
 				opacity 1
@@ -51,7 +49,8 @@ $band-img-width = 64px
 				opacity 0.2
 				margin-bottom 3em
 				background-color transparent
-
+	iframe 
+		border-radius 3px
 
 .band__img 
 	width $band-img-width
@@ -64,19 +63,20 @@ $band-img-width = 64px
 
 .band__list
 	padding-left $band-img-width * 1.2
-	font-size 0.85em
-	// text-transform uppercase
+	font-size 0.9em
 	li 
 		line-height 1.65
 		
-.list__name
-	font-weight 700
+	.list__name
+		font-weight 700
+		font-size 1.1em
+		line-height 1.25
 
-.list__date, .list__venue
-	font-size 0.9em
+	.list__date, .list__venue
+		font-size 0.8em
 	
 .band__list-others
-	background-color rgba($c1, 0.8)
+	// background-color rgba($c1, 0.8)
 	padding 0.5em
 	border-radius 3px
 	font-size 0.85em
@@ -102,7 +102,7 @@ $band-img-width = 64px
 	transform translate3d(0px,0px,0px)
 	backface-visibility hidden
 	z-index set-index('bottom')
-	background-color $c1
+	// background-color $c1
 	opacity 0
 	transition 300ms opacity ease-in-out
 
@@ -130,7 +130,6 @@ $band-img-width = 64px
 		top 0
 		left 0
 		display block
-		// background #fff
 		margin 0 auto
 	svg 
 		position absolute
@@ -142,7 +141,7 @@ $band-img-width = 64px
 		text-transform uppercase
 		font-size 12px
 		font-weight bold
-		fill lighten($c1, 30)
+		// fill lighten($c1, 30)
 		
 	.small
 		position absolute
@@ -162,7 +161,8 @@ $band-img-width = 64px
 	
 	for i in (0..9)
 		.small-{i}
-			background-image url('assets/small-' + i + '.png')
+			// background-image url('assets/light/small-' + i + '.png')
+			background-image url('assets/dark/small-' + i + '.png')
 			animation-duration random(20000, 35000)ms
 
 	.ring
@@ -170,9 +170,10 @@ $band-img-width = 64px
 		transition opacity 500ms ease-in-out
 		path 
 			fill none
-			stroke lighten($c1, 30)
-			
+			stroke lighten($c1, 60)
+			// stroke lighten($c1, 30)
 			stroke-dasharray 4 4
+
 		&.is-hidden
 			opacity 0
 
@@ -181,20 +182,24 @@ $band-img-width = 64px
 	opacity 0.6
 	display inline-block
 	vertical-align middle
-	// transform translateY(-2px)
-	margin-left 0.5em
-	transition opacity 0.25s
+	margin-left 0.25rem
+	transition opacity 0.5s
+	line-height 1
+	border-radius 4px
+	padding 2px
+	border 2px solid $primary
+	background-color lighten($primary, 30)
 	&:hover 
 		opacity 1
 	
 	svg 
-		fill white
-		height 12px
-		width 15px
+		height 13px
+		width 20px
+		fill $gray-dark
 		
 	&.is-playing
 		svg
-			fill $c2
+			fill darken($primary, 20)
 
 
 @keyframes rotate-circle

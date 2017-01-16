@@ -1,3 +1,12 @@
-<div id='ascent' class='tk-whitney'>
-	<div class='ascent__vis'></div>
+<div id='ascent'>
+	<div class='section__header tk-whitney'>
+		<h2 class='header__hed'>How long it takes to make it</h2>
+	</div>
+
+	<div class='bridge'>
+		{{#each copy.ascent}}
+		<p>{{{value}}}</p>
+		{{/each}}
+	</div>
+	<div class='ascent__vis tk-whitney'></div>
 </div>

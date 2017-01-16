@@ -2,12 +2,17 @@ $search-size = 10px
 $popup-width = 360px
 
 #search
+	background-color $c1
+	color $c2
+	padding-top 3rem
 	position relative
-	margin-bottom 1em
-	transition opacity 500ms
+
+.search__graphic 
+	position relative
 	min-height 320px
-	+mq('bp-made')
-		margin-bottom 11rem
+	margin-bottom 1em
+	// +mq('bp-made')
+	// 	margin-bottom 5rem
 
 .search__vis
 	transform translate3d(0px,0px,0px)
@@ -34,6 +39,9 @@ $popup-width = 360px
 			opacity 1
 			background-color $off-white
 			color $c1
+			&:after 
+				background-color $c1
+				opacity 1
 		&.is-not-venue
 			opacity 0.2
 		&.is-venue
@@ -41,7 +49,7 @@ $popup-width = 360px
 			color white
 			&:after 
 				background-color $c1
-				opacity 0.2
+				opacity 1
 		&:hover
 			opacity 1
 			background-color $off-white
@@ -56,7 +64,7 @@ $popup-width = 360px
 			padding 0 2px
 			color lighten($c1, 20)
 	.alphabet
-		color $c2
+		color $primary
 		font-weight bold
 		text-transform uppercase
 					
@@ -138,15 +146,15 @@ $popup-width = 360px
 			line-height 1.4
 			width 100%
 			&.result-band
-				color $c2
+				color $primary
 				&:hover 
 					color $c1
-					background-color $c2
+					background-color $primary
 			&.result-venue
-				color $c3-light
+				color $secondary
 				&:hover
 					color $c1
-					background-color $c3-light
+					background-color $secondary
 			
 
 	
@@ -177,7 +185,7 @@ $popup-width = 360px
 		width 40%
 		padding-left 10px
 		float left
-		border-left 1px solid $c2
+		border-left 1px solid $primary
 
 .search__popup
 	display none
@@ -203,7 +211,6 @@ $popup-width = 360px
 		// display inline-block
 		// text-align center
 		font-weight bold
-		// border-bottom 2px solid $gray
 		margin-bottom 0.5em
 	.popup__shows
 		font-size 10px
@@ -227,23 +234,6 @@ $popup-width = 360px
 	.tick:nth-child(n+3):nth-child(-n + 5)
 		display none
 
-		
-p.search__instruction
-	text-align center
-	font-weight 700
-	color $c2
-	margin-bottom 0
-	margin-top 4em
-	
-p.down-arrow
-	margin-top 0
-	text-align center
-	font-size 2em
-	font-weight 900
-	color $c2
-	a 
-		cursor pointer
-		text-decoration none
 
 .popup__close
 	position absolute

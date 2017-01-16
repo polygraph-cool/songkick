@@ -8,10 +8,14 @@ const NUM_PATH_POINTS = 64
 const HALF_PP = NUM_PATH_POINTS / 2
 const QUARTER_PP = NUM_PATH_POINTS / 4
 
-const TINT = 0XF2929D
-const TINT2 = 0Xf8bfc6
-// const TINT2 = 0XE1C9C6
-const TINT_SPECIAL = 0XFFFFFF
+// const TINT = 0XF2929D
+// const TINT2 = 0Xf8bfc6
+// const TINT_SPECIAL = 0XFFFFFF
+
+const TINT = 0XCCCCCC
+const TINT2 = 0X2A7A9C
+const TINT_SPECIAL = 0XDA4165
+
 const debugId = '2575'
 
 const MED_ALPHA = 0.5
@@ -441,8 +445,10 @@ const Boid = (opts) => {
 				align: 'center',
 				fontFamily: 'Helvetica',
 				fontSize: '11px',
-				fill: '#efefef',
-				stroke: '#333',
+				// fill: '#efefef',
+				// stroke: '#333',
+				fill: '#333',
+				stroke: '#fff',
 				strokeThickness: 2,
 			}
 		}

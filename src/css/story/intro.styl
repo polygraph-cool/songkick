@@ -1,8 +1,16 @@
 .intro
-	color white
-	padding 5em 0 1.5em
+	// color white
+	padding 3em 0 1.5em
 	+mq('bp-made')
-		padding 3em 0 1.5em
+		padding 1.5em 0 1.5em
+	&__art
+		border 1px solid $off-black
+		// box-shadow 0 0 2px $off-black
+		border-radius 50%
+		// border-radius 3px
+		max-width 60%
+		margin 0 auto
+		margin-bottom 2em
 	&__overline 
 		text-transform uppercase
 		text-align center
@@ -13,14 +21,11 @@
 		font-size 2.25em
 		line-height 1.2
 		text-align center
-		color $c3-light
-		text-shadow -1px -1px 0 #cef, 1px -1px 0 #cef, -1px 1px 0 #cef, 1px 1px 0 #cef
-		letter-spacing 0.04em
 		+mq('bp-made')
 			font-size 2.5em
 	&__dek
 		text-align center
-		color lighten($c3-light, 35)
+		// color lighten($c3-light, 35)
 	&__byline
 		text-align center
 	&__prose 

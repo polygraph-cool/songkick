@@ -2,15 +2,15 @@ fontify($whitney, $whitney-hash, $sans, 300, 0.04em)
 fontify($mercury, $mercury-hash, $serif, 400, 0.04em)
 			
 body
-	background $c1
-	color lighten($c1, 70)
+	background $c2
+	color $c1
 	line-height 1.8
 	font-size 15px
 	overflow-x hidden	
 	+mq('bp-2')
 		font-size 17px
 a 
-	color $c2
+	color $secondary
 p 
 	margin 1.5rem 0
 
@@ -24,7 +24,7 @@ p
 	font-weight 900
 	text-transform uppercase
 	font-size 1.5em
-	color white
+	// color white
 
 .bridge
 	max-width 40rem
@@ -46,17 +46,23 @@ p
 
 .heavy
 	font-weight 700
+
 .opener 
-	color $c3-light
+	color $secondary
 	font-weight 700
+
 .headliner 
-	color $c2
+	color $primary
 	font-weight 700
 	
 .hi-white
 	font-weight 700
-	color white
+	color $primary
 
-.hi-pink
+.hi-primary
 	font-weight 700
-	color $c2
+	color $primary
+
+.hi-secondary
+	font-weight 700
+	color $secondary
