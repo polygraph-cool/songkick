@@ -4,7 +4,7 @@ import vec2 from 'gl-matrix-vec2'
 
 const PI = Math.PI
 const TWO_PI = Math.PI * 2
-const NUM_PATH_POINTS = 64
+const NUM_PATH_POINTS = 48
 const HALF_PP = NUM_PATH_POINTS / 2
 const QUARTER_PP = NUM_PATH_POINTS / 4
 
@@ -12,7 +12,7 @@ const QUARTER_PP = NUM_PATH_POINTS / 4
 // const TINT2 = 0Xf8bfc6
 // const TINT_SPECIAL = 0XFFFFFF
 
-const TINT = 0XCCCCCC
+const TINT = 0XBCBCBC
 const TINT2 = 0X2A7A9C
 const TINT_SPECIAL = 0XDA4165
 
@@ -113,7 +113,7 @@ const Boid = (opts) => {
 
 	const setMaxspeed = (size) => {
 		// maxspeed = mode !== 'default' ? 10 : inc * 100 * (Math.log(size) / 2 + 1)
-		maxspeed = mode !== 'default' ? 5 : maxspeedOrig
+		maxspeed = mode !== 'default' ? 3 : maxspeedOrig
 		maxforce = maxspeed * 0.1
 	}
 		
