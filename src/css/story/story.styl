@@ -10,7 +10,12 @@ body
 	+mq('bp-2')
 		font-size 16px
 a 
-	color $secondary-light
+	text-decoration none
+	color $c2
+	border-bottom 2px solid currentColor
+	transition 150ms color ease-in-out
+	&:hover
+		color lighten($c1, 55)
 p 
 	margin 1.5rem 0
 
