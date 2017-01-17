@@ -14,8 +14,8 @@ function init() {
 		const madeIt = data[3]
 
 		made.init({ venues, bands: clonedeep(bands) }, () => {
-			search.init({ venues, bands: clonedeep(bands) })
 			ascent.init({ venues, history, made: madeIt })
+			search.init({ venues, bands: clonedeep(bands) })
 		})
 		
 		
