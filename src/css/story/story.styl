@@ -2,15 +2,15 @@ fontify($whitney, $whitney-hash, $sans, 300, 0.04em)
 fontify($mercury, $mercury-hash, $serif, 400, 0.04em)
 			
 body
-	background $c2
-	color $c1
-	line-height 1.8
+	background $c1
+	color $c2
+	line-height 1.7
 	font-size 15px
 	overflow-x hidden	
 	+mq('bp-2')
-		font-size 17px
+		font-size 16px
 a 
-	color $secondary
+	color lighten($secondary, 15)
 p 
 	margin 1.5rem 0
 
@@ -66,3 +66,6 @@ p
 .hi-secondary
 	font-weight 700
 	color $secondary
+
+.weight-500
+	font-weight 500

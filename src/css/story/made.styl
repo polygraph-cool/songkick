@@ -20,7 +20,7 @@ $band-img-width = 64px
 		margin 0 auto
 		p 
 			margin 1.5rem 0
-			background-color rgba($c2, 0.8)
+			background-color rgba($c1, 0.8)
 			padding 0.5em
 			border-radius 3px
 			+mq('bp-made')
@@ -39,7 +39,7 @@ $band-img-width = 64px
 			transition opacity 250ms
 			pointer-events none
 			clearfix()
-			background-color rgba($c2, 0.8)
+			background-color rgba($c1, 0.8)
 			padding 2em 0
 			&.is-focus
 				opacity 1
@@ -76,7 +76,7 @@ $band-img-width = 64px
 		font-size 0.8em
 	
 .band__list-others
-	background-color rgba($c2, 0.8)
+	background-color rgba($c1, 0.8)
 	padding 0.5em
 	border-radius 3px
 	font-size 0.85em
@@ -137,11 +137,11 @@ $band-img-width = 64px
 		left 0
 		display block
 		margin 0 auto
-		font-family Helvetica
+		// font-family Helvetica
 		text-transform uppercase
 		font-size 12px
 		font-weight bold
-		// fill lighten($c1, 30)
+		fill lighten($c1, 40)
 		
 	.small
 		position absolute
@@ -161,8 +161,8 @@ $band-img-width = 64px
 	
 	for i in (0..9)
 		.small-{i}
-			// background-image url('assets/light/small-' + i + '.png')
-			background-image url('assets/dark/small-' + i + '.png')
+			background-image url('assets/light/small-' + i + '.png')
+			// background-image url('assets/dark/small-' + i + '.png')
 			animation-duration random(20000, 35000)ms
 
 	.ring

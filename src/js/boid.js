@@ -445,10 +445,10 @@ const Boid = (opts) => {
 				align: 'center',
 				fontFamily: 'Helvetica',
 				fontSize: '11px',
-				// fill: '#efefef',
-				// stroke: '#333',
-				fill: '#333',
-				stroke: '#fff',
+				fill: '#efefef',
+				stroke: '#333',
+				// fill: '#333',
+				// stroke: '#fff',
 				strokeThickness: 2,
 			}
 		}
