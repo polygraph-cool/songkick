@@ -55,6 +55,7 @@ let bigBandIds = []
 let notSmallList = []
 let smalls
 let otherContainer
+let labelContainer
 let rightOffset
 let mobile
 
@@ -154,7 +155,9 @@ function setupDOM() {
 	// smalls.forEach(d => stage.addChild(d.container))
 	
 	otherContainer = new PIXI.Container()
+	labelContainer = new PIXI.Container()
 	stage.addChild(otherContainer)
+	stage.addChild(labelContainer)
 		
 	setAlpha(1, 0.5)
 }
@@ -178,6 +181,7 @@ function mobileHeightHack() {
 
 function setAlpha(otherVal, smallVal) {
 	otherContainer.alpha = otherVal
+	labelContainer.alpha = otherVal
 	// smalls.forEach(d => {
 	// 	d.container.alpha = smallVal
 	// })
@@ -217,12 +221,14 @@ function setupImages() {
 function setupBigBoids() {
 	bands.filter(d => d.tier > 0).forEach((d, i) => {
 		const container = new PIXI.Container()
+		const textContainer = new PIXI.Container()
 		const sprite = new PIXI.Sprite(texture)
 
 		let text
 		if (d.tier === 2) {
 			text = new PIXI.Text(d.name)
-			container.addChild(text)
+			textContainer.addChild(text)
+			labelContainer.addChild(textContainer)
 		}
 
 		container.addChild(sprite)
@@ -234,6 +240,7 @@ function setupBigBoids() {
 		boidsBig.push(Boid({
 			data: d,
 			container,
+			textContainer,
 			containerIndex,
 			sprite,
 			text,

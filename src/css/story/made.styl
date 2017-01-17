@@ -170,9 +170,8 @@ $band-img-width = 64px
 		transition opacity 500ms ease-in-out
 		path 
 			fill none
-			stroke lighten($c1, 60)
-			// stroke lighten($c1, 30)
-			stroke-dasharray 4 4
+			stroke lighten($c1, 30)
+			stroke-dasharray 5 5
 
 		&.is-hidden
 			opacity 0
@@ -198,8 +197,10 @@ $band-img-width = 64px
 		fill $gray-dark
 		
 	&.is-playing
+		opacity 1
+		background-color darken($primary, 20)
 		svg
-			fill darken($primary, 20)
+			fill lighten($primary, 20)
 
 
 @keyframes rotate-circle

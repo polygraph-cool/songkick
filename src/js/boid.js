@@ -59,6 +59,7 @@ const Boid = (opts) => {
 	
 	let sprite
 	let container
+	let textContainer
 	let text
 	let data
 
@@ -322,6 +323,7 @@ const Boid = (opts) => {
 			vec2.set(accelerationVec, 0, 0)
 
 			container.position.set(locationVec[0], locationVec[1])
+			textContainer.position.set(locationVec[0], locationVec[1])
 		}
 	}
 	
@@ -426,6 +428,7 @@ const Boid = (opts) => {
 
 	const init = () => {
 		container = opts.container
+		textContainer = opts.textContainer
 		sprite = opts.sprite
 		text = opts.text
 		data = opts.data
