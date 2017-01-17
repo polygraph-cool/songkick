@@ -5,12 +5,12 @@ loadCSS('https://cloud.typography.com/7124072/6455372/css/fonts.css')
 
 // comment out fonts you wont be using
 const whitney = [
-	// {
-	// 	family: 'Whitney',
-	// 	weight: 400,
-	// 	style: 'normal',
-	// 	parts: ['Whitney SSm A', 'Whitney SSm B'],
-	// },
+	{
+		family: 'Whitney',
+		weight: 400,
+		style: 'normal',
+		parts: ['Whitney SSm A', 'Whitney SSm B'],
+	},
 	{
 		family: 'Whitney',
 		weight: 500,
