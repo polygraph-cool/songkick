@@ -1,7 +1,7 @@
 import loadCSS from './utils/load-css'
 import { loadFontGroup } from './utils/load-font'
 
-loadCSS('https://cloud.typography.com/7124072/6455372/css/fonts.css')
+// loadCSS('https://cloud.typography.com/7124072/6455372/css/fonts.css')
 
 // comment out fonts you wont be using
 const whitney = [
