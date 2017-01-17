@@ -6,13 +6,13 @@ $popup-width = 360px
 	color $c2
 	padding-top 3rem
 	position relative
+	padding-bottom 1em
+	+mq('bp-made')
+		padding-bottom 13rem
 
 .search__graphic 
 	position relative
 	min-height 320px
-	margin-bottom 1em
-	// +mq('bp-made')
-	// 	margin-bottom 5rem
 
 .search__vis
 	transform translate3d(0px,0px,0px)
@@ -25,6 +25,7 @@ $popup-width = 360px
 	position relative
 	padding-top 84px
 	pointer-events auto
+	// font-family Helvetica
 	&.is-disabled
 		pointer-events none
 	.band
@@ -35,6 +36,7 @@ $popup-width = 360px
 		display inline-block
 		float left
 		opacity 1
+		// padding 0 0.1rem
 		&.is-selected 
 			opacity 1
 			background-color $off-white
@@ -62,11 +64,19 @@ $popup-width = 360px
 			content '\2022'
 			display inline-block
 			padding 0 2px
-			color lighten($c1, 20)
+			color lighten($c1, 10)
 	.alphabet
+		display block
+		clear both
 		color $primary
 		font-weight bold
 		text-transform uppercase
+		&.is-venue
+			opacity 1
+			color $primary
+			&:after 
+				background-color $c1
+				opacity 0.2
 					
 .search__find
 	opacity 1
@@ -255,7 +265,7 @@ $popup-width = 360px
 	bottom 1em
 	right 1em
 	z-index set-index('overlay')
-	background-color white
+	background-color lighten($secondary, 10)
 	color $c1
 	border-radius 3px
 	box-shadow 0 0 3px $c1

@@ -25,6 +25,7 @@ function init() {
 function resize() {
 	made.resize()
 	ascent.resize()
+	search.resize()
 }
 
 export default { init, resize }

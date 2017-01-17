@@ -7,6 +7,7 @@ let venues
 let venuesWhitelist
 let bands
 let bandSel
+let scene
 
 const blacklist = ['6','19','27','64','75','88','119','180','190','197','228','238','241','242','251','254','255','256','262','265','266','269','278','282','284','286','287','292','293','294','295','303','304','306','310','315','316','317','326','346','347','351','356','358','362','363','366','367','368','369','370','372','376','377','378','379','382','383','384','385','388','391','393','394','395','396','397','398','399','400','401','402','403','405','406','407','408','411','412','413','414','415','417','418','419','420','421','422','423','425','426','427','428','429','431','432','433','434','435','436','437','438','439','440','441','442','443','444','445','446']
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('').reverse()
@@ -305,7 +306,9 @@ function filterVenues(d) {
 	const { venue, capacity, id } = d
 	bandSel
 		.classed('is-not-venue', true)
-		.classed('is-venue', b => b.shows.find(s => s.venue === id))
+		.classed('is-venue', b => {
+			return b.shows ? b.shows.find(s => s.venue === id) : true
+		})
 
 	const formatted = capacity ? formatCapacity(capacity) : 'N/A'
 	venueNameEl.text(venue)
@@ -416,7 +419,7 @@ function setupScroll() {
 		
 		const controller = new ScrollMagic.Controller()
 		
-		const scene = new ScrollMagic.Scene({
+		scene = new ScrollMagic.Scene({
 			triggerElement: '.search__graphic',
 			triggerHook: 0,
 			duration: visHeight - window.innerHeight / 2,
@@ -431,6 +434,24 @@ function setupScroll() {
 				findEl.classed('is-fixed', false)
 			})
 			.addTo(controller)
+
+		// poll for font loaded a few times...to adjust height
+		let attempts = 0
+		let maxAttempts = 10
+		const checkFont = () => {
+			const fontLoaded = d3.select('html').classed('loaded-whitney')
+			if (fontLoaded) {
+				const visHeightNew = visEl.node().offsetHeight
+				containerEl.style('height', `${visHeightNew}px`)
+				scene.duration(visHeightNew)
+				scene.refresh()
+			} else {
+				attempts++
+				if (attempts < maxAttempts) setTimeout(checkFont, 100)
+			}
+		}
+
+		checkFont()
 	}
 	
 }
@@ -452,6 +473,13 @@ function setupEvents() {
 	findInputEl.on('keyup', handleSearch)
 	popupFindEl.on('click', handleClosePopup)
 	venueEl.on('click', handleCloseVenue)
+}
+
+function resize() {
+	const visHeightNew = visEl.node().offsetHeight
+	containerEl.style('height', `${visHeightNew}px`)
+	scene.duration(visHeightNew)
+	scene.refresh()
 }
 
 function init(data) {
@@ -481,5 +509,5 @@ function init(data) {
 	// console.log(csvOut)
 }
 
-export default { init }
+export default { init, resize }
 
