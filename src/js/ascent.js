@@ -150,6 +150,10 @@ function handleMouse(d, i) {
 }
 
 function setupChart() {
+	// first time hack
+	const outerWidth = d3.select('body').node().offsetWidth
+	mobile = outerWidth < BREAKPOINT
+	
 	const daysMax = d3.max(history, d => d.days_until_big)
 	const yearsMax = d3.max(history, d => d.years_until_big)
 
@@ -265,9 +269,6 @@ function setupChart() {
 	currentHoverEl = chart.select('.show__made')
 	currentHoverEl.classed('is-visible', true)
 
-	// first time hack
-	const outerWidth = d3.select('body').node().offsetWidth
-	mobile = outerWidth < BREAKPOINT
 	if (!mobile) chart.select('.band__show').classed('is-visible', true)
 }
 
