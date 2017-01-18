@@ -257,7 +257,7 @@ function handleSearch() {
 			.slice(0, 3)
 
 		let results
-		if (!mobile && !mobileDevice) results = bandResults.concat(venueResults)
+		if (!mobile) results = bandResults.concat(venueResults)
 		else results = bandResults
 		
 		if (!results.length) results.push({ name: 'No matches', empty: true })
@@ -292,7 +292,7 @@ function handleResult(d, i) {
 		prevSelected = visEl.select(id)
 		prevSelected.classed('is-selected', true)
 
-		if (!mobile && !mobileDevice) scrollTo(id)	
+		if (!mobile) scrollTo(id)	
 	} else {
 		handleClosePopup()
 		filterVenues(d)
@@ -345,7 +345,7 @@ function setupChart() {
 	chartWidth = ((POPUP_WIDTH - POPUP_MARGIN - 10) * 0.6) - MARGIN.left - MARGIN.right
 	chartHeight = MAX_RADIUS * 2 - MARGIN.top
 
-	if (!mobile && !mobileDevice) {
+	if (!mobile) {
 		bandSel = visEl.selectAll('.band')
 			.data(bands)
 
@@ -412,7 +412,7 @@ function setupPopupFindVis() {
 }
 
 function setupScroll() {
-	if (!mobile && !mobileDevice) {
+	if (!mobile) {
 		const visHeight = visEl.node().offsetHeight
 	
 		containerEl.style('height', `${visHeight}px`)
@@ -477,6 +477,8 @@ function setupEvents() {
 }
 
 function resize() {
+	const outerWidth = d3.select('body').node().offsetWidth
+	mobile = outerWidth < BREAKPOINT || mobileDevice
 	const visHeightNew = visEl.node().offsetHeight
 	containerEl.style('height', `${visHeightNew}px`)
 	scene.duration(visHeightNew)
@@ -488,7 +490,7 @@ function init(data) {
 	venuesWhitelist = venues.filter(v => blacklist.indexOf(v.id) === -1)
 	bands = data.bands
 	const outerWidth = d3.select('body').node().offsetWidth
-	mobile = outerWidth < BREAKPOINT
+	mobile = outerWidth < BREAKPOINT || mobileDevice
 
 	addAlphabet()	
 	setupChart()
