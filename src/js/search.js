@@ -462,11 +462,12 @@ function handleClosePopup() {
 }
 
 function handleCloseVenue() {
-	venueEl.classed('is-visible', false)
-	bandSel
-		.classed('is-venue', false)
-		.classed('is-not-venue', false)
-
+	if (!mobile) {
+		venueEl.classed('is-visible', false)
+		bandSel
+			.classed('is-venue', false)
+			.classed('is-not-venue', false)
+	}
 }
 
 function setupEvents() {
