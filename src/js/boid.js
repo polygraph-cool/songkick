@@ -317,13 +317,12 @@ const Boid = (opts) => {
 		
 		if (!stable) {
 			vec2.add(velocityVec, velocityVec, accelerationVec)
-			// vec2.limit(velocityVec, velocityVec, maxspeed)
 			vec2.add(locationVec, locationVec, velocityVec)
 
 			vec2.set(accelerationVec, 0, 0)
 
 			container.position.set(locationVec[0], locationVec[1])
-			textContainer.position.set(locationVec[0], locationVec[1])
+			if (isBig) textContainer.position.set(locationVec[0], locationVec[1])
 		}
 	}
 	
@@ -418,7 +417,7 @@ const Boid = (opts) => {
 		chartSize = newSize
 		minSize = chartSize < 480 ? 1 : 2
 	  	minSize = isSpecial ? minSize * 2 : minSize
-	  	sizeMedium = mobile ? 4 : 6
+	  	sizeMedium = 4
 	  	sizeBig = isBig ? ringData[2].factor * chartSize : null
 	  	maxspeedOrig = Math.random() * (mobile ? 0.15 : 0.3) + 0.4
 	  	createPaths()
