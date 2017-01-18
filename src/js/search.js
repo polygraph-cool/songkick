@@ -481,8 +481,10 @@ function resize() {
 	mobile = outerWidth < BREAKPOINT || mobileDevice
 	const visHeightNew = visEl.node().offsetHeight
 	containerEl.style('height', `${visHeightNew}px`)
-	scene.duration(visHeightNew)
-	scene.refresh()
+	if (scene) {
+		scene.duration(visHeightNew)
+		scene.refresh()
+	}
 }
 
 function init(data) {
