@@ -49,6 +49,15 @@ $band-img-width = 64px
 				opacity 0.2
 				margin-bottom 3em
 				background-color transparent
+		&.remainder
+			margin-top 6rem
+			opacity 0.1
+			transition opacity 250ms
+			&.is-focus
+				opacity 1
+			+mq('bp-made')
+				margin-top 0
+				opacity 1
 	iframe 
 		border-radius 3px
 

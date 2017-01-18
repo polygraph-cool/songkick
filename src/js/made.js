@@ -38,7 +38,8 @@ const madeProseEl = d3.select('.made__prose')
 const madeVisEl = d3.select('.made__vis')
 const chartEl = d3.select('.made__chart') 
 const bandTriggerEl = d3.selectAll('.trigger.band') 
-const smallEl = d3.selectAll('.small')
+const smallEl = d3.selectAll('.made__chart .small')
+const remainderEl =  d3.select('.trigger.remainder')
 const annotationEl = d3.select('.made__annotation')
 
 const INTRO_GRAFS = madeProseEl.selectAll('.lead').size()
@@ -349,8 +350,12 @@ function setupScroll() {
 		const el = this
 		const sel = d3.select(this)
 		let triggerHook = 0.5
-		if (mobile && sel.classed('band')) triggerHook = 0.05
-		
+		if (mobile) {
+			if (sel.classed('band')) triggerHook = 0.05
+			else if (sel.classed('small')) triggerHook = 0.25
+			else if (sel.classed('remainder')) triggerHook = 0.05
+		}
+
 		const scene = new ScrollMagic.Scene({
 			triggerElement: el,
 			duration: el.offsetHeight,
@@ -405,9 +410,10 @@ function updateScene() {
 	// pause audio
 	if (currentSceneId !== 'band') Audio.pause()
 
-
+	// console.log({currentSceneId})
 	// special case
 	if (currentSceneId === 'band') {
+		remainderEl.classed('is-focus', false)
 		Audio.play(currentBandEl.select('.btn__audio').node())
 
 		const foundIndex = bigBandIds.findIndex(d => d === currentSceneBand)
@@ -436,10 +442,12 @@ function updateScene() {
 			}
 		}
 	} else if (currentSceneId === 'remainder') {
+		remainderEl.classed('is-focus', true)
 		for (let d in bigBandIndexes) {
 			const index = bigBandIndexes[d]
 			boidsBig[index].enterBig()
 		}
+
 	} else if (currentSceneId === 'big') {
 		bigBandIds = []
 	} else if (currentSceneId === 'medium') {
