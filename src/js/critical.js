@@ -11,12 +11,12 @@ const whitney = [
 		style: 'normal',
 		parts: ['Whitney SSm A', 'Whitney SSm B'],
 	},
-	{
-		family: 'Whitney',
-		weight: 500,
-		style: 'normal',
-		parts: ['Whitney SSm A', 'Whitney SSm B'],
-	},
+	// {
+	// 	family: 'Whitney',
+	// 	weight: 500,
+	// 	style: 'normal',
+	// 	parts: ['Whitney SSm A', 'Whitney SSm B'],
+	// },
 	{
 		family: 'Whitney',
 		weight: 700,

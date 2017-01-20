@@ -13,18 +13,29 @@
 		text-align center
 		padding 0
 		margin 0
+		font-size 0.9rem
+		letter-spacing 0.05em
+		// -webkit-font-smoothing antialiased
+		// -moz-osx-font-smoothing grayscale
+		padding-bottom 1rem
 	&__hed
 		text-transform uppercase
-		font-size 2.25em
+		font-size 3em
 		line-height 1.2
 		text-align center
 		+mq('bp-made')
-			font-size 2.5em
+			font-size 4em
 	&__dek
 		text-align center
-		// color lighten($c3-light, 35)
+		-webkit-font-smoothing antialiased
+		-moz-osx-font-smoothing grayscale
+		font-size 1.1em
 	&__byline
 		text-align center
+		font-size 0.9rem
+		color $gray-light
+		a
+			color currentColor
 	&__prose 
 		margin 0 auto
 		max-width $text-width

@@ -1,4 +1,4 @@
-$logo-size = 36px
+$logo-size = 42px
 
 header 
 	position absolute
@@ -6,10 +6,6 @@ header
 	left 1em
 	text-align center
 	z-index set-index('overlay')
-	+mq('bp-made')
-		left auto
-		right 1em	
-		text-align right
 	a.logo
 		clearfix()
 		border-bottom none
@@ -23,16 +19,9 @@ header
 			line-height 1
 			margin 0
 			padding 0
-			line-height 18px
+			line-height $logo-size
 			font-size 14px
 			margin-left 14px
-			vertical-align baseline
-			// line-height $logo-size
-			// margin 0
-			// padding 0 2px
-			// font-size 10px
-			// font-weight 500
-			// color darken($gray, 10)
 		.logo__svg 
 			width $logo-size
 			height $logo-size
