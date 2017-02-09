@@ -221,6 +221,7 @@ function setupImages() {
 
 function setupBigBoids() {
 	bands.filter(d => d.tier > 0).forEach((d, i) => {
+		if (d.name === 'Torres') d.tier = 1
 		const container = new PIXI.Container()
 		const textContainer = new PIXI.Container()
 		const sprite = new PIXI.Sprite(texture)
