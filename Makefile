@@ -1,4 +1,7 @@
 # requires gac
+archive:
+	zip -r archive.zip dist/dev
+
 live:
 	rm -rf docs
 	cp -r dist/prod/ docs
